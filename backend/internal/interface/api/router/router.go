@@ -33,6 +33,9 @@ func CreateRouter() *gin.Engine {
 
 	app.GET("/posts", ph.GetAll)
 	app.GET("posts/:id", ph.GetByID)
+	apiRoute := app.Group("/api")
+
+	apiRoute.GET("/posts", ph.GetAll)
 
 	return app
 }
