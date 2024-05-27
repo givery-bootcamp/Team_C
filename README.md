@@ -84,15 +84,25 @@ host$ npm install
 
 ### Backend
 ```
-backend/
-  internal/ : ソースコード
-    config/ : 設定類
-    entities/ : モデル/エンティティ
-    external/ : 外部環境との接続定義
-    interfaces/ : インターフェース
-    middleware/ : ginのmiddleware
-    repositories/ : リポジトリ - systemに近い部分の実装
-    usecases/ : ユースケース - ビジネスに近い部分の実装
+.
+├── internal
+│   ├── application
+│   │   └── usecase ビジネスロジック
+│   ├── config 設定
+│   ├── domain
+│   │   ├── model ドメインモデル
+│   │   └── repository repositoryのインターフェース
+│   ├── exception アプリ内エラー
+│   ├── infrastructure
+│   │   └── persistence
+│   │       └── datastore
+│   │           ├── driver DB接続周りのドライバー
+│   │           └── entity DBスキーマ
+│   └── interface
+│       └── api
+│           ├── handler ハンドラー
+│           ├── middleware API接続部分のミドルウェア
+│           └── router ルーティング定義
 ```
 
 ### Frontend
