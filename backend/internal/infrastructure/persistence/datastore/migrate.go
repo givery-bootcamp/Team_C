@@ -31,5 +31,9 @@ func createDSN() string {
 	return fmt.Sprintf("mysql://%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbuser, host, port, dbname)
 }
 func (m *MySQLMigrator) Migrate() error {
-	return m.client.Up()
+	err := m.client.Up()
+	if err != migrate.ErrNoChange {
+		return err
+	}
+	return nil
 }
