@@ -31,11 +31,10 @@ func CreateRouter() *gin.Engine {
 	})
 	app.GET("/hello", hh.HelloWorld)
 
-	app.GET("/posts", ph.GetAll)
-	app.GET("posts/:id", ph.GetByID)
 	apiRoute := app.Group("/api")
 
 	apiRoute.GET("/posts", ph.GetAll)
+	apiRoute.GET("posts/:id", ph.GetByID)
 
 	return app
 }
