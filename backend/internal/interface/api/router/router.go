@@ -1,7 +1,7 @@
 package router
 
 import (
-	"myapp/internal/applocation/usecase"
+	"myapp/internal/application/usecase"
 	"myapp/internal/infrastructure/persistence/datastore"
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/interface/api/handler"
@@ -18,15 +18,20 @@ func CreateRouter() *gin.Engine {
 	db := driver.NewDB()
 
 	hr := datastore.NewHelloWorldRepository(db)
+	pr := datastore.NewPostRepository(db)
 
 	hu := usecase.NewHelloWorldUsecase(hr)
+	pu := usecase.NewPostUsecase(pr)
 
 	hh := handler.NewHelloWorldHandler(hu)
+	ph := handler.NewPostHandler(pu)
 
 	app.GET("/", func(ctx *gin.Context) {
 		ctx.String(200, "It works")
 	})
 	app.GET("/hello", hh.HelloWorld)
+
+	app.GET("/posts", ph.GetAll)
 
 	return app
 }
