@@ -86,7 +86,7 @@ host$ npm install
 ```
 .
 ├── internal
-│   ├── applocation
+│   ├── application
 │   │   └── usecase ビジネスロジック
 │   ├── config 設定
 │   ├── domain
