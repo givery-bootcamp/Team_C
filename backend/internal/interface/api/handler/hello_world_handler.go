@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"myapp/internal/applocation/usecase"
+	"myapp/internal/application/usecase"
 
 	"github.com/gin-gonic/gin"
 )

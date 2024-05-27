@@ -1,7 +1,7 @@
 package router
 
 import (
-	"myapp/internal/applocation/usecase"
+	"myapp/internal/application/usecase"
 	"myapp/internal/infrastructure/persistence/datastore"
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/interface/api/handler"
