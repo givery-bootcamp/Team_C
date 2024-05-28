@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"fmt"
+	"myapp/internal/exception"
 	"os"
 	"time"
 
@@ -10,6 +11,9 @@ import (
 
 func GenerateToken(userId int) (string, error) {
 	secretKey := os.Getenv("JWT_KEY")
+	if secretKey == "" {
+		return "", exception.ServerError
+	}
 
 	claims := jwt.MapClaims{
 		"user_id": userId,
