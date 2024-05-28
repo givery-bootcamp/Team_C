@@ -9,6 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+  defaultLimit = 20
+  maxLimit     = 1000
+)
+
 type PostHandler struct {
 	u usecase.PostUsecase
 }
@@ -25,6 +30,12 @@ func (h *PostHandler) GetAll(ctx *gin.Context) {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
+  if limit == 0 {
+    limit = defaultLimit
+  } else if limit > maxLimit {
+    limit = maxLimit
+  }
+
   offset, err := strconv.Atoi(ctx.Query("offset"))
   if err != nil {
 		ctx.Error(exception.InvalidRequestError)
