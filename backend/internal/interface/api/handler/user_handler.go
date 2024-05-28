@@ -37,6 +37,16 @@ func (h *UserHandler) Signin(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
+func (h *UserHandler) Signout(ctx *gin.Context) {
+	err := middleware.DeleteCookie(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{})
+}
+
 func (h *UserHandler) GetByIDFromContext(ctx *gin.Context) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {

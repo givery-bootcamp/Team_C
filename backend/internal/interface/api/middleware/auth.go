@@ -52,3 +52,13 @@ func SetJWTCookie(ctx *gin.Context, userID int) error {
 
 	return nil
 }
+
+func DeleteCookie(ctx *gin.Context) error {
+	c, err := ctx.Cookie(config.JWTCookieKeyName)
+	if err != nil {
+		return err
+	}
+
+	ctx.SetCookie(config.JWTCookieKeyName, c, -1, "/", ctx.Request.Host, false, true)
+	return nil
+}

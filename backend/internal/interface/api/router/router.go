@@ -43,6 +43,7 @@ func CreateRouter() *gin.Engine {
 		}
 
 		apiRoute.POST("/signin", uh.Signin)
+		apiRoute.POST("/signout", uh.Signout)
 
 		userRoute := apiRoute.Group("/users")
 		userRoute.Use(middleware.CheckToken())
