@@ -5,21 +5,14 @@ import (
 	"myapp/internal/config"
 )
 
-const DSNSuffix = "?charset=utf8mb4&parseTime=True&loc=Local"
+var dsn = fmt.Sprintf("%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.DBUser, config.DBHostName, config.DBPort, config.DBName)
+
+const dsnPrefixForGomigrate = "mysql://"
 
 func createDSNForGoMigrate() string {
-	host := config.DBHostName
-	port := config.DBPort
-	dbname := config.DBName
-	dbuser := config.DBUser
-	return fmt.Sprintf("mysql://%s@tcp(%s:%d)/%s%s", dbuser, host, port, dbname, DSNSuffix)
+	return fmt.Sprintf("%s%s", dsnPrefixForGomigrate, dsn)
 }
 
 func createDSNForGorm() string {
-	host := config.DBHostName
-	port := config.DBPort
-	dbname := config.DBName
-	dbuser := config.DBUser
-
-	return fmt.Sprintf("%s@tcp(%s:%d)/%s%s", dbuser, host, port, dbname, DSNSuffix)
+	return dsn
 }
