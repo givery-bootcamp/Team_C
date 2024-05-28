@@ -5,7 +5,6 @@ import (
 	"myapp/internal/domain/model"
 	"myapp/internal/exception"
 	"myapp/internal/interface/api/middleware"
-	"myapp/internal/pkg/jwt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,11 +33,6 @@ func (h *UserHandler) Signin(ctx *gin.Context) {
 		return
 	}
 
-	token, err := jwt.GenerateToken(res.ID)
-	if err != nil {
-		ctx.Error(err)
-		return
-	}
-	middleware.SetCookie(ctx, token)
+	middleware.SetCookie(ctx, res.ID)
 	ctx.JSON(http.StatusOK, res)
 }
