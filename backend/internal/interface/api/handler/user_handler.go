@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"myapp/internal/application/usecase"
 	"myapp/internal/domain/model"
 	"myapp/internal/exception"
@@ -42,13 +41,11 @@ func (h *UserHandler) GetByIDFromContext(ctx *gin.Context) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		ctx.Error(err)
-		log.Println("1")
 		return
 	}
 
 	res, err := h.u.GetByID(ctx, userID)
 	if err != nil {
-		log.Println("2")
 		ctx.Error(err)
 		return
 	}
