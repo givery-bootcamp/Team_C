@@ -20,7 +20,17 @@ func NewPostHandler(u usecase.PostUsecase) PostHandler {
 }
 
 func (h *PostHandler) GetAll(ctx *gin.Context) {
-	res, err := h.u.GetAll(ctx)
+  limit, err := strconv.Atoi(ctx.Query("limit"))
+  if err != nil {
+		ctx.Error(exception.InvalidRequestError)
+		return
+	}
+  offset, err := strconv.Atoi(ctx.Query("offset"))
+  if err != nil {
+		ctx.Error(exception.InvalidRequestError)
+		return
+	}
+	res, err := h.u.GetAll(ctx, limit, offset)
 	if err != nil {
 		ctx.Error(err)
 		return

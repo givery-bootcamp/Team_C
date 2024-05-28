@@ -18,11 +18,11 @@ func NewPostRepository(db driver.DB) repository.PostRepository {
 	}
 }
 
-func (r *PostRepository) GetAll(ctx context.Context) ([]*model.Post, error) {
+func (r *PostRepository) GetAll(ctx context.Context, limit int, offset int) ([]*model.Post, error) {
 	posts := []*entity.Post{}
 
 	conn := r.db.GetDB(ctx)
-	if err := conn.Preload("User").Find(&posts).Error; err != nil {
+	if err := conn.Preload("User").Limit(limit).Offset(offset).Find(&posts).Error; err != nil {
 		return nil, err
 	}
 	return entity.ToPostModelListFromEntity(posts), nil
