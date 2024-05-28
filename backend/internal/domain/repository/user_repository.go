@@ -6,5 +6,5 @@ import (
 )
 
 type UserRepository interface {
-	Signin(ctx context.Context, param model.UserSigninParam) (*model.User, error)
+	GetBySigninParam(ctx context.Context, param model.UserSigninParam) (*model.User, error)
 }
