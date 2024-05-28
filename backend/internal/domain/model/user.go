@@ -10,3 +10,8 @@ type User struct {
 	UpdatedAt time.Time  `json:"-"`
 	DeletedAt *time.Time `json:"-"`
 }
+
+type UserSigninParam struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}

@@ -12,6 +12,8 @@ var DBHostName = "db"
 var DBUser = "root"
 var DBPort = 3306
 var DBName = "training"
+var JWTCookieKeyName = "Authorize"
+var GinSigninUserKey = "userID"
 
 func init() {
 	if v := os.Getenv("HOSTNAME"); v != "" {

@@ -19,12 +19,15 @@ func CreateRouter() *gin.Engine {
 
 	hr := datastore.NewHelloWorldRepository(db)
 	pr := datastore.NewPostRepository(db)
+	ur := datastore.NewUserRepository(db)
 
 	hu := usecase.NewHelloWorldUsecase(hr)
 	pu := usecase.NewPostUsecase(pr)
+	uu := usecase.NewUserUsecase(ur)
 
 	hh := handler.NewHelloWorldHandler(hu)
 	ph := handler.NewPostHandler(pu)
+	uh := handler.NewUserHandler(uu)
 
 	app.GET("/", func(ctx *gin.Context) {
 		ctx.String(200, "It works")
@@ -32,10 +35,22 @@ func CreateRouter() *gin.Engine {
 	app.GET("/hello", hh.HelloWorld)
 
 	apiRoute := app.Group("/api")
+	{
+		postRoute := apiRoute.Group("/posts")
+		{
+			postRoute.GET("/", ph.GetAll)
+			postRoute.GET("/:id", ph.GetByID)
+			apiRoute.POST("/", ph.Create)
+		}
 
-	apiRoute.GET("/posts", ph.GetAll)
-	apiRoute.GET("/posts/:id", ph.GetByID)
-	apiRoute.POST("/posts", ph.Create)
+		apiRoute.POST("/signin", uh.Signin)
+
+		userRoute := apiRoute.Group("/users")
+		userRoute.Use(middleware.CheckToken())
+		{
+			userRoute.GET("/", uh.GetByIDFromContext)
+		}
+	}
 
 	return app
 }
