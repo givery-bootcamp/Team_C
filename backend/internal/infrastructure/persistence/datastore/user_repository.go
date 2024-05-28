@@ -38,3 +38,17 @@ func (r *UserRepository) Signin(ctx context.Context, param model.UserSigninParam
 
 	return user.ToModel(), nil
 }
+
+func (r *UserRepository) GetByID(ctx context.Context, id int) (*model.User, error) {
+	var user entity.User
+	conn := r.db.GetDB(ctx)
+
+	if err := conn.Where("id = ?", id).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return user.ToModel(), nil
+}
