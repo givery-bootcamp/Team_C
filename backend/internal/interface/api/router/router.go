@@ -39,8 +39,8 @@ func CreateRouter() *gin.Engine {
 		postRoute := apiRoute.Group("/posts")
 		{
 			postRoute.GET("/", ph.GetAll)
+			postRoute.Use(middleware.CheckToken()).POST("/", ph.Create)
 			postRoute.GET("/:id", ph.GetByID)
-			apiRoute.POST("/", ph.Create)
 		}
 
 		apiRoute.POST("/signin", uh.Signin)
