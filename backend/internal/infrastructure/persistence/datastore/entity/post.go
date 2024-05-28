@@ -16,13 +16,20 @@ type Post struct {
 	DeletedAt *time.Time
 }
 
+<<<<<<< HEAD
 func NewPostFromModel(p *model.Post) *Post {
+=======
+func NewFromModel(p *model.Post) *Post {
+>>>>>>> f71fd74 (add: 記事投稿API)
 	return &Post{
 		ID:        p.ID,
 		Title:     p.Title,
 		Body:      p.Body,
 		UserID:    p.User.ID,
+<<<<<<< HEAD
 		User:      *NewUserFromModel(&p.User),
+=======
+>>>>>>> f71fd74 (add: 記事投稿API)
 		CreatedAt: p.CreatedAt,
 		UpdatedAt: p.UpdatedAt,
 		DeletedAt: p.DeletedAt,
