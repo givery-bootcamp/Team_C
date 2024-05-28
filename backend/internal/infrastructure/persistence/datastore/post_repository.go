@@ -22,9 +22,19 @@ func (r *PostRepository) GetAll(ctx context.Context) ([]*model.Post, error) {
 	posts := []*entity.Post{}
 
 	conn := r.db.GetDB(ctx)
-	result := conn.Preload("User").Find(&posts)
-	if result.Error != nil {
-		return nil, result.Error
+	if err := conn.Preload("User").Find(&posts).Error; err != nil {
+		return nil, err
 	}
 	return entity.ToPostModelListFromEntity(posts), nil
+}
+
+func (r *PostRepository) GetByID(ctx context.Context, id int) (*model.Post, error) {
+	var p entity.Post
+
+	conn := r.db.GetDB(ctx)
+	if err := conn.Preload("User").Where("id = ?", id).First(&p).Error; err != nil {
+		return nil, err
+	}
+
+	return p.ToModel(), nil
 }
