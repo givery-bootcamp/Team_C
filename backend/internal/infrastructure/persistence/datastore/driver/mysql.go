@@ -3,7 +3,6 @@ package driver
 import (
 	"context"
 	"fmt"
-	"myapp/internal/config"
 	"os"
 
 	"gorm.io/driver/mysql"
@@ -46,11 +45,7 @@ func (d *db) GetDB(ctx context.Context) *gorm.DB {
 }
 
 func initDB() *gorm.DB {
-	host := config.DBHostName
-	port := config.DBPort
-	dbname := config.DBName
-	dsn := fmt.Sprintf("root@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", host, port, dbname)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(createDSNForGorm()), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -1,9 +1,6 @@
-package datastore
+package driver
 
 import (
-	"fmt"
-	"myapp/internal/config"
-
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -14,7 +11,7 @@ type MySQLMigrator struct {
 }
 
 func MustNewMySQLMigrator(migrateFilePath string) *MySQLMigrator {
-	client, err := migrate.New(migrateFilePath, createDSN())
+	client, err := migrate.New(migrateFilePath, createDSNForGoMigrate())
 	if err != nil {
 		panic(err)
 	}
@@ -23,15 +20,9 @@ func MustNewMySQLMigrator(migrateFilePath string) *MySQLMigrator {
 	}
 }
 
-func createDSN() string {
-	host := config.DBHostName
-	port := config.DBPort
-	dbname := config.DBName
-	dbuser := config.DBUser
-	return fmt.Sprintf("mysql://%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbuser, host, port, dbname)
-}
 func (m *MySQLMigrator) Migrate() error {
 	err := m.client.Up()
+
 	if err != migrate.ErrNoChange {
 		return err
 	}
