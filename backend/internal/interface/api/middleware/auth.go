@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"myapp/internal/config"
 	"myapp/internal/exception"
 	"myapp/internal/pkg/jwt"
 
@@ -12,7 +13,7 @@ func SetCookie(ctx *gin.Context, userID int) error {
 	if err != nil {
 		return exception.ServerError
 	}
-	ctx.SetCookie("Authorise", token, 0, "/", ctx.Request.Host, false, true)
+	ctx.SetCookie(config.JWTCookieKeyName, token, 0, "/", ctx.Request.Host, false, true)
 
 	return nil
 }
