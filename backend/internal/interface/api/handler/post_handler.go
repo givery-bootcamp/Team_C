@@ -2,6 +2,7 @@ package handler
 
 import (
 	"myapp/internal/application/usecase"
+	"myapp/internal/domain/model"
 	"myapp/internal/exception"
 	"myapp/internal/interface/api/middleware"
 	"net/http"
@@ -45,14 +46,9 @@ func (h *PostHandler) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-type CreatePostRequest struct {
-	Title string `json:"title" binding:"required"`
-	Body  string `json:"body" binding:"required"`
-}
-
 func (h *PostHandler) Create(ctx *gin.Context) {
-	var req CreatePostRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	var param model.CreatePostParam
+	if err := ctx.ShouldBindJSON(&param); err != nil {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
@@ -63,7 +59,7 @@ func (h *PostHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	newPost, err := h.u.Create(ctx, req.Title, req.Body, userId)
+	newPost, err := h.u.Create(ctx, param.Title, param.Body, userId)
 	if err != nil {
 		ctx.Error(err)
 		return

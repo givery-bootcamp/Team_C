@@ -21,3 +21,8 @@ func NewPost(title string, body string, user User) *Post {
 		UpdatedAt: time.Now(),
 	}
 }
+
+type CreatePostParam struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
+}
