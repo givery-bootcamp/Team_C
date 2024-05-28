@@ -22,7 +22,7 @@ func NewUserRepository(db driver.DB) repository.UserRepository {
 	}
 }
 
-func (r *UserRepository) Signin(ctx context.Context, param model.UserSigninParam) (*model.User, error) {
+func (r *UserRepository) GetBySigninParam(ctx context.Context, param model.UserSigninParam) (*model.User, error) {
 	var user entity.User
 	conn := r.db.GetDB(ctx)
 	if err := conn.

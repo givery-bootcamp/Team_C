@@ -18,7 +18,7 @@ func NewUserUsecase(r repository.UserRepository) UserUsecase {
 }
 
 func (u *UserUsecase) Signin(ctx context.Context, param model.UserSigninParam) (*model.User, error) {
-	return u.r.Signin(ctx, param)
+	return u.r.GetBySigninParam(ctx, param)
 }
 
 func (u *UserUsecase) GetByID(ctx context.Context, id int) (*model.User, error) {
