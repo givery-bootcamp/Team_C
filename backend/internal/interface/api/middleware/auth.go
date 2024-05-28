@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetCookie(ctx *gin.Context, userID int) error {
+func SetJWTCookie(ctx *gin.Context, userID int) error {
 	token, err := jwt.GenerateToken(userID)
 	if err != nil {
 		return exception.ServerError

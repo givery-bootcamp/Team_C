@@ -33,6 +33,6 @@ func (h *UserHandler) Signin(ctx *gin.Context) {
 		return
 	}
 
-	middleware.SetCookie(ctx, res.ID)
+	middleware.SetJWTCookie(ctx, res.ID)
 	ctx.JSON(http.StatusOK, res)
 }
