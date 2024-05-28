@@ -3,6 +3,7 @@ package handler
 import (
 	"myapp/internal/application/usecase"
 	"myapp/internal/exception"
+	"myapp/internal/interface/api/middleware"
 	"net/http"
 	"strconv"
 
@@ -56,7 +57,13 @@ func (h *PostHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	newPost, err := h.u.Create(ctx, req.Title, req.Body)
+	userId, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	newPost, err := h.u.Create(ctx, req.Title, req.Body, userId)
 	if err != nil {
 		ctx.Error(err)
 		return
