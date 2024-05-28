@@ -36,3 +36,19 @@ func (h *UserHandler) Signin(ctx *gin.Context) {
 	middleware.SetJWTCookie(ctx, res.ID)
 	ctx.JSON(http.StatusOK, res)
 }
+
+func (h *UserHandler) GetByIDFromContext(ctx *gin.Context) {
+	userID, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	res, err := h.u.GetByID(ctx, userID)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}

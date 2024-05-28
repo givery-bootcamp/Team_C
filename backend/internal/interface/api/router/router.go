@@ -43,6 +43,12 @@ func CreateRouter() *gin.Engine {
 		}
 
 		apiRoute.POST("/signin", uh.Signin)
+
+		userRoute := apiRoute.Group("/users")
+		userRoute.Use(middleware.CheckToken())
+		{
+			userRoute.GET("/", uh.GetByIDFromContext)
+		}
 	}
 
 	return app
