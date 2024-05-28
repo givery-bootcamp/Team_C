@@ -35,11 +35,15 @@ func CreateRouter() *gin.Engine {
 	app.GET("/hello", hh.HelloWorld)
 
 	apiRoute := app.Group("/api")
+	{
+		postRoute := apiRoute.Group("/posts")
+		{
+			postRoute.GET("/", ph.GetAll)
+			postRoute.GET("/:id", ph.GetByID)
+		}
 
-	apiRoute.GET("/posts", ph.GetAll)
-	apiRoute.GET("/posts/:id", ph.GetByID)
-
-	apiRoute.POST("/signin", uh.Signin)
+		apiRoute.POST("/signin", uh.Signin)
+	}
 
 	return app
 }
