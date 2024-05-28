@@ -25,6 +25,7 @@ func (u *PostUsecase) GetByID(ctx context.Context, id int) (*model.Post, error) 
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 func (u *PostUsecase) Create(ctx context.Context, title, body string, userId int) (*model.Post, error) {
 	post := model.NewPost(title, body, model.User{
 		ID: userId,
@@ -37,6 +38,11 @@ func (u *PostUsecase) Create(ctx context.Context, title string, body string) (*m
 		ID:   1,
 		Name: "taro",
 >>>>>>> f71fd74 (add: 記事投稿API)
+=======
+func (u *PostUsecase) Create(ctx context.Context, title string, body string, userId int) (*model.Post, error) {
+	post := model.NewPost(title, body, model.User{
+		ID: userId,
+>>>>>>> aadcb65 (update: cookieからUserId取得して仮実装削除)
 	})
 
 	return u.r.Create(ctx, post)
