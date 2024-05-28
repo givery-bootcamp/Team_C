@@ -16,7 +16,7 @@ func NewPostUsecase(r repository.PostRepository) PostUsecase {
 	}
 }
 
-func (u *PostUsecase) GetAll(ctx context.Context, limit int, offset int) ([]*model.Post, error) {
+func (u *PostUsecase) GetAll(ctx context.Context, limit, offset int) ([]*model.Post, error) {
 	return u.r.GetAll(ctx, limit, offset)
 }
 

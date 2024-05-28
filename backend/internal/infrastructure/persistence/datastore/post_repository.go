@@ -18,7 +18,7 @@ func NewPostRepository(db driver.DB) repository.PostRepository {
 	}
 }
 
-func (r *PostRepository) GetAll(ctx context.Context, limit int, offset int) ([]*model.Post, error) {
+func (r *PostRepository) GetAll(ctx context.Context, limit, offset int) ([]*model.Post, error) {
 	posts := []*entity.Post{}
 
 	conn := r.db.GetDB(ctx)

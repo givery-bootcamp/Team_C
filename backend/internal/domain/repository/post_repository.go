@@ -6,6 +6,6 @@ import (
 )
 
 type PostRepository interface {
-	GetAll(ctx context.Context, limit int, offset int) ([]*model.Post, error)
+	GetAll(ctx context.Context, limit, offset int) ([]*model.Post, error)
 	GetByID(ctx context.Context, id int) (*model.Post, error)
 }
