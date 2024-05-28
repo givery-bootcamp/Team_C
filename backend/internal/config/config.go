@@ -12,7 +12,7 @@ var DBHostName = "db"
 var DBUser = "root"
 var DBPort = 3306
 var DBName = "training"
-var JWTCookieKeyName = "Authorise"
+var JWTCookieKeyName = "Authorize"
 
 func init() {
 	if v := os.Getenv("HOSTNAME"); v != "" {
