@@ -24,3 +24,14 @@ func (u User) ToModel() *model.User {
 		DeletedAt: u.DeletedAt,
 	}
 }
+
+func NewUserFromModel(u *model.User) *User {
+	return &User{
+		ID:        u.ID,
+		Name:      u.Name,
+		Password:  u.Password,
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
+		DeletedAt: u.DeletedAt,
+	}
+}

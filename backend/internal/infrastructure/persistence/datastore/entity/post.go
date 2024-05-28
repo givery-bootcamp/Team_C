@@ -22,6 +22,7 @@ func NewPostFromModel(p *model.Post) *Post {
 		Title:     p.Title,
 		Body:      p.Body,
 		UserID:    p.User.ID,
+		User:      *NewUserFromModel(&p.User),
 		CreatedAt: p.CreatedAt,
 		UpdatedAt: p.UpdatedAt,
 		DeletedAt: p.DeletedAt,
