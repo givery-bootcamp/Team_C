@@ -43,3 +43,24 @@ func (h *PostHandler) GetByID(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, res)
 }
+
+type CreatePostRequest struct {
+	Title string `json:"title" binding:"required"`
+	Body  string `json:"body" binding:"required"`
+}
+
+func (h *PostHandler) Create(ctx *gin.Context) {
+	var req CreatePostRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.Error(exception.InvalidRequestError)
+		return
+	}
+
+	newPost, err := h.u.Create(ctx, req.Title, req.Body)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, newPost)
+}

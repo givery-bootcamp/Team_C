@@ -35,6 +35,7 @@ func CreateRouter() *gin.Engine {
 
 	apiRoute.GET("/posts", ph.GetAll)
 	apiRoute.GET("/posts/:id", ph.GetByID)
+	apiRoute.POST("/posts", ph.Create)
 
 	return app
 }
