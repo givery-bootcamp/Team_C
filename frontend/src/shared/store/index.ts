@@ -1,6 +1,6 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore } from "@reduxjs/toolkit";
 
-import helloReducer, { helloSlice } from './HelloSlice';
+import helloReducer, { helloSlice } from "./HelloSlice";
 
 export const store = configureStore({
   reducer: {

@@ -1,6 +1,6 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route } from "react-router-dom";
 
-import { HelloWorld } from '../features/helloworld';
+import { HelloWorld } from "../features/helloworld";
 
 export const AppRoute = () => {
   return (
