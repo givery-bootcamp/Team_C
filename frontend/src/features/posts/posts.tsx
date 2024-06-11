@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../shared/hooks';
 import { APIService } from '../../shared/services';
 import { Post } from '../../shared/models/post';
-
+import './posts.scss';
 export function Posts() {
   const { posts } = useAppSelector((state) => state.post);
   const dispatch = useAppDispatch();
@@ -12,14 +12,14 @@ export function Posts() {
     dispatch(APIService.getPosts());
   }, [dispatch]);
 
-  return (
-    <div>
-      {posts?.map((post: Post) => (
-        <div key={post.id}>
-          <h2>{post.title}</h2>
-          <p>{post.body}</p>
-        </div>
-      ))}
+return (
+    <div className="posts-container">
+        {posts?.map((post: Post) => (
+            <div key={post.id} className="post">
+                <h2 className="post-title">{post.title}</h2>
+                <p className="post-body">{post.body}</p>
+            </div>
+        ))}
     </div>
-  );
+);
 }
