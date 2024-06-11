@@ -1,10 +1,10 @@
-import { user } from "./user";
+import { User } from "./user";
 
-export type post = {
+export type Post = {
     id: number;
     title: string;
     body: string;
-    user: user;
+    user: User;
     created_at: string;
     updated_at: string;
 }

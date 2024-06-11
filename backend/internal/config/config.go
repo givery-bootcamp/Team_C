@@ -5,15 +5,17 @@ import (
 	"strconv"
 )
 
-var HostName = "127.0.0.1"
-var Port = 9000
-var CorsAllowOrigin = []string{"http://localhost:3000", "http://localhost:8001"}
-var DBHostName = "db"
-var DBUser = "root"
-var DBPort = 3306
-var DBName = "training"
-var JWTCookieKeyName = "Authorize"
-var GinSigninUserKey = "userID"
+var (
+	HostName         = "127.0.0.1"
+	Port             = 9000
+	CorsAllowOrigin  = []string{"http://localhost:3000", "http://localhost:8001"}
+	DBHostName       = "db"
+	DBUser           = "root"
+	DBPort           = 3306
+	DBName           = "training"
+	JWTCookieKeyName = "Authorize"
+	GinSigninUserKey = "userID"
+)
 
 func init() {
 	if v := os.Getenv("HOSTNAME"); v != "" {
