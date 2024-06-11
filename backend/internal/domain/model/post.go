@@ -11,3 +11,18 @@ type Post struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 	DeletedAt *time.Time `json:"-"`
 }
+
+func NewPost(title string, body string, user User) *Post {
+	return &Post{
+		Title:     title,
+		Body:      body,
+		User:      user,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+}
+
+type CreatePostParam struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
+}
