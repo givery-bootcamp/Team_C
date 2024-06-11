@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
 )
