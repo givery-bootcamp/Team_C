@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"net/http"
+	"strconv"
+
 	"myapp/internal/application/usecase"
 	"myapp/internal/domain/model"
 	"myapp/internal/exception"
 	"myapp/internal/interface/api/middleware"
-	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,11 +56,13 @@ func (h *PostHandler) GetAll(ctx *gin.Context) {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
+
 	res, err := h.u.GetAll(ctx, limit, offset)
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, res)
 }
 
@@ -87,6 +90,7 @@ func (h *PostHandler) GetByID(ctx *gin.Context) {
 		ctx.Error(err)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, res)
 }
 
