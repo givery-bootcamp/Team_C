@@ -11,6 +11,8 @@ export const getHello = createAsyncThunk<Hello>('getHello', async () => {
 });
 
 export const getPosts = createAsyncThunk<Post[]>('getPosts', async() => {
-  const response = await fetch(`${API_ENDPOINT_PATH}/api/posts`);
+  const params = {limit : "20", offset: "0"};
+  const query = new URLSearchParams(params);
+  const response = await fetch(`${API_ENDPOINT_PATH}/api/posts?${query.toString()}`);
   return await response.json()
 })
