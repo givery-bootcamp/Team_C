@@ -44,12 +44,9 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 
 	conn := r.db.GetDB(ctx)
 
-	if err := conn.Create(&p).Error; err != nil {
-		return nil, err
-	}
-
-	if err := conn.Preload("User").First(&p, p.ID).Error; err != nil {
-		return nil, err
+	res := conn.Create(&p)
+	if res.Error != nil {
+		return nil, res.Error
 	}
 
 	return p.ToModel(), nil
