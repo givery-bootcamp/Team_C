@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 import helloReducer, { helloSlice } from './HelloSlice';
-import postReducer, {postsSlice} from './postsSlice';
+import postReducer, { postsSlice } from './postsSlice';
 export const store = configureStore({
   reducer: {
     hello: helloReducer,
@@ -11,7 +11,7 @@ export const store = configureStore({
 
 export const actions = {
   ...helloSlice.actions,
-  ...postsSlice.actions
+  ...postsSlice.actions,
 };
 
 export type RootState = ReturnType<typeof store.getState>;
