@@ -102,8 +102,6 @@ jobs:
     - name: Update ECS service to force new deployment
       run: |
         aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment
-  # frontendのdeploy(s3へのpush)
-  # frontend-ecr-pushを使用する場合はこちらはコメントアウトする
   frontend-s3-push:
     runs-on: ubuntu-latest
     environment: prod
