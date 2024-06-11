@@ -20,6 +20,7 @@ jobs:
   # backendをbuildしてartifactに保存する
   backend-build:
     runs-on: ubuntu-latest
+    environment: prod
 
     steps:
     - name: Checkout code
@@ -39,10 +40,12 @@ jobs:
         name: backend-bin
         path: |
           backend/myapp
+          backend/migrate
           docker/backend-ci.Dockerfile
   # frontendをbuildしてartifactに保存する
   frontend-build:
     runs-on: ubuntu-latest
+    environment: prod
 
     steps:
     - name: Checkout code
@@ -70,6 +73,7 @@ jobs:
   # backendのdeploy(ECR更新とサービスのdeploy)
   backend-ecr-push:
     runs-on: ubuntu-latest
+    environment: prod
     needs: [backend-build]
 
     steps:
