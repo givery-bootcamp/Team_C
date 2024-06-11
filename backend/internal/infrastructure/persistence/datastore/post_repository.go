@@ -49,5 +49,11 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 		return nil, res.Error
 	}
 
+	user := entity.User{}
+	if err := conn.Where("id = ?", p.UserID).First(&user).Error; err != nil {
+		return nil, err
+	}
+	p.User = user
+
 	return p.ToModel(), nil
 }
