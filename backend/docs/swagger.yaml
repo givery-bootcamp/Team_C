@@ -1,0 +1,133 @@
+definitions:
+  model.Post:
+    properties:
+      body:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  model.User:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.UserSigninParam:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: get posts
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: number
+      - description: Offset
+        in: query
+        name: offset
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Post'
+            type: array
+      summary: get posts
+      tags:
+      - post
+  /posts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get post by id
+      parameters:
+      - description: PostID
+        in: path
+        name: id
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Post'
+      summary: get post by id
+      tags:
+      - post
+  /signin:
+    post:
+      consumes:
+      - application/json
+      description: Signin
+      parameters:
+      - description: リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserSigninParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: User signin
+      tags:
+      - auth
+  /signout:
+    post:
+      consumes:
+      - application/json
+      description: signout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: user signout
+      tags:
+      - auth
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: get login user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: get login user
+      tags:
+      - user
+swagger: "2.0"

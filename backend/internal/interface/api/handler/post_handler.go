@@ -10,8 +10,8 @@ import (
 )
 
 const (
-  defaultLimit = 20
-  maxLimit     = 1000
+	defaultLimit = 20
+	maxLimit     = 1000
 )
 
 type PostHandler struct {
@@ -24,20 +24,34 @@ func NewPostHandler(u usecase.PostUsecase) PostHandler {
 	}
 }
 
+//	@BasePath	/api
+
+// GetAll godoc
+//
+//	@Summary	get posts
+//	@Schemes
+//	@Description	get posts
+//	@Tags			post
+//	@Accept			json
+//	@Produce		json
+//	@Param			limit	query		number	false	"Limit"
+//	@Param			offset	query		number	false	"Offset"
+//	@Success		200		{object}	[]model.Post
+//	@Router			/posts [get]
 func (h *PostHandler) GetAll(ctx *gin.Context) {
-  limit, err := strconv.Atoi(ctx.Query("limit"))
-  if err != nil {
+	limit, err := strconv.Atoi(ctx.Query("limit"))
+	if err != nil {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
-  if limit == 0 {
-    limit = defaultLimit
-  } else if limit > maxLimit {
-    limit = maxLimit
-  }
+	if limit == 0 {
+		limit = defaultLimit
+	} else if limit > maxLimit {
+		limit = maxLimit
+	}
 
-  offset, err := strconv.Atoi(ctx.Query("offset"))
-  if err != nil {
+	offset, err := strconv.Atoi(ctx.Query("offset"))
+	if err != nil {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
@@ -49,6 +63,17 @@ func (h *PostHandler) GetAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
+// GetByID godoc
+//
+//	@Summary	get post by id
+//	@Schemes
+//	@Description	get post by id
+//	@Tags			post
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		number	true	"PostID"
+//	@Success		200	{object}	model.Post
+//	@Router			/posts/{id} [get]
 func (h *PostHandler) GetByID(ctx *gin.Context) {
 	query := ctx.Param("id")
 	postID, err := strconv.Atoi(query)

@@ -6,6 +6,9 @@ import (
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/interface/api/middleware"
 	"myapp/internal/interface/api/router"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -15,5 +18,6 @@ func main() {
 	}
 
 	router := router.CreateRouter()
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	router.Run(fmt.Sprintf("%s:%d", config.HostName, config.Port))
 }
