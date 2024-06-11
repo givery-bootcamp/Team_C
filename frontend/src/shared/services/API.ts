@@ -10,9 +10,11 @@ export const getHello = createAsyncThunk<Hello>('getHello', async () => {
   return await response.json();
 });
 
-export const getPosts = createAsyncThunk<Post[]>('getPosts', async() => {
-  const params = {limit : "20", offset: "0"};
+export const getPosts = createAsyncThunk<Post[]>('getPosts', async () => {
+  const params = { limit: '20', offset: '0' };
   const query = new URLSearchParams(params);
-  const response = await fetch(`${API_ENDPOINT_PATH}/api/posts?${query.toString()}`);
-  return await response.json()
-})
+  const response = await fetch(
+    `${API_ENDPOINT_PATH}/api/posts?${query.toString()}`,
+  );
+  return await response.json();
+});
