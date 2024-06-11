@@ -38,3 +38,22 @@ func (r *PostRepository) GetByID(ctx context.Context, id int) (*model.Post, erro
 
 	return p.ToModel(), nil
 }
+
+func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.Post, error) {
+	p := entity.NewPostFromModel(post)
+
+	conn := r.db.GetDB(ctx)
+
+	res := conn.Create(&p)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	user := entity.User{}
+	if err := conn.Where("id = ?", p.UserID).First(&user).Error; err != nil {
+		return nil, err
+	}
+	p.User = user
+
+	return p.ToModel(), nil
+}
