@@ -30,6 +30,19 @@ func NewPostFromModel(p *model.Post) *Post {
 	}
 }
 
+func UpdatePostFromModel(p *model.Post) *Post {
+	return &Post{
+		ID:        p.ID,
+		Title:     p.Title,
+		Body:      p.Body,
+		UserID:    p.User.ID,
+		User:      *NewUserFromModel(&p.User),
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
+		DeletedAt: p.DeletedAt,
+	}
+}
+
 func (p Post) ToModel() *model.Post {
 	return &model.Post{
 		ID:        p.ID,

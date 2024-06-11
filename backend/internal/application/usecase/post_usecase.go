@@ -32,3 +32,13 @@ func (u *PostUsecase) Create(ctx context.Context, title, body string, userId int
 
 	return u.r.Create(ctx, post)
 }
+
+func (u *PostUsecase) Update(ctx context.Context, postId int, title, body string) (*model.Post, error) {
+  post, err := u.GetByID(ctx, postId)
+  if err != nil {
+    return nil, err
+  }
+  updatedPost := model.UpdatePost(post ,title, body)
+  
+	return u.r.Update(ctx, updatedPost)
+}

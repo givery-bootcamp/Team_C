@@ -45,6 +45,7 @@ func CreateRouter() *gin.Engine {
 			authPostRoute.Use(middleware.CheckToken())
 			{
 				authPostRoute.POST("", ph.Create)
+        authPostRoute.PUT("/:id", ph.Update)
 			}
 		}
 

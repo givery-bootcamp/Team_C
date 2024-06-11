@@ -61,3 +61,22 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 
 	return p.ToModel(), nil
 }
+
+func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.Post, error) {
+	p := entity.UpdatePostFromModel(post)
+
+	conn := r.db.GetDB(ctx)
+
+	res := conn.Update(p.Title, p.Body)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	user := entity.User{}
+	if err := conn.Where("id = ?", p.UserID).First(&user).Error; err != nil {
+		return nil, err
+	}
+	p.User = user
+
+	return p.ToModel(), nil
+}
