@@ -15,6 +15,7 @@ env:
   ECS_SERVICE: dena-training-2024-team-3
   BUCKET_PREFIX: team-3
   VITE_API_ENDPOINT_PATH: https://team-3_bk.member0005.track-bootcamp.run
+  CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
 
 jobs:
   # backendをbuildしてartifactに保存する
@@ -126,6 +127,9 @@ jobs:
 
     - name: Sync files to S3
       run: aws s3 sync frontend/dist s3://dena-training-2024/$BUCKET_PREFIX --delete
+
+    - name: Remove CDN cache
+      run: aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
 
   # frontendのdeploy(ecrへのpushとサービスのdeploy)
   # frontend-s3-pushを使用する場合はこちらはコメントアウトする
