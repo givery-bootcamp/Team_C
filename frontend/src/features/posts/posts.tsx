@@ -13,7 +13,6 @@ export function Posts() {
   }, [dispatch]);
 
     return (
-        <ChakraProvider>
             <div className="posts-container">
                 <Grid templateColumns="repeat(3, 1fr)" gap={6}>
                     {posts?.map((post: Post) => (
@@ -24,6 +23,5 @@ export function Posts() {
                     ))}
                 </Grid>
             </div>
-        </ChakraProvider>
     );
 }
