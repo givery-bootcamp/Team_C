@@ -71,7 +71,7 @@ jobs:
   backend-ecr-push:
     runs-on: ubuntu-latest
     needs: [backend-build]
-    if: github.ref == 'refs/heads/deploy'
+    if: github.ref == 'refs/heads/feat/add-ci-cd'
 
     steps:
     - name: Download backend build artifacts
@@ -107,7 +107,7 @@ jobs:
   frontend-s3-push:
     runs-on: ubuntu-latest
     needs: [frontend-build]
-    if: github.ref == 'refs/heads/deploy'
+    if: github.ref == 'refs/heads/feat/add-ci-cd'
 
     steps:
     - name: Download frontend build artifacts
@@ -129,7 +129,7 @@ jobs:
   # frontend-ecr-push:
   #   runs-on: ubuntu-latest
   #   needs: [frontend-build, backend-ecr-push]
-  #   if: github.ref == 'refs/heads/deploy'
+  #   if: github.ref == 'refs/heads/feat/add-ci-cd'
 
   #   steps:
   #   - name: Checkout code
