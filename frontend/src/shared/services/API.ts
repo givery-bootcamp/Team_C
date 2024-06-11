@@ -11,6 +11,6 @@ export const getHello = createAsyncThunk<Hello>('getHello', async () => {
 });
 
 export const getPosts = createAsyncThunk<Post[]>('getPosts', async() => {
-  const response = await fetch(`${API_ENDPOINT_PATH}/api/posts`);
+  const response = await fetch(`${API_ENDPOINT_PATH}/api/posts/`);
   return await response.json()
 })
