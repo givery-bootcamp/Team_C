@@ -11,6 +11,12 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+//	@title			掲示板アプリ
+//	@version		バージョン(1.0)
+//	@description	3班の掲示板アプリのAPI仕様書
+
+//	@host		localhost:9000
+//	@BasePath	/api/
 func main() {
 	var migrator middleware.DBMigrator = driver.MustNewMySQLMigrator("file://migrate")
 	if err := migrator.Migrate(); err != nil {

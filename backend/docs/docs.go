@@ -219,12 +219,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "バージョン(1.0)",
+	Host:             "localhost:9000",
+	BasePath:         "/api/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "掲示板アプリ",
+	Description:      "3班の掲示板アプリのAPI仕様書",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

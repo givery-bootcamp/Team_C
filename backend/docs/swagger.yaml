@@ -1,3 +1,4 @@
+basePath: /api/
 definitions:
   model.Post:
     properties:
@@ -28,8 +29,12 @@ definitions:
       password:
         type: string
     type: object
+host: localhost:9000
 info:
   contact: {}
+  description: 3班の掲示板アプリのAPI仕様書
+  title: 掲示板アプリ
+  version: バージョン(1.0)
 paths:
   /posts:
     get:

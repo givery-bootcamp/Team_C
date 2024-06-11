@@ -1,8 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "3班の掲示板アプリのAPI仕様書",
+        "title": "掲示板アプリ",
+        "contact": {},
+        "version": "バージョン(1.0)"
     },
+    "host": "localhost:9000",
+    "basePath": "/api/",
     "paths": {
         "/posts": {
             "get": {

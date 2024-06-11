@@ -20,8 +20,6 @@ func NewUserHandler(u usecase.UserUsecase) UserHandler {
 	}
 }
 
-//	@BasePath	/api
-
 // Signin godoc
 //
 //	@Summary	User signin

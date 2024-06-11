@@ -24,8 +24,6 @@ func NewPostHandler(u usecase.PostUsecase) PostHandler {
 	}
 }
 
-//	@BasePath	/api
-
 // GetAll godoc
 //
 //	@Summary	get posts
