@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/posts": {
+        "/api/posts": {
             "get": {
                 "description": "get posts",
                 "consumes": [
@@ -55,7 +55,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/{id}": {
+        "/api/posts/{id}": {
             "get": {
                 "description": "get post by id",
                 "consumes": [
@@ -87,7 +87,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/signin": {
+        "/api/signin": {
             "post": {
                 "description": "Signin",
                 "consumes": [
@@ -121,7 +121,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/signout": {
+        "/api/signout": {
             "post": {
                 "description": "signout",
                 "consumes": [
@@ -144,7 +144,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users": {
+        "/api/users": {
             "get": {
                 "description": "get login user",
                 "consumes": [
@@ -221,7 +221,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "バージョン(1.0)",
 	Host:             "localhost:9000",
-	BasePath:         "/api/",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "掲示板アプリ",
 	Description:      "3班の掲示板アプリのAPI仕様書",

@@ -15,8 +15,7 @@ import (
 //	@version		バージョン(1.0)
 //	@description	3班の掲示板アプリのAPI仕様書
 
-//	@host		localhost:9000
-//	@BasePath	/api/
+//	@host	localhost:9000
 func main() {
 	var migrator middleware.DBMigrator = driver.MustNewMySQLMigrator("file://migrate")
 	if err := migrator.Migrate(); err != nil {

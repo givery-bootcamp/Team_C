@@ -35,7 +35,7 @@ func NewPostHandler(u usecase.PostUsecase) PostHandler {
 //	@Param			limit	query		number	false	"Limit"
 //	@Param			offset	query		number	false	"Offset"
 //	@Success		200		{object}	[]model.Post
-//	@Router			/posts [get]
+//	@Router			/api/posts [get]
 func (h *PostHandler) GetAll(ctx *gin.Context) {
 	limit, err := strconv.Atoi(ctx.Query("limit"))
 	if err != nil {
@@ -71,7 +71,7 @@ func (h *PostHandler) GetAll(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			id	path		number	true	"PostID"
 //	@Success		200	{object}	model.Post
-//	@Router			/posts/{id} [get]
+//	@Router			/api/posts/{id} [get]
 func (h *PostHandler) GetByID(ctx *gin.Context) {
 	query := ctx.Param("id")
 	postID, err := strconv.Atoi(query)

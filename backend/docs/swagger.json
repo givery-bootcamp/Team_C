@@ -7,9 +7,8 @@
         "version": "バージョン(1.0)"
     },
     "host": "localhost:9000",
-    "basePath": "/api/",
     "paths": {
-        "/posts": {
+        "/api/posts": {
             "get": {
                 "description": "get posts",
                 "consumes": [
@@ -49,7 +48,7 @@
                 }
             }
         },
-        "/posts/{id}": {
+        "/api/posts/{id}": {
             "get": {
                 "description": "get post by id",
                 "consumes": [
@@ -81,7 +80,7 @@
                 }
             }
         },
-        "/signin": {
+        "/api/signin": {
             "post": {
                 "description": "Signin",
                 "consumes": [
@@ -115,7 +114,7 @@
                 }
             }
         },
-        "/signout": {
+        "/api/signout": {
             "post": {
                 "description": "signout",
                 "consumes": [
@@ -138,7 +137,7 @@
                 }
             }
         },
-        "/users": {
+        "/api/users": {
             "get": {
                 "description": "get login user",
                 "consumes": [

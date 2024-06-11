@@ -1,4 +1,3 @@
-basePath: /api/
 definitions:
   model.Post:
     properties:
@@ -36,7 +35,7 @@ info:
   title: 掲示板アプリ
   version: バージョン(1.0)
 paths:
-  /posts:
+  /api/posts:
     get:
       consumes:
       - application/json
@@ -62,7 +61,7 @@ paths:
       summary: get posts
       tags:
       - post
-  /posts/{id}:
+  /api/posts/{id}:
     get:
       consumes:
       - application/json
@@ -83,7 +82,7 @@ paths:
       summary: get post by id
       tags:
       - post
-  /signin:
+  /api/signin:
     post:
       consumes:
       - application/json
@@ -105,7 +104,7 @@ paths:
       summary: User signin
       tags:
       - auth
-  /signout:
+  /api/signout:
     post:
       consumes:
       - application/json
@@ -120,7 +119,7 @@ paths:
       summary: user signout
       tags:
       - auth
-  /users:
+  /api/users:
     get:
       consumes:
       - application/json

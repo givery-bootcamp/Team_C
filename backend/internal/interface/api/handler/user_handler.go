@@ -30,7 +30,7 @@ func NewUserHandler(u usecase.UserUsecase) UserHandler {
 //	@Produce		json
 //	@Param			body	body		model.UserSigninParam	true	"リクエスト"
 //	@Success		200		{object}	model.User				"OK"
-//	@Router			/signin [post]
+//	@Router			/api/signin [post]
 func (h *UserHandler) Signin(ctx *gin.Context) {
 	body := model.UserSigninParam{}
 	if ctx.ShouldBindJSON(&body) != nil {
@@ -57,7 +57,7 @@ func (h *UserHandler) Signin(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	interface{} "OK"
-//	@Router			/signout [post]
+//	@Router			/api/signout [post]
 func (h *UserHandler) Signout(ctx *gin.Context) {
 	err := middleware.DeleteCookie(ctx)
 	if err != nil {
@@ -77,7 +77,7 @@ func (h *UserHandler) Signout(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	model.User "OK"
-//	@Router			/users  [get]
+//	@Router			/api/users  [get]
 func (h *UserHandler) GetByIDFromContext(ctx *gin.Context) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
