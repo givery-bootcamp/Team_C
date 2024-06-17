@@ -15,7 +15,9 @@ func HandleError() gin.HandlerFunc {
 			return
 		}
 
-		log.Printf("%+v", c.Errors)
+		for _, err := range c.Errors {
+			log.Printf("Error: %+v", err.Err)
+		}
 		ginErr := c.Errors[0]
 		e, ok := ginErr.Err.(*exception.Exception)
 		if !ok {
