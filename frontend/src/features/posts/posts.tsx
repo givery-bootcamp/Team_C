@@ -15,6 +15,15 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react';
+
+function PostsHeader() {
+  return (
+    <Flex fontSize={'4xl'} p={3}>
+      投稿一覧
+    </Flex>
+  )
+}
+
 export function Posts() {
   const { posts } = useAppSelector((state) => state.post);
   const dispatch = useAppDispatch();
@@ -25,6 +34,7 @@ export function Posts() {
 
   return (
     <div className="posts-container">
+      <PostsHeader />
       {posts?.map((post: Post) => (
         <Card key={post.id}>
           <CardHeader>
