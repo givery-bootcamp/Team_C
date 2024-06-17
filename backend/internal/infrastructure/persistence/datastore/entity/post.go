@@ -1,8 +1,9 @@
 package entity
 
 import (
-	"myapp/internal/domain/model"
 	"time"
+
+	"myapp/internal/domain/model"
 )
 
 type Post struct {

@@ -12,7 +12,8 @@ func createDSNForGoMigrate() string {
 	port := config.DBPort
 	dbname := config.DBName
 	dbuser := config.DBUser
-	return fmt.Sprintf("mysql://%s@tcp(%s:%d)/%s%s", dbuser, host, port, dbname, DSNSuffix)
+	dbpass := config.DBPassword
+	return fmt.Sprintf("mysql://%s:%s@tcp(%s:%d)/%s%s", dbuser, dbpass, host, port, dbname, DSNSuffix)
 }
 
 func createDSNForGorm() string {
@@ -20,6 +21,6 @@ func createDSNForGorm() string {
 	port := config.DBPort
 	dbname := config.DBName
 	dbuser := config.DBUser
-
-	return fmt.Sprintf("%s@tcp(%s:%d)/%s%s", dbuser, host, port, dbname, DSNSuffix)
+	dbpass := config.DBPassword
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s%s", dbuser, dbpass, host, port, dbname, DSNSuffix)
 }

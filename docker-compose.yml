@@ -37,9 +37,29 @@ services:
     ports:
       - '3306:3306'
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=training
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 5s
       retries: 10
+
+  prism:
+    image: stoplight/prism
+    platform: linux/x86_64
+    command: 'mock -h 0.0.0.0 -p 8000 /tmp/openapi.yaml'
+    volumes:
+      - ./backend/docs/swagger.yaml:/tmp/openapi.yaml
+    ports:
+      - '8000:8000'
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    restart: always
+    ports:
+      - "8001:8080"
+    volumes:
+      - ./backend/docs/swagger.yaml:/openapi.yaml
+    environment:
+      SWAGGER_JSON: /openapi.yaml
+      URLS: "[{name: \"/openapi.yaml\", url: \"/openapi.yaml\"}]"

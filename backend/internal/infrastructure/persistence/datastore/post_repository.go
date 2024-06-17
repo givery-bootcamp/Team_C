@@ -2,7 +2,6 @@ package datastore
 
 import (
 	"context"
-	"fmt"
 
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
@@ -86,10 +85,6 @@ func (r *PostRepository) Update(
 			return nil, exception.InvalidRequestError
 		}
 		return nil, exception.AuthError
-	}
-
-	if res.RowsAffected == 0 {
-		return nil, fmt.Errorf("post not found or user not authorized")
 	}
 
 	if err := conn.Where("id = ?", p.ID).First(&p).Error; err != nil {
