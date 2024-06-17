@@ -137,14 +137,20 @@ func (h *PostHandler) Update(ctx *gin.Context) {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
-  
+
+	userId, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
 	var param model.UpdatePostParam
 	if err := ctx.ShouldBindJSON(&param); err != nil {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
 
-	updatedPost, err := h.u.Update(ctx, postID, param.Title, param.Body)
+	updatedPost, err := h.u.Update(ctx, param.Title, param.Body, postID, userId)
 	if err != nil {
 		ctx.Error(err)
 		return

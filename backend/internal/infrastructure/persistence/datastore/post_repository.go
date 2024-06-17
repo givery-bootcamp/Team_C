@@ -2,10 +2,11 @@ package datastore
 
 import (
 	"context"
+	"fmt"
 
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
-
+	"myapp/internal/exception"
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
 
@@ -62,18 +63,35 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 	return p.ToModel(), nil
 }
 
-func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.Post, error) {
+func (r *PostRepository) Update(
+	ctx context.Context,
+	post *model.Post,
+	userId int,
+) (*model.Post, error) {
 	p := entity.UpdatePostFromModel(post)
 
 	conn := r.db.GetDB(ctx)
 
-	res := conn.Model(&entity.Post{}).Where("id = ?", p.ID).Updates(map[string]interface{}{
-		"title": p.Title,
-		"body":  p.Body,
-	})
+	res := conn.Model(&entity.Post{}).
+		Where("id = ? AND user_id = ?", p.ID, userId).
+		Updates(map[string]interface{}{
+			"title": p.Title,
+			"body":  p.Body,
+		})
 
 	if res.Error != nil {
 		return nil, res.Error
+	}
+
+	if res.RowsAffected == 0 {
+		if err := conn.Where("id = ?", p.ID).First(&entity.Post{}).Error; err != nil {
+			return nil, exception.InvalidRequestError
+		}
+		return nil, exception.AuthError
+	}
+
+	if res.RowsAffected == 0 {
+		return nil, fmt.Errorf("post not found or user not authorized")
 	}
 
 	if err := conn.Where("id = ?", p.ID).First(&p).Error; err != nil {
