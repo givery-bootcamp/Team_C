@@ -2,13 +2,13 @@ package datastore
 
 import (
 	"context"
+	"errors"
+
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
 	"myapp/internal/exception"
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
-
-	"errors"
 
 	"golang.org/x/xerrors"
 	"gorm.io/gorm"
