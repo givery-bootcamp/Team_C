@@ -1,19 +1,20 @@
 package handler
 
 import (
-	"myapp/internal/application/usecase"
-	"myapp/internal/domain/model"
-	"myapp/internal/exception"
-	"myapp/internal/interface/api/middleware"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
+	"myapp/internal/application/usecase"
+	"myapp/internal/domain/model"
+	"myapp/internal/exception"
+	"myapp/internal/interface/api/middleware"
 )
 
 const (
-  defaultLimit = 20
-  maxLimit     = 1000
+	defaultLimit = 20
+	maxLimit     = 1000
 )
 
 type PostHandler struct {
@@ -27,19 +28,19 @@ func NewPostHandler(u usecase.PostUsecase) PostHandler {
 }
 
 func (h *PostHandler) GetAll(ctx *gin.Context) {
-  limit, err := strconv.Atoi(ctx.Query("limit"))
-  if err != nil {
+	limit, err := strconv.Atoi(ctx.Query("limit"))
+	if err != nil {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
-  if limit == 0 {
-    limit = defaultLimit
-  } else if limit > maxLimit {
-    limit = maxLimit
-  }
+	if limit == 0 {
+		limit = defaultLimit
+	} else if limit > maxLimit {
+		limit = maxLimit
+	}
 
-  offset, err := strconv.Atoi(ctx.Query("offset"))
-  if err != nil {
+	offset, err := strconv.Atoi(ctx.Query("offset"))
+	if err != nil {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
@@ -96,14 +97,20 @@ func (h *PostHandler) Update(ctx *gin.Context) {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
-  
+
+	userId, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
 	var param model.UpdatePostParam
 	if err := ctx.ShouldBindJSON(&param); err != nil {
 		ctx.Error(exception.InvalidRequestError)
 		return
 	}
 
-	updatedPost, err := h.u.Update(ctx, postID, param.Title, param.Body)
+	updatedPost, err := h.u.Update(ctx, param.Title, param.Body, postID, userId)
 	if err != nil {
 		ctx.Error(err)
 		return
