@@ -9,6 +9,7 @@ import (
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
 
+	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 )
 
@@ -31,9 +32,9 @@ func (r *UserRepository) GetBySigninParam(ctx context.Context, param model.UserS
 		First(&user).
 		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, exception.FailedToSigninError
+			return nil, xerrors.Errorf("failed to get sign in params: %w", exception.FailedToSigninError)
 		}
-		return nil, err
+		return nil, NewSQLError(err)
 	}
 
 	return user.ToModel(), nil

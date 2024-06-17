@@ -5,6 +5,7 @@ import (
 
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
+
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
 )
@@ -24,7 +25,7 @@ func (r *PostRepository) GetAll(ctx context.Context, limit, offset int) ([]*mode
 
 	conn := r.db.GetDB(ctx)
 	if err := conn.Preload("User").Limit(limit).Offset(offset).Find(&posts).Error; err != nil {
-		return nil, err
+		return nil, NewSQLError(err)
 	}
 	return entity.ToPostModelListFromEntity(posts), nil
 }
@@ -34,7 +35,7 @@ func (r *PostRepository) GetByID(ctx context.Context, id int) (*model.Post, erro
 
 	conn := r.db.GetDB(ctx)
 	if err := conn.Preload("User").Where("id = ?", id).First(&p).Error; err != nil {
-		return nil, err
+		return nil, NewSQLError(err)
 	}
 
 	return p.ToModel(), nil
@@ -47,12 +48,12 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 
 	res := conn.Create(&p)
 	if res.Error != nil {
-		return nil, res.Error
+		return nil, NewSQLError(res.Error)
 	}
 
 	user := entity.User{}
 	if err := conn.Where("id = ?", p.UserID).First(&user).Error; err != nil {
-		return nil, err
+		return nil, NewSQLError(err)
 	}
 	p.User = user
 

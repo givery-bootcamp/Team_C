@@ -30,7 +30,7 @@ func (r *HelloWorldRepository) Get(ctx context.Context, lang string) (*model.Hel
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, result.Error
+		return nil, NewSQLError(result.Error)
 	}
 	return obj.ToModel(), nil
 }
