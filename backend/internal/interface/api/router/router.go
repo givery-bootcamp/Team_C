@@ -1,13 +1,13 @@
 package router
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"myapp/internal/application/usecase"
 	"myapp/internal/infrastructure/persistence/datastore"
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/interface/api/handler"
 	"myapp/internal/interface/api/middleware"
-
-	"github.com/gin-gonic/gin"
 )
 
 func CreateRouter() *gin.Engine {
@@ -38,14 +38,14 @@ func CreateRouter() *gin.Engine {
 	{
 		postRoute := apiRoute.Group("/posts")
 		{
-			postRoute.GET("/:id", ph.GetByID)
 			postRoute.GET("", ph.GetAll)
 
 			authPostRoute := postRoute.Group("")
 			authPostRoute.Use(middleware.CheckToken())
 			{
 				authPostRoute.POST("", ph.Create)
-        authPostRoute.PUT("/:id", ph.Update)
+				authPostRoute.GET("/:id", ph.GetByID)
+				authPostRoute.PUT("/:id", ph.Update)
 			}
 		}
 

@@ -33,19 +33,19 @@ func (r *PostRepository) GetAll(ctx context.Context, limit, offset int) ([]*mode
 	return entity.ToPostModelListFromEntity(posts), nil
 }
 
-func (r *PostRepository) GetByID(ctx context.Context, id int) (*model.Post, error) {
+func (r *PostRepository) GetByID(ctx context.Context, postId int, userId int) (*model.Post, error) {
 	var p entity.Post
 
 	conn := r.db.GetDB(ctx)
-	if err := conn.Preload("User").Where("id = ?", id).First(&p).Error; err != nil {
-		return nil, xerrors.Errorf("failed to SQL execution: %w", err)
+	if err := conn.Preload("User").Where("id = ? AND user_id = ?", postId, userId).First(&p).Error; err != nil {
+		return nil, exception.InvalidRequestError
 	}
 
 	return p.ToModel(), nil
 }
 
 func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.Post, error) {
-	p := entity.NewPostFromModel(post)
+	p := entity.PostFromModel(post)
 
 	conn := r.db.GetDB(ctx)
 
@@ -66,36 +66,17 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 func (r *PostRepository) Update(
 	ctx context.Context,
 	post *model.Post,
-	userId int,
 ) (*model.Post, error) {
-	p := entity.UpdatePostFromModel(post)
+	p := entity.PostFromModel(post)
 
 	conn := r.db.GetDB(ctx)
 
 	res := conn.Model(&entity.Post{}).
-		Where("id = ? AND user_id = ?", p.ID, userId).
-		Updates(entity.Post{
-			Title: p.Title,
-			Body:  p.Body,
-		})
+		Where("id = ?", p.ID).
+		Updates(p)
 
 	if res.Error != nil {
 		return nil, res.Error
-	}
-
-	if res.RowsAffected == 0 {
-		if err := conn.Where("id = ?", p.ID).First(&entity.Post{}).Error; err != nil {
-			return nil, exception.InvalidRequestError
-		}
-		return nil, exception.AuthError
-	}
-
-	if res.RowsAffected == 0 {
-		return nil, fmt.Errorf("post not found or user not authorized")
-	}
-
-	if err := conn.Where("id = ?", p.ID).First(&p).Error; err != nil {
-		return nil, err
 	}
 
 	return p.ToModel(), nil

@@ -4,12 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
 	"myapp/internal/application/usecase"
 	"myapp/internal/domain/model"
 	"myapp/internal/exception"
 	"myapp/internal/interface/api/middleware"
-
-	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -99,9 +98,15 @@ func (h *PostHandler) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.u.GetByID(ctx, postID)
+	userId, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		ctx.Error(err)
+		return
+	}
+
+	res, err := h.u.GetByID(ctx, postID, userId)
+	if err != nil {
+		ctx.Error(exception.InvalidRequestError)
 		return
 	}
 
@@ -156,5 +161,5 @@ func (h *PostHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, updatedPost)
+	ctx.JSON(http.StatusOK, updatedPost)
 }
