@@ -8,6 +8,7 @@ import (
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
 
+	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +31,7 @@ func (r *HelloWorldRepository) Get(ctx context.Context, lang string) (*model.Hel
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, NewSQLError(result.Error)
+		return nil, xerrors.Errorf("failed to SQL execution: %s", result.Error)
 	}
 	return obj.ToModel(), nil
 }
