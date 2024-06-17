@@ -71,9 +71,9 @@ func (r *PostRepository) Update(
 
 	res := conn.Model(&entity.Post{}).
 		Where("id = ? AND user_id = ?", p.ID, userId).
-		Updates(map[string]interface{}{
-			"title": p.Title,
-			"body":  p.Body,
+		Updates(entity.Post{
+			Title: p.Title,
+			Body:  p.Body,
 		})
 
 	if res.Error != nil {
