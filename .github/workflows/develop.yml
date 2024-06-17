@@ -19,18 +19,26 @@ jobs:
               with:
                   go-version: '1.22'
             - name: go install swag
-              run: go install github.com/swaggo/swag/cmd/swag@latest
+              run: |
+                cd backend
+                go install github.com/swaggo/swag/cmd/swag@latest
             - name: generate swagger
-              run: swag init
+              run: |
+                cd backend
+                swag init
             - uses: actions/upload-artifact@v4
               with:
                 name: swagger.yaml
-                path: ./docs/swagger.yaml
+                path: ./backend/docs/swagger.yaml
             - name: node install
               uses: actions/setup-node@v3
               with:
                 node-version: 'v20.12.2'
             - name: npm install
-              run: npm install
+              run: |
+                 cd frontend
+                 npm install
             - name: npm generate swagger model
-              run: npm run generate
+              run: |
+               cd frontend
+               npm run generate
