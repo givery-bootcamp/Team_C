@@ -67,16 +67,18 @@ func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.P
 
 	conn := r.db.GetDB(ctx)
 
-	res := conn.Update(p.Title, p.Body)
+	res := conn.Model(&entity.Post{}).Where("id = ?", p.ID).Updates(map[string]interface{}{
+		"title": p.Title,
+		"body":  p.Body,
+	})
+
 	if res.Error != nil {
 		return nil, res.Error
 	}
 
-	user := entity.User{}
-	if err := conn.Where("id = ?", p.UserID).First(&user).Error; err != nil {
+	if err := conn.Where("id = ?", p.ID).First(&p).Error; err != nil {
 		return nil, err
 	}
-	p.User = user
 
 	return p.ToModel(), nil
 }
