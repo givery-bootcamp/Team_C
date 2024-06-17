@@ -18,9 +18,9 @@ export function Login() {
   const [show, setShow] = useState(false);
   const dispatch = useAppDispatch();
 
-  //   useEffect(() => {
-  //     dispatch(APIService.postSignin(signinParam as model_UserSigninParam));
-  //   }, [dispatch, signinParam]);
+  // useEffect(() => {
+  //   dispatch(APIService.postSignin(signinParam as model_UserSigninParam));
+  // }, [dispatch, signinParam]);
 
   const handleClick = () => setShow(!show);
 
@@ -44,6 +44,7 @@ export function Login() {
         height: '100vh',
         width: '100vw',
       }}
+      onSubmit={formik.handleSubmit}
     >
       <FormControl isRequired>
         <FormLabel>name</FormLabel>
@@ -58,7 +59,9 @@ export function Login() {
             pr="4.5rem"
             type="text"
             placeholder="Enter your name"
+            onChange={formik.handleChange}
             value={signinParam?.name}
+            id="name"
           />
         </InputGroup>
       </FormControl>
@@ -75,7 +78,9 @@ export function Login() {
             pr="4.5rem"
             type="password"
             placeholder="Enter your password"
+            onChange={formik.handleChange}
             value={signinParam?.password}
+            id="password"
           />
           <InputRightElement width="4.5rem">
             <Button h="1.75rem" size="sm" onClick={handleClick}>
@@ -88,6 +93,7 @@ export function Login() {
         mt={4}
         colorScheme="teal"
         isLoading={formik.isSubmitting}
+        onClick={() => formik.handleSubmit}
         type="submit"
       >
         Submit
