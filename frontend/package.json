@@ -14,7 +14,8 @@
     "fix": "run-s fix:*",
     "fix:prettier": "prettier . --write",
     "fix:eslint": "eslint . --ext .ts,.tsx --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "generate": "openapi --input ../backend/docs/swagger.yaml --output ./src/api --name ApiClient --useOptions true"
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
@@ -45,6 +46,7 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.5",
     "npm-run-all": "^4.1.5",
+    "openapi-typescript-codegen": "^0.29.0",
     "prettier": "^3.2.5",
     "sass": "^1.62.1",
     "typescript": "^5.4.5",
