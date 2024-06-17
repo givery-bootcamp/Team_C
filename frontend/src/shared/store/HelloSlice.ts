@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-
 import { Hello } from 'shared/models';
 import { APIService } from 'shared/services';
 

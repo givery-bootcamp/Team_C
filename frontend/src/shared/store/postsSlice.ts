@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Post } from '../models/post';
 import { APIService } from '../services';
+import { model_Post } from 'api';
 
 export type PostsState = {
-  posts?: Post[];
+  posts?: model_Post[];
 };
 
 export const initialState: PostsState = {};
