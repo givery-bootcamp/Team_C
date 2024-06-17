@@ -53,4 +53,5 @@ jobs:
                 git config user.email auto-push@example.com
                 git add .
                 git commit -m "auto push from ci" || echo no commits
+                git remote set-url origin https://xxarupakaxx@github.com/givery-bootcamp/dena-2024-team3.git
                 git push origin HEAD:${{ github.ref_name }}
