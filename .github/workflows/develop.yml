@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - 'develop'
+  pull_request:
+
+
+jobs:
+    swagger-gen:
+        name: swagger-gen
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Set up Go
+              uses: actions/setup-go@v3
+              with:
+                  go-version: '1.22'
+            - name: go install swag
+              run: go install github.com/swaggo/swag/cmd/swag@latest
+            - name: generate swagger
+              run: swag init
+            - uses: actions/upload-artifact@v4
+              with:
+                name: swagger.yaml
+                path: ./docs/swagger.yaml
+            - name: node install
+              uses: actions/setup-node@v3
+              with:
+                node-version: 'v20.12.2'
+            - name: npm install
+              run: npm install
+            - name: npm generate swagger model
+              run: npm run generate
