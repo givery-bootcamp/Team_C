@@ -11,6 +11,7 @@ var (
 	CorsAllowOrigin  = []string{"http://localhost:3000", "http://localhost:8001"}
 	DBHostName       = "db"
 	DBUser           = "root"
+	DBPassword       = "password"
 	DBPort           = 3306
 	DBName           = "training"
 	JWTCookieKeyName = "Authorize"
@@ -29,6 +30,12 @@ func init() {
 	}
 	if v := os.Getenv("DB_HOSTNAME"); v != "" {
 		DBHostName = v
+	}
+	if v := os.Getenv("DB_USERNAME"); v != "" {
+		DBUser = v
+	}
+	if v := os.Getenv("DB_PASSWORD"); v != "" {
+		DBPassword = v
 	}
 	if v, err := strconv.ParseInt(os.Getenv("DB_PORT"), 10, 64); err == nil {
 		DBPort = int(v)
