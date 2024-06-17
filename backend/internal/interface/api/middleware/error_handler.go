@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"log"
 	"myapp/internal/exception"
 
@@ -18,10 +19,20 @@ func HandleError() gin.HandlerFunc {
 		for _, err := range c.Errors {
 			log.Printf("Error: %+v", err.Err)
 		}
+
 		ginErr := c.Errors[0]
-		e, ok := ginErr.Err.(*exception.Exception)
-		if !ok {
-			e = exception.ServerError
+		var e *exception.Exception
+		unwrappedErr := ginErr.Err
+		for {
+			if err, ok := unwrappedErr.(*exception.Exception); ok {
+				e = err
+				break
+			}
+			unwrappedErr = errors.Unwrap(unwrappedErr)
+			if unwrappedErr == nil {
+				e = exception.ServerError
+				break
+			}
 		}
 
 		c.JSON(e.Status, e)
