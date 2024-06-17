@@ -1,8 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { ApiClient } from '../../api/ApiClient'; // Replace 'path/to/ApiClient' with the actual path to the ApiClient file
+import { ApiClient } from 'api/ApiClient'; // Replace 'path/to/ApiClient' with the actual path to the ApiClient file
 
-import { Hello } from '../models';
-import { model_Post } from '../../api/models/model_Post';
+import { Hello } from 'shared/models';
+import { model_Post } from 'api/models/model_Post';
 
 const API_ENDPOINT_PATH = import.meta.env.VITE_API_ENDPOINT_PATH ?? '';
 

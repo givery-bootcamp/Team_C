@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../shared/hooks';
-import { APIService } from '../../shared/services';
-import { Post } from '../../shared/models/post';
+import { useAppDispatch, useAppSelector } from 'shared/hooks';
+import { APIService } from 'shared/services';
+import { Post } from 'shared/models/post';
 import {
   Avatar,
   Box,
@@ -15,6 +15,7 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react';
+
 export function Posts() {
   const { posts } = useAppSelector((state) => state.post);
   const dispatch = useAppDispatch();
