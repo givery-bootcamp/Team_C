@@ -105,8 +105,8 @@ $ docker compose up prism
 ```
 
 ## APIを作成時
-# ブランチ名を `feature/api/**`にして！！！！
-`
+swaggerの変更を検知して、feature/api-updateというブランチで別PRが作られます
+確認してマージしてそれも
 ## ディレクトリ構成
 
 ### Backend
