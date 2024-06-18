@@ -104,6 +104,9 @@ $ docker compose up swagger-ui
 $ docker compose up prism
 ```
 
+## APIを作成時
+# ブランチ名を `feature/api/**`にして！！！！
+`
 ## ディレクトリ構成
 
 ### Backend
