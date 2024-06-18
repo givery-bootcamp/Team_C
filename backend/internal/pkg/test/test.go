@@ -3,11 +3,10 @@ package test
 import (
 	"fmt"
 
-	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 )
 
-func DiffEq(v interface{}, opts ...cmp.Option) gomock.Matcher {
+func DiffEq(v interface{}, opts ...cmp.Option) *diffMatcher {
 	return &diffMatcher{want: v, opts: opts}
 }
 
