@@ -1,12 +1,12 @@
 package jwt
 
 import (
-	"fmt"
 	"myapp/internal/exception"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/xerrors"
 )
 
 func GenerateToken(userId int) (string, error) {
@@ -22,7 +22,7 @@ func GenerateToken(userId int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
-		return "", err
+		return "", xerrors.Errorf("failed to sign token: %w", err)
 	}
 
 	return tokenString, nil
@@ -31,12 +31,12 @@ func GenerateToken(userId int) (string, error) {
 func GetUserIDFromToken(tokenString string) (int, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, xerrors.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(os.Getenv("JWT_KEY")), nil
 	})
 	if err != nil {
-		return 0, err
+		return 0, xerrors.Errorf("failed to parse token: %w", err)
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		userID := claims["user_id"].(float64)
