@@ -2,8 +2,6 @@ name: CI
 
 on:
   pull_request:
-        branches:
-          - 'feature/api/**'
 
 
 jobs:
@@ -48,13 +46,13 @@ jobs:
               run: |
                cd frontend
                npm run generate
-            - name: push generated swagger model
-              run: |
-                git remote set-url origin https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-                git config --global user.name "${{github.actor}}"
-                git config --global user.email "${{github.actor}}@users.noreply.github.com"
-                git add .
-                git commit -m "generate model from swagger" || echo no commits
-                git push origin HEAD:${{ github.head_ref }}
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v4
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
+                commit-message: generate swagger model
+                title: generate swagger model
+                body: generate swagger model
+                base: main
+                branch: feature/api-update
+                delete-branch: true
