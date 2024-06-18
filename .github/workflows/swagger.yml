@@ -49,8 +49,6 @@ jobs:
             - name: push generated swagger model
               run: |
                 git remote set-url origin https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-                git config user.name github-actions
-                git config user.email github-actions@example.com
                 git add .
                 git commit -m "generate model from swagger" || echo no commits
                 git push origin HEAD:${{ github.head_ref }}
