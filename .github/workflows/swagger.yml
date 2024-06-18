@@ -1,7 +1,9 @@
 name: CI
 
 on:
-  pull_request:
+  push:
+    branches:
+      - main
 
 
 jobs:
@@ -52,7 +54,7 @@ jobs:
                 token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
                 commit-message: generate swagger model
                 title: generate swagger model
-                body: generate swagger model
+                body: generate swagger model by @${{ github.actor }}
                 base: main
                 branch: feature/api-update
                 delete-branch: true
