@@ -11,4 +11,5 @@ const SideMenu = () => {
         </VStack>
     );
 }
+
 export default SideMenu;

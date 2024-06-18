@@ -2,7 +2,7 @@ import { AppRoute } from './AppRoute';
 
 import './App.scss';
 import { ChakraProvider } from '@chakra-ui/react';
-import SideMenu from '../components/sidemenu'
+import SideMenu from 'components/sidemenu'
 
 function App() {
   return (
