@@ -16,7 +16,6 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 
-
 function PostsHeader() {
   return (
     <Flex fontSize={'4xl'} p={3}>
@@ -24,7 +23,6 @@ function PostsHeader() {
     </Flex>
   )
 }
-
 
 export function Posts() {
   const { posts } = useAppSelector((state) => state.post);
@@ -36,7 +34,6 @@ export function Posts() {
 
   return (
     <div className="posts-container">
-
       <PostsHeader />
       {posts?.map((post: model_Post) => (
         <Card key={post.id} margin={2}>
