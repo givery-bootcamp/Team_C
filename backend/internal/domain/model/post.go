@@ -13,12 +13,13 @@ type Post struct {
 }
 
 func NewPost(title string, body string, user User) *Post {
+	t := time.Now()
 	return &Post{
 		Title:     title,
 		Body:      body,
 		User:      user,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: t,
+		UpdatedAt: t,
 	}
 }
 

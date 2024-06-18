@@ -12,11 +12,12 @@ type User struct {
 }
 
 func NewUser(name, password string) *User {
+	t := time.Now()
 	return &User{
 		Name:      name,
 		Password:  password,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: t,
+		UpdatedAt: t,
 	}
 }
 
