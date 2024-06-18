@@ -1,14 +1,13 @@
-import { Box, VStack } from "@chakra-ui/react";
-import { NavLink } from "react-router-dom";
+import { Flex, VStack, Link } from "@chakra-ui/react";
 
 const SideMenu = () => {
     return (
-        <VStack p={3}>
-            <Box>
-                <NavLink to="/posts" className="app-menu__nav-item">
-                    トップ
-                </NavLink>
-            </Box>
+        <VStack w={'100px'} paddingTop={3}>
+            <Flex w={'100%'} >
+                <Link href="/posts" color={'blue.500'}>
+                    トップへ
+                </Link>
+            </Flex>
         </VStack>
     );
 }

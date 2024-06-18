@@ -36,7 +36,7 @@ export function Posts() {
     <div className="posts-container">
       <PostsHeader />
       {posts?.map((post: Post) => (
-        <Card key={post.id}>
+        <Card key={post.id} margin={2}>
           <CardHeader>
             <Flex>
               <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
