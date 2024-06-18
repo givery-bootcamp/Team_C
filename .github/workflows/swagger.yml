@@ -50,4 +50,4 @@ jobs:
                 git config user.email github-actions@example.com
                 git add .
                 git commit -m "generate model from swagger" || echo no commits
-                git push
+                git push origin HEAD:{{ $GITHUB_HEAD_REF }}
