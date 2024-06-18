@@ -3,12 +3,14 @@ package datastore
 import (
 	"context"
 	"errors"
+
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
 	"myapp/internal/exception"
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
 
+	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 )
 
@@ -31,9 +33,9 @@ func (r *UserRepository) GetBySigninParam(ctx context.Context, param model.UserS
 		First(&user).
 		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, exception.FailedToSigninError
+			return nil, xerrors.Errorf("failed to get sign in params: %w", exception.FailedToSigninError)
 		}
-		return nil, err
+		return nil, xerrors.Errorf("failed to SQL execution: %w", err)
 	}
 
 	return user.ToModel(), nil

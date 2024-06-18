@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../shared/hooks';
-import { APIService } from '../../shared/services';
-import { Post } from '../../shared/models/post';
+import { useAppDispatch, useAppSelector } from 'shared/hooks';
+import { APIService } from 'shared/services';
+import { model_Post } from 'api';
 import {
   Avatar,
   Box,
@@ -16,6 +16,7 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 
+
 function PostsHeader() {
   return (
     <Flex fontSize={'4xl'} p={3}>
@@ -23,6 +24,7 @@ function PostsHeader() {
     </Flex>
   )
 }
+
 
 export function Posts() {
   const { posts } = useAppSelector((state) => state.post);
@@ -34,8 +36,9 @@ export function Posts() {
 
   return (
     <div className="posts-container">
+
       <PostsHeader />
-      {posts?.map((post: Post) => (
+      {posts?.map((post: model_Post) => (
         <Card key={post.id} margin={2}>
           <CardHeader>
             <Flex>
