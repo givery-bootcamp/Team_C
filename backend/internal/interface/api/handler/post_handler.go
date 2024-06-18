@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	defaultLimit = 20
-	maxLimit     = 1000
+	defaultLimit  = 20
+	maxLimit      = 1000
+	defaultOffset = 0
 )
 
 type PostHandler struct {
@@ -40,21 +41,34 @@ func NewPostHandler(u usecase.PostUsecase) PostHandler {
 //	@Success		200		{object}	[]model.Post
 //	@Router			/api/posts [get]
 func (h *PostHandler) GetAll(ctx *gin.Context) {
-	limit, err := strconv.Atoi(ctx.Query("limit"))
-	if err != nil {
-		ctx.Error(exception.InvalidRequestError)
-		return
+	limit := defaultLimit
+	limitQuery := ctx.Query("limit")
+
+	if limitQuery != "" {
+		l, err := strconv.Atoi(limitQuery)
+		if err != nil {
+			ctx.Error(exception.InvalidRequestError)
+			return
+		}
+
+		limit = l
 	}
-	if limit == 0 {
-		limit = defaultLimit
-	} else if limit > maxLimit {
+
+	if limit > maxLimit {
 		limit = maxLimit
 	}
 
-	offset, err := strconv.Atoi(ctx.Query("offset"))
-	if err != nil {
-		ctx.Error(exception.InvalidRequestError)
-		return
+	offset := defaultOffset
+	offsetQuery := ctx.Query("offset")
+
+	if offsetQuery != "" {
+		o, err := strconv.Atoi(offsetQuery)
+		if err != nil {
+			ctx.Error(exception.InvalidRequestError)
+			return
+		}
+
+		offset = o
 	}
 
 	res, err := h.u.GetAll(ctx, limit, offset)
