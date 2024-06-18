@@ -54,7 +54,7 @@ func TestPostUsecaseTest(t *testing.T) {
 				repositoryErr: nil,
 			},
 			{
-				name:          "fail",
+				name:          "fail/Repositoryがエラーを返した時にエラーを返す",
 				limit:         10,
 				offset:        0,
 				ctx:           context.Background(),
@@ -92,7 +92,7 @@ func TestPostUsecaseTest(t *testing.T) {
 				repositoryErr: nil,
 			},
 			{
-				name:          "fail",
+				name:          "fail/Repositoryがエラーを返した時にエラーを返す",
 				id:            1,
 				ctx:           context.Background(),
 				post:          nil,
@@ -135,7 +135,7 @@ func TestPostUsecaseTest(t *testing.T) {
 				repositoryErr: nil,
 			},
 			{
-				name:          "fail",
+				name:          "fail/Repositoryがエラーを返した時にエラーを返す",
 				title:         "title1",
 				body:          "body1",
 				userId:        1,
