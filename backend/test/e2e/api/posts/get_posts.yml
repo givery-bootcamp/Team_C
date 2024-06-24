@@ -1,0 +1,26 @@
+desc: PostsAPI
+runners:
+  req:
+    endpoint: http://localhost:9000
+vars:
+  limit: 5
+if: included
+steps:
+  GetPosts:
+    desc: クエリパラメータなしで投稿一覧取得APIを叩くと20件取得される
+    req:
+      /api/posts:
+        get:
+          body: null
+    test:
+      current.res.status == 200
+      && len(current.res.body) == 20
+  GetPostsByLimit:
+    desc: limitを指定することで取得する投稿の件数を絞れる
+    req:
+      /api/posts?limit={{ vars.limit }}:
+        get:
+          body: null
+    test:
+      current.res.status == 200
+      && len(current.res.body) == vars.limit
