@@ -28,7 +28,7 @@ type CreatePostParam struct {
 	Body  string `json:"body"`
 }
 
-func UpdatePost(post *Post,title string, body string) *Post {
+func NewUpdatePost(post *Post,title string, body string) *Post {
   post.Title = title
   post.Body = body
   post.UpdatedAt = time.Now()

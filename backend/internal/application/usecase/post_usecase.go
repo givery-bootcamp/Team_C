@@ -49,7 +49,7 @@ func (u *PostUsecase) Update(ctx context.Context, title, body string, postId int
 		return nil, exception.InvalidRequestError
 	}
 
-	updatedPost := model.UpdatePost(post, title, body)
+	updatedPost := model.NewUpdatePost(post, title, body)
 
 	return u.r.Update(ctx, updatedPost)
 }
