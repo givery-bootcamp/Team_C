@@ -1,6 +1,7 @@
 desc: Hello World
 runners:
   req: http://localhost:9000
+if: included
 steps:
   - desc: "Hello Worldが返ってくる"
     req:

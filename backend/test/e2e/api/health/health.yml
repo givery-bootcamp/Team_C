@@ -1,6 +1,7 @@
 desc: Health Check
 runners:
   req: http://localhost:9000
+if: included
 steps:
   - desc: "Health Checkが返ってくる"
     req:

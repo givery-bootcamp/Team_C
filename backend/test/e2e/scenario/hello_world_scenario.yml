@@ -1,0 +1,6 @@
+desc: HelloWorldScenario
+steps:
+  HelloWorld:
+    desc: HelloWorldが返ってくる
+    include:
+      path: ../api/hello/hello.yml
