@@ -43,24 +43,24 @@ func TestPostUsecaseTest(t *testing.T) {
 			posts         []*model.Post
 			repositoryErr error
 		}{
-			// {
-			// 	name:   "success",
-			// 	limit:  10,
-			// 	offset: 0,
-			// 	ctx:    context.Background(),
-			// 	posts: []*model.Post{
-			// 		model.NewPost("title1", "body1", *model.NewUser("user1", "password1")),
-			// 	},
-			// 	repositoryErr: nil,
-			// },
-			// {
-			// 	name:          "fail/Repositoryがエラーを返した時にエラーを返す",
-			// 	limit:         10,
-			// 	offset:        0,
-			// 	ctx:           context.Background(),
-			// 	posts:         nil,
-			// 	repositoryErr: errors.New("error"),
-			// },
+			{
+				name:   "success",
+				limit:  10,
+				offset: 0,
+				ctx:    context.Background(),
+				posts: []*model.Post{
+					model.NewPost("title1", "body1", *model.NewUser("user1", "password1")),
+				},
+				repositoryErr: nil,
+			},
+			{
+				name:          "fail/Repositoryがエラーを返した時にエラーを返す",
+				limit:         10,
+				offset:        0,
+				ctx:           context.Background(),
+				posts:         nil,
+				repositoryErr: errors.New("error"),
+			},
 		}
 
 		for _, tt := range tests {
