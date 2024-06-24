@@ -85,13 +85,7 @@ func (h *PostHandler) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	userId, err := middleware.GetUserIDFromContext(ctx)
-	if err != nil {
-		ctx.Error(err)
-		return
-	}
-
-	res, err := h.u.GetByID(ctx, postID, userId)
+	res, err := h.u.GetByID(ctx, postID)
 	if err != nil {
 		ctx.Error(exception.InvalidRequestError)
 		return

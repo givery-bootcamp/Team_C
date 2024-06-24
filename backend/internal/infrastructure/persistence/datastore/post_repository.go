@@ -5,7 +5,6 @@ import (
 
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
-	"myapp/internal/exception"
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
 )
@@ -30,12 +29,12 @@ func (r *PostRepository) GetAll(ctx context.Context, limit, offset int) ([]*mode
 	return entity.ToPostModelListFromEntity(posts), nil
 }
 
-func (r *PostRepository) GetByID(ctx context.Context, postId int, userId int) (*model.Post, error) {
+func (r *PostRepository) GetByID(ctx context.Context, postId int) (*model.Post, error) {
 	var p entity.Post
 
 	conn := r.db.GetDB(ctx)
-	if err := conn.Preload("User").Where("id = ? AND user_id = ?", postId, userId).First(&p).Error; err != nil {
-		return nil, exception.InvalidRequestError
+	if err := conn.Preload("User").Where("id = ?", postId).First(&p).Error; err != nil {
+		return nil, err
 	}
 
 	return p.ToModel(), nil
