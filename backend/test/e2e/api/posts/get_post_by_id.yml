@@ -1,0 +1,24 @@
+desc: GetPostsByID
+runners:
+  req: http://localhost:9000
+vars:
+  id: "{{ parent.vars.id }}"
+  title: "{{ parent.vars.title }}"
+  body: "{{ parent.vars.body }}"
+  userID: "{{ parent.vars.userID }}"
+  userName: "{{ parent.vars.userName }}"
+if: included
+steps:
+  GetPostsByID:
+    desc: IDを指定して投稿詳細を取得できる
+    req:
+      /api/posts/{{ vars.id }}:
+        get:
+          body: null
+    test:
+      current.res.status == 200
+      && current.res.body.id == vars.id
+      && current.res.body.title == vars.title
+      && current.res.body.body == vars.body
+      && current.res.body.user.id == vars.userID
+      && current.res.body.user.name == vars.userName
