@@ -4,11 +4,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"myapp/internal/application/usecase"
 	"myapp/internal/domain/model"
 	"myapp/internal/exception"
 	"myapp/internal/interface/api/middleware"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -100,7 +101,7 @@ func (h *PostHandler) GetByID(ctx *gin.Context) {
 
 	res, err := h.u.GetByID(ctx, postID)
 	if err != nil {
-		ctx.Error(exception.InvalidRequestError)
+		ctx.Error(err)
 		return
 	}
 

@@ -5,6 +5,7 @@ import (
 
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
+
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
 
@@ -36,7 +37,7 @@ func (r *PostRepository) GetByID(ctx context.Context, id int) (*model.Post, erro
 
 	conn := r.db.GetDB(ctx)
 	if err := conn.Preload("User").Where("id = ?", id).First(&p).Error; err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("failed to SQL execution: %w", err)
 	}
 
 	return p.ToModel(), nil
