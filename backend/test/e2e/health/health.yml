@@ -1,0 +1,11 @@
+desc: Health Check
+runners:
+  req: http://localhost:9000
+steps:
+  - desc: "Health Checkが返ってくる"
+    req:
+      /:
+        get:
+          body: null
+    test: |
+      current.res.status == 200
