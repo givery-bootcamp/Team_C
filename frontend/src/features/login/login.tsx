@@ -36,6 +36,7 @@ export function SignInForm() {
       try {
         const result = await dispatch(APIService.postSignin(values));
         if (APIService.postSignin.fulfilled.match(result)) {
+          localStorage.setItem('loginSuccess', 'true');
           navigate('/posts');
         } else if (APIService.postSignin.rejected.match(result)) {
           toast({
