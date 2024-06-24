@@ -5,11 +5,13 @@ import (
 
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
+	"myapp/internal/exception"
 
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
 
 	"golang.org/x/xerrors"
+	"gorm.io/gorm"
 )
 
 type PostRepository struct {
@@ -37,6 +39,9 @@ func (r *PostRepository) GetByID(ctx context.Context, id int) (*model.Post, erro
 
 	conn := r.db.GetDB(ctx)
 	if err := conn.Preload("User").Where("id = ?", id).First(&p).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, exception.RecordNotFoundError
+		}
 		return nil, xerrors.Errorf("failed to SQL execution: %w", err)
 	}
 
