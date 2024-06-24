@@ -16,6 +16,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { APIService } from 'shared/services';
+import * as Yup from 'yup';
+
 interface SignInFormValues {
   name: string;
   password: string;
@@ -32,6 +34,14 @@ export function SignInForm() {
       name: '',
       password: '',
     },
+    validationSchema: Yup.object({
+      name: Yup.string()
+        .max(15, 'Must be 15 characters or less')
+        .required('Required'),
+      password: Yup.string()
+        .max(10, 'Must be 10 characters or less')
+        .required('Required'),
+    }),
     onSubmit: async (values) => {
       try {
         const result = await dispatch(APIService.postSignin(values));
