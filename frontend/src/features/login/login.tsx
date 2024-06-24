@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppDispatch } from 'shared/hooks';
 import { useFormik } from 'formik';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   VStack,
@@ -12,6 +13,7 @@ import {
   Button,
   Heading,
   useColorModeValue,
+  useToast,
 } from '@chakra-ui/react';
 import { APIService } from 'shared/services';
 
@@ -22,6 +24,8 @@ interface SignInFormValues {
 
 export const SignInForm: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const toast = useToast();
   const [showPassword, setShowPassword] = React.useState(false);
 
   const formik = useFormik<SignInFormValues>({
@@ -29,8 +33,34 @@ export const SignInForm: React.FC = () => {
       name: '',
       password: '',
     },
-    onSubmit: (values) => {
-      dispatch(APIService.postSignin(values));
+    onSubmit: async (values) => {
+      try {
+        const result = await dispatch(APIService.postSignin(values));
+        // ここで結果をチェックします。成功の場合のみナビゲートします。
+        if (result.payload) {
+          // または適切な成功条件をチェック
+          navigate('/posts');
+        } else {
+          // APIは成功したが、ログインに失敗した場合（例：認証エラー）
+          toast({
+            title: 'ログイン失敗',
+            description: 'ユーザー名またはパスワードが正しくありません。',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      } catch (error) {
+        console.error('サインインエラー:', error);
+        toast({
+          title: 'エラー',
+          description:
+            'ログイン中にエラーが発生しました。後でもう一度お試しください。',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     },
   });
 
