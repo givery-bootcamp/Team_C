@@ -145,7 +145,7 @@ func (h *PostHandler) Update(ctx *gin.Context) {
 
 	var param model.UpdatePostParam
 	if err := ctx.ShouldBindJSON(&param); err != nil {
-		ctx.Error(exception.InvalidRequestError)
+		ctx.Error(err)
 		return
 	}
 

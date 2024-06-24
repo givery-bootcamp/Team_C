@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 
+	"gorm.io/gorm"
+
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
 	"myapp/internal/exception"
@@ -37,7 +39,10 @@ func (u *PostUsecase) Create(ctx context.Context, title, body string, userId int
 func (u *PostUsecase) Update(ctx context.Context, title, body string, postId int, userId int) (*model.Post, error) {
 	post, err := u.GetByID(ctx, postId)
 	if err != nil {
-		return nil, err
+		if err == gorm.ErrRecordNotFound {
+			return nil, exception.RecordNotFoundError
+		}
+		return nil, exception.ServerError
 	}
 
 	if post.User.ID != userId {
