@@ -34,7 +34,7 @@ func newTestDependencies(t *testing.T) testDependencies {
 }
 
 func TestPostUsecaseTest(t *testing.T) {
-	t.Run("GetAll!!", func(t *testing.T) {
+	t.Run("GetAll", func(t *testing.T) {
 		tests := []struct {
 			name          string
 			limit         int
