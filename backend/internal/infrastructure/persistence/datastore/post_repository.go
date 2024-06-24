@@ -44,7 +44,7 @@ func (r *PostRepository) GetByID(ctx context.Context, id int) (*model.Post, erro
 }
 
 func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.Post, error) {
-	p := entity.PostFromModel(post)
+	p := entity.NewPostFromModel(post)
 
 	conn := r.db.GetDB(ctx)
 
@@ -63,7 +63,7 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 }
 
 func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.Post, error) {
-	p := entity.PostFromModel(post)
+	p := entity.NewPostFromModel(post)
 
 	conn := r.db.GetDB(ctx)
 

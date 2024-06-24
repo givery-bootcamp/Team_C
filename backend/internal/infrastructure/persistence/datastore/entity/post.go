@@ -17,7 +17,7 @@ type Post struct {
 	DeletedAt *time.Time
 }
 
-func PostFromModel(p *model.Post) *Post {
+func NewPostFromModel(p *model.Post) *Post {
 	return &Post{
 		ID:        p.ID,
 		Title:     p.Title,
