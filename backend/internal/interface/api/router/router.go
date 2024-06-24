@@ -46,6 +46,7 @@ func CreateRouter() *gin.Engine {
 				authPostRoute.POST("", ph.Create)
 				authPostRoute.GET("/:id", ph.GetByID)
 				authPostRoute.PUT("/:id", ph.Update)
+				authPostRoute.DELETE("/:id", ph.Delete)
 			}
 		}
 

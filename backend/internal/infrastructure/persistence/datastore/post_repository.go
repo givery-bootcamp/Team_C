@@ -82,3 +82,18 @@ func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.P
 
 	return p.ToModel(), nil
 }
+
+func (r *PostRepository) Delete(ctx context.Context, postId int) error {
+	conn := r.db.GetDB(ctx)
+
+	if err := conn.Where("post_id = ?", postId).Delete(&entity.Comment{}).Error; err != nil {
+		return xerrors.Errorf("failed to delete comments: %w", err)
+	}
+
+	res := conn.Where("id = ?", postId).Delete(&entity.Post{})
+	if res.Error != nil {
+		return xerrors.Errorf("failed to execute SQL: %w", res.Error)
+	}
+
+	return nil
+}

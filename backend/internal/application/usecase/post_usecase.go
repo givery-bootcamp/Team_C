@@ -48,3 +48,16 @@ func (u *PostUsecase) Update(ctx context.Context, title, body string, postId int
 
 	return u.r.Update(ctx, updatedPost)
 }
+
+func (u *PostUsecase) Delete(ctx context.Context, postId int, userId int) error {
+	post, err := u.GetByID(ctx, postId)
+	if err != nil {
+		return err
+	}
+
+	if post.User.ID != userId {
+		return exception.RecordNotFoundError
+	}
+
+	return u.r.Delete(ctx, postId)
+}
