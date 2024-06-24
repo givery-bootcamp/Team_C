@@ -11,7 +11,7 @@ jobs:
   backend-test:
     runs-on: ubuntu-latest
     permissions:
-          contents: write
+      contents: write
 
     steps:
     - name: Checkout code
@@ -31,4 +31,4 @@ jobs:
       run: go test ./... --cover -v -coverprofile=../coverage.out
 
     - name: Exec octocov action
-      uses: k1LoW/octocov-action@v0
+      uses: k1LoW/octocov-action@v1
