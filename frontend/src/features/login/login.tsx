@@ -16,13 +16,12 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { APIService } from 'shared/services';
-
 interface SignInFormValues {
   name: string;
   password: string;
 }
 
-export const SignInForm: React.FC = () => {
+export function SignInForm() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const toast = useToast();
@@ -36,12 +35,9 @@ export const SignInForm: React.FC = () => {
     onSubmit: async (values) => {
       try {
         const result = await dispatch(APIService.postSignin(values));
-        // ここで結果をチェックします。成功の場合のみナビゲートします。
-        if (result.payload) {
-          // または適切な成功条件をチェック
+        if (APIService.postSignin.fulfilled.match(result)) {
           navigate('/posts');
-        } else {
-          // APIは成功したが、ログインに失敗した場合（例：認証エラー）
+        } else if (APIService.postSignin.rejected.match(result)) {
           toast({
             title: 'ログイン失敗',
             description: 'ユーザー名またはパスワードが正しくありません。',
@@ -142,4 +138,4 @@ export const SignInForm: React.FC = () => {
       </Box>
     </Box>
   );
-};
+}
