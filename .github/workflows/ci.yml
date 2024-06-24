@@ -31,4 +31,4 @@ jobs:
       run: go test ./... --cover -v -coverprofile=../coverage.out
 
     - name: Exec octocov action
-      uses: k1LoW/octocov-action@v1
+      uses: k1LoW/octocov-action@v0
