@@ -5,7 +5,7 @@ import (
 	"errors"
 	"myapp/internal/application/usecase"
 	"myapp/internal/domain/model"
-	mock_repository "myapp/internal/domain/repository/mock"
+	"myapp/internal/domain/repository/mock"
 	"myapp/internal/pkg/test"
 	"testing"
 
@@ -16,14 +16,14 @@ import (
 )
 
 type testDependencies struct {
-	r    *mock_repository.MockPostRepository
+	r    *mock.MockPostRepository
 	u    usecase.PostUsecase
 	ctrl *gomock.Controller
 }
 
 func newTestDependencies(t *testing.T) testDependencies {
 	ctrl := gomock.NewController(t)
-	r := mock_repository.NewMockPostRepository(ctrl)
+	r := mock.NewMockPostRepository(ctrl)
 	u := usecase.NewPostUsecase(r)
 
 	return testDependencies{
