@@ -129,3 +129,32 @@ func (h *PostHandler) Create(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, newPost)
 }
+
+func (h *PostHandler) Update(ctx *gin.Context) {
+	query := ctx.Param("id")
+	postID, err := strconv.Atoi(query)
+	if err != nil {
+		ctx.Error(exception.InvalidRequestError)
+		return
+	}
+
+	userId, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	var param model.UpdatePostParam
+	if err := ctx.ShouldBindJSON(&param); err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	updatedPost, err := h.u.Update(ctx, param.Title, param.Body, postID, userId)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedPost)
+}

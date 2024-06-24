@@ -5,6 +5,7 @@ import (
 
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
+	"myapp/internal/exception"
 )
 
 type PostUsecase struct {
@@ -31,4 +32,19 @@ func (u *PostUsecase) Create(ctx context.Context, title, body string, userId int
 	})
 
 	return u.r.Create(ctx, post)
+}
+
+func (u *PostUsecase) Update(ctx context.Context, title, body string, postId int, userId int) (*model.Post, error) {
+	post, err := u.GetByID(ctx, postId)
+	if err != nil {
+		return nil, err
+	}
+
+	if post.User.ID != userId {
+		return nil, exception.RecordNotFoundError
+	}
+
+	updatedPost := post.UpdatePost(title, body)
+
+	return u.r.Update(ctx, updatedPost)
 }
