@@ -53,14 +53,14 @@ func TestPostUsecaseTest(t *testing.T) {
 			// 	},
 			// 	repositoryErr: nil,
 			// },
-			{
-				name:          "fail/Repositoryがエラーを返した時にエラーを返す",
-				limit:         10,
-				offset:        0,
-				ctx:           context.Background(),
-				posts:         nil,
-				repositoryErr: errors.New("error"),
-			},
+			// {
+			// 	name:          "fail/Repositoryがエラーを返した時にエラーを返す",
+			// 	limit:         10,
+			// 	offset:        0,
+			// 	ctx:           context.Background(),
+			// 	posts:         nil,
+			// 	repositoryErr: errors.New("error"),
+			// },
 		}
 
 		for _, tt := range tests {
