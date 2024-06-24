@@ -2,7 +2,6 @@ package datastore
 
 import (
 	"context"
-	"fmt"
 
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
