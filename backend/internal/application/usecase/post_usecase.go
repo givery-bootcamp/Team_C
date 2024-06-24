@@ -41,7 +41,7 @@ func (u *PostUsecase) Update(ctx context.Context, title, body string, postId int
 	}
 
 	if post.User.ID != userId {
-		return nil, exception.InvalidRequestError
+		return nil, exception.RecordNotFoundError
 	}
 
 	updatedPost := post.NewUpdatePost(title, body)
