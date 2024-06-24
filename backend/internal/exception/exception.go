@@ -26,4 +26,5 @@ var (
 	AuthError           = newException(http.StatusUnauthorized, "認証エラーが発生しました", 0)
 	InvalidRequestError = newException(http.StatusBadRequest, "リクエストが不正です", 0)
 	FailedToSigninError = newException(http.StatusBadRequest, "サインインに失敗しました", 0)
+	RecordNotFoundError = newException(http.StatusNotFound, "レコードが見つかりませんでした", 0)
 )

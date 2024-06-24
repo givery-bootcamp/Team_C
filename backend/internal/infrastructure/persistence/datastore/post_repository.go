@@ -5,11 +5,13 @@ import (
 
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
+	"myapp/internal/exception"
 
 	"myapp/internal/infrastructure/persistence/datastore/driver"
 	"myapp/internal/infrastructure/persistence/datastore/entity"
 
 	"golang.org/x/xerrors"
+	"gorm.io/gorm"
 )
 
 type PostRepository struct {
@@ -37,6 +39,9 @@ func (r *PostRepository) GetByID(ctx context.Context, id int) (*model.Post, erro
 
 	conn := r.db.GetDB(ctx)
 	if err := conn.Preload("User").Where("id = ?", id).First(&p).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, exception.RecordNotFoundError
+		}
 		return nil, xerrors.Errorf("failed to SQL execution: %w", err)
 	}
 
@@ -58,6 +63,22 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 		return nil, xerrors.Errorf("failed to SQL execution: %w", err)
 	}
 	p.User = user
+
+	return p.ToModel(), nil
+}
+
+func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.Post, error) {
+	p := entity.NewPostFromModel(post)
+
+	conn := r.db.GetDB(ctx)
+
+	res := conn.Model(&entity.Post{}).
+		Where("id = ?", p.ID).
+		Updates(p)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
 
 	return p.ToModel(), nil
 }
