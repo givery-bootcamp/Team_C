@@ -2,15 +2,16 @@ import { AppRoute } from './AppRoute';
 
 import './App.scss';
 import { ChakraProvider } from '@chakra-ui/react';
-import SideMenu from 'components/sidemenu'
+import { Link } from 'react-router-dom';
 
 function App() {
   return (
     <ChakraProvider>
       <div className="app-root">
-        <header className="app-header">サンプルアプリケーション</header>
+        <Link to="/">
+          <header className="app-header">サンプルアプリケーション</header>
+        </Link>
         <main className="app-body container">
-          <SideMenu />
           <AppRoute />
         </main>
       </div>
