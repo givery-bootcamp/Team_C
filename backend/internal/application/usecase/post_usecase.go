@@ -37,14 +37,14 @@ func (u *PostUsecase) Create(ctx context.Context, title, body string, userId int
 func (u *PostUsecase) Update(ctx context.Context, title, body string, postId int, userId int) (*model.Post, error) {
 	post, err := u.GetByID(ctx, postId)
 	if err != nil {
-    return nil, err
+		return nil, err
 	}
 
 	if post.User.ID != userId {
 		return nil, exception.RecordNotFoundError
 	}
 
-	updatedPost := post.NewUpdatePost(title, body)
+	updatedPost := post.UpdatePost(title, body)
 
 	return u.r.Update(ctx, updatedPost)
 }
