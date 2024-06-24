@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"errors"
+	"net/http"
+
 	"myapp/internal/config"
 	"myapp/internal/exception"
 	"myapp/internal/pkg/jwt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,7 +51,8 @@ func SetJWTCookie(ctx *gin.Context, userID int) error {
 	if err != nil {
 		return exception.ServerError
 	}
-	ctx.SetCookie(config.JWTCookieKeyName, token, 0, "/", ctx.Request.Host, false, true)
+
+	ctx.SetCookie(config.JWTCookieKeyName, token, 0, "/", "localhost", false, true)
 
 	return nil
 }
