@@ -2,7 +2,6 @@ package datastore_test
 
 import (
 	"context"
-	"errors"
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
 	"myapp/internal/infrastructure/persistence/datastore"
@@ -14,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 )
 
@@ -41,30 +41,35 @@ func TestPostRepository(t *testing.T) {
 		mockDB, mock, err := NewDbMock()
 		require.NoError(t, err)
 
+		type input struct {
+			limit  int
+			offset int
+		}
+
 		tests := []struct {
-			name                string
-			limit               int
-			offset              int
+			name  string
+			input input
+
 			expectQuery         []*sqlmock.ExpectedQuery
 			expectGormErr       error
+			expectedFunctionErr error
 			expectReturnedPosts []*model.Post
 		}{
 			{
-				name:   "failed/postsテーブルのクエリに失敗したときエラーを返す",
-				limit:  10,
-				offset: 1,
+				name:  "failed/postsテーブルのクエリに失敗したときエラーを返す",
+				input: input{limit: 10, offset: 1},
 				expectQuery: []*sqlmock.ExpectedQuery{
 					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` LIMIT ? OFFSET ?")).
 						WithArgs(10, 1).
 						WillReturnError(gorm.ErrInvalidDB),
 				},
 				expectGormErr:       gorm.ErrInvalidDB,
+				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
 				expectReturnedPosts: nil,
 			},
 			{
-				name:   "failed/usersテーブルのクエリに失敗したときエラーを返す",
-				limit:  10,
-				offset: 1,
+				name:  "failed/usersテーブルのクエリに失敗したときエラーを返す",
+				input: input{limit: 10, offset: 1},
 				expectQuery: []*sqlmock.ExpectedQuery{
 					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` LIMIT ? OFFSET ?")).
 						WithArgs(10, 1).
@@ -73,13 +78,13 @@ func TestPostRepository(t *testing.T) {
 						WithArgs(1).
 						WillReturnError(gorm.ErrInvalidDB),
 				},
+				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
 				expectGormErr:       gorm.ErrInvalidDB,
 				expectReturnedPosts: nil,
 			},
 			{
-				name:   "success",
-				limit:  10,
-				offset: 1,
+				name:  "success",
+				input: input{limit: 10, offset: 1},
 				expectQuery: []*sqlmock.ExpectedQuery{
 					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` LIMIT ? OFFSET ?")).
 						WithArgs(10, 1).
@@ -92,7 +97,8 @@ func TestPostRepository(t *testing.T) {
 						WithArgs(11, 12).
 						WillReturnRows(sqlmock.NewRows([]string{"id", "name"}).AddRow(11, "ユーザー11").AddRow(12, "ユーザー12")),
 				},
-				expectGormErr: nil,
+				expectedFunctionErr: nil,
+				expectGormErr:       nil,
 				expectReturnedPosts: []*model.Post{
 					{
 						ID:    1,
@@ -121,18 +127,10 @@ func TestPostRepository(t *testing.T) {
 				deps, err := newTestPostRepositoryDependencies(t, mockDB)
 				require.NoError(t, err)
 
-				posts, err := deps.repo.GetAll(context.Background(), tt.limit, tt.offset)
+				posts, err := deps.repo.GetAll(context.Background(), tt.input.limit, tt.input.offset)
 
+				AssertErrMsg(t, tt.expectedFunctionErr, err)
 				assert.Equal(t, tt.expectReturnedPosts, posts)
-				if tt.expectGormErr == nil {
-					assert.Nil(t, err)
-				} else {
-					// exrrorsでラップしたエラーを取り出す
-					unWrappedErr := errors.Unwrap(err)
-					require.NotNil(t, unWrappedErr)
-
-					assert.Equal(t, tt.expectGormErr, unWrappedErr)
-				}
 			})
 		}
 	})
