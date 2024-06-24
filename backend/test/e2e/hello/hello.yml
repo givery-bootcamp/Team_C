@@ -1,0 +1,11 @@
+desc: Hello World
+runners:
+  req: http://localhost:9000
+steps:
+  - desc: "Hello Worldが返ってくる"
+    req:
+      /hello:
+        get:
+          body: null
+    test: |
+      current.res.status == 200
