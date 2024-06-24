@@ -86,13 +86,25 @@ func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.P
 func (r *PostRepository) Delete(ctx context.Context, id int) error {
 	conn := r.db.GetDB(ctx)
 
-	if err := conn.Where("post_id = ?", id).Delete(&entity.Comment{}).Error; err != nil {
+	tx := conn.Begin()
+	if tx.Error != nil {
+		return xerrors.Errorf("failed to begin transaction: %w", tx.Error)
+	}
+
+	if err := tx.Where("post_id = ?", id).Delete(&entity.Comment{}).Error; err != nil {
+		tx.Rollback()
 		return xerrors.Errorf("failed to delete comments: %w", err)
 	}
 
-	res := conn.Where("id = ?", id).Delete(&entity.Post{})
+	res := tx.Where("id = ?", id).Delete(&entity.Post{})
 	if res.Error != nil {
-		return xerrors.Errorf("failed to execute SQL: %w", res.Error)
+		tx.Rollback()
+		return xerrors.Errorf("failed to delete posts: %w", res.Error)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return xerrors.Errorf("failed to commit transaction: %w", err)
 	}
 
 	return nil
