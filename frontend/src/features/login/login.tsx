@@ -1,103 +1,108 @@
-import { useEffect, useState } from 'react';
-
-import { useAppDispatch, useAppSelector } from 'shared/hooks';
-import { APIService } from 'shared/services';
-import { model_UserSigninParam } from '../../api/models/model_UserSigninParam';
+import React from 'react';
+import { useAppDispatch } from 'shared/hooks';
+import { useFormik } from 'formik';
 import {
-  Button,
+  Box,
+  VStack,
   FormControl,
   FormLabel,
   Input,
   InputGroup,
   InputRightElement,
+  Button,
+  Heading,
+  useColorModeValue,
 } from '@chakra-ui/react';
-import { useFormik } from 'formik';
+import { APIService } from 'shared/services';
 
-export function Login() {
-  const { signinParam } = useAppSelector((state) => state.signin);
-  const [show, setShow] = useState(false);
+interface SignInFormValues {
+  name: string;
+  password: string;
+}
+
+export const SignInForm: React.FC = () => {
   const dispatch = useAppDispatch();
+  const [showPassword, setShowPassword] = React.useState(false);
 
-  // useEffect(() => {
-  //   dispatch(APIService.postSignin(signinParam as model_UserSigninParam));
-  // }, [dispatch, signinParam]);
-
-  const handleClick = () => setShow(!show);
-
-  const formik = useFormik({
+  const formik = useFormik<SignInFormValues>({
     initialValues: {
       name: '',
       password: '',
-    } as model_UserSigninParam,
+    },
     onSubmit: (values) => {
       dispatch(APIService.postSignin(values));
     },
   });
 
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+
   return (
-    <form
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        width: '100vw',
-      }}
-      onSubmit={formik.handleSubmit}
+    <Box
+      minHeight="100vh"
+      width="100%"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      bg={useColorModeValue('gray.50', 'gray.800')}
     >
-      <FormControl isRequired>
-        <FormLabel>name</FormLabel>
-        <InputGroup
-          size="md"
-          style={{
-            marginBottom: '20px',
-            width: '300px',
-          }}
-        >
-          <Input
-            pr="4.5rem"
-            type="text"
-            placeholder="Enter your name"
-            onChange={formik.handleChange}
-            value={signinParam?.name}
-            id="name"
-          />
-        </InputGroup>
-      </FormControl>
-      <FormControl isRequired>
-        <FormLabel>password</FormLabel>
-        <InputGroup
-          size="md"
-          style={{
-            marginBottom: '20px',
-            width: '300px',
-          }}
-        >
-          <Input
-            pr="4.5rem"
-            type="password"
-            placeholder="Enter your password"
-            onChange={formik.handleChange}
-            value={signinParam?.password}
-            id="password"
-          />
-          <InputRightElement width="4.5rem">
-            <Button h="1.75rem" size="sm" onClick={handleClick}>
-              {show ? 'Hide' : 'Show'}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-      </FormControl>
-      <Button
-        mt={4}
-        colorScheme="teal"
-        isLoading={formik.isSubmitting}
-        onClick={() => formik.handleSubmit}
-        type="submit"
+      <Box
+        p={8}
+        maxWidth="400px"
+        borderWidth={1}
+        borderRadius="lg"
+        boxShadow="lg"
+        bg={useColorModeValue('white', 'gray.700')}
       >
-        Submit
-      </Button>
-    </form>
+        <VStack spacing={4} align="flex-start" w="100%">
+          <Heading as="h2" size="xl" textAlign="center" w="100%">
+            ログイン
+          </Heading>
+          <form onSubmit={formik.handleSubmit} style={{ width: '100%' }}>
+            <VStack spacing={4} align="flex-start" w="100%">
+              <FormControl isRequired>
+                <FormLabel>名前</FormLabel>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="名前を入力しろ"
+                  {...formik.getFieldProps('name')}
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>パスワード</FormLabel>
+                <InputGroup>
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="パスワードを入力しろ"
+                    {...formik.getFieldProps('password')}
+                  />
+                  <InputRightElement width="4.5rem">
+                    <Button
+                      h="1.75rem"
+                      size="sm"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? '隠す' : '表示'}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+
+              <Button
+                mt={4}
+                colorScheme="teal"
+                isLoading={formik.isSubmitting}
+                type="submit"
+                w="100%"
+              >
+                ログイン
+              </Button>
+            </VStack>
+          </form>
+        </VStack>
+      </Box>
+    </Box>
   );
-}
+};
