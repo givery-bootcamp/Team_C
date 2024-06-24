@@ -62,10 +62,7 @@ func (r *PostRepository) Create(ctx context.Context, post *model.Post) (*model.P
 	return p.ToModel(), nil
 }
 
-func (r *PostRepository) Update(
-	ctx context.Context,
-	post *model.Post,
-) (*model.Post, error) {
+func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.Post, error) {
 	p := entity.PostFromModel(post)
 
 	conn := r.db.GetDB(ctx)

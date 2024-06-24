@@ -26,11 +26,7 @@ func (u *PostUsecase) GetByID(ctx context.Context, id int) (*model.Post, error) 
 	return u.r.GetByID(ctx, id)
 }
 
-func (u *PostUsecase) Create(
-	ctx context.Context,
-	title, body string,
-	userId int,
-) (*model.Post, error) {
+func (u *PostUsecase) Create(ctx context.Context, title, body string, userId int) (*model.Post, error) {
 	post := model.NewPost(title, body, model.User{
 		ID: userId,
 	})
@@ -38,12 +34,7 @@ func (u *PostUsecase) Create(
 	return u.r.Create(ctx, post)
 }
 
-func (u *PostUsecase) Update(
-	ctx context.Context,
-	title, body string,
-	postId int,
-	userId int,
-) (*model.Post, error) {
+func (u *PostUsecase) Update(ctx context.Context, title, body string, postId int, userId int) (*model.Post, error) {
 	post, err := u.GetByID(ctx, postId)
 	if err != nil {
 		return nil, err
