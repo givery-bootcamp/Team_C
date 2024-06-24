@@ -22,8 +22,8 @@ func (u *PostUsecase) GetAll(ctx context.Context, limit, offset int) ([]*model.P
 	return u.r.GetAll(ctx, limit, offset)
 }
 
-func (u *PostUsecase) GetByID(ctx context.Context, postId int) (*model.Post, error) {
-	return u.r.GetByID(ctx, postId)
+func (u *PostUsecase) GetByID(ctx context.Context, id int) (*model.Post, error) {
+	return u.r.GetByID(ctx, id)
 }
 
 func (u *PostUsecase) Create(
