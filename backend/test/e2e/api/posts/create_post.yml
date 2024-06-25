@@ -1,0 +1,19 @@
+desc: PostsAPI
+vars:
+  request: "json://request.json"
+  cookie: "{{ parent.vars.cookie }}"
+if: included
+steps:
+  CreatePosts:
+    desc: 投稿が作成できる
+    req:
+      /api/posts:
+        post:
+          headers:
+            Cookie: "{{ vars.cookie }}"
+          body:
+            application/json: "{{ vars.request }}"
+    test:
+      current.res.status == 201
+    bind:
+      post: current.res.body
