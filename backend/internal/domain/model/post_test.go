@@ -10,10 +10,14 @@ import (
 
 func TestNewPost(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		post := model.NewPost("title", "body", model.User{
-			Name:     "test",
-			Password: "password",
-		})
+		post := model.NewPost(
+		        "title",
+		        "body",
+		        model.User{
+			        Name:     "test",
+			        Password: "password",
+		        },
+		)
 
 		expectedUser := test.DiffEq(&model.Post{
 			Title: "title",
