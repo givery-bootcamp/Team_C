@@ -27,7 +27,7 @@ func (m *MySQLMigrator) Migrate() error {
 		return nil
 	}
 	if err != migrate.ErrNoChange {
-		return xerrors.Errorf("failed to migrate: %v", err)
+		return xerrors.Errorf("failed to migrate: %w", err)
 	}
 	return nil
 }
