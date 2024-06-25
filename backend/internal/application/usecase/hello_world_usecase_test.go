@@ -45,67 +45,44 @@ func TestHelloWorldUsecase_Execute(t *testing.T) {
 
 	mockRepo := repository_mock.NewMockHelloWorldRepository(ctrl)
 
-	type fields struct {
-		r repository.HelloWorldRepository
-	}
-	type args struct {
-		ctx  context.Context
-		lang string
-	}
 	tests := []struct {
 		name    string
-		fields  fields
-		args    args
+		lang    string
 		want    *model.HelloWorld
 		wantErr bool
-		setup   func()
+		mockErr error
 	}{
 		{
 			name: "success",
-			fields: fields{
-				r: mockRepo,
-			},
-			args: args{
-				ctx:  context.Background(),
-				lang: "en",
-			},
+			lang: "en",
 			want: &model.HelloWorld{
 				Message: "Hello, World!",
 				Lang:    "en",
 			},
 			wantErr: false,
-			setup: func() {
-				mockRepo.EXPECT().Get(context.Background(), "en").Return(&model.HelloWorld{
-					Message: "Hello, World!",
-					Lang:    "en",
-				}, nil)
-			},
+			mockErr: nil,
 		},
 		{
-			name: "fail/Repositoryがエラーを返した時にエラーを返す",
-			fields: fields{
-				r: mockRepo,
-			},
-			args: args{
-				ctx:  context.Background(),
-				lang: "en",
-			},
+			name:    "fail/Repositoryがエラーを返した時にエラーを返す",
+			lang:    "en",
 			want:    nil,
 			wantErr: true,
-			setup: func() {
-				mockRepo.EXPECT().Get(context.Background(), "en").Return(nil, errors.New("error"))
-			},
+			mockErr: errors.New("error"),
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.setup != nil {
-				tt.setup()
+			if tt.mockErr == nil {
+				mockRepo.EXPECT().Get(context.Background(), tt.lang).Return(tt.want, nil)
+			} else {
+				mockRepo.EXPECT().Get(context.Background(), tt.lang).Return(nil, tt.mockErr)
 			}
-			u := &HelloWorldUsecase{
-				r: tt.fields.r,
+
+			u := HelloWorldUsecase{
+				r: mockRepo,
 			}
-			got, err := u.Execute(tt.args.ctx, tt.args.lang)
+			got, err := u.Execute(context.Background(), tt.lang)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("HelloWorldUsecase.Execute() error = %v, wantErr %v", err, tt.wantErr)
 				return
