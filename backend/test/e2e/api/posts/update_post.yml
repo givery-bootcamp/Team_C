@@ -1,0 +1,25 @@
+desc: PostsAPI
+vars:
+  id: "{{ parent.vars.id }}"
+  cookie: "{{ parent.vars.cookie }}"
+  editBody: "edit body"
+  editTitle: "edit title"
+if: included
+steps:
+  UpdatePost:
+    desc: 自分が作成した投稿が編集できる
+    req:
+      /api/posts/{{ vars.id }}:
+        put:
+          headers:
+            Accept: application/json
+            Cookie: "{{ vars.cookie }}"
+          body:
+            application/json:
+              body: "{{ vars.editBody }}"
+              title: "{{ vars.editTitle }}"
+    test:
+      current.res.status == 200
+      && current.res.body.id == vars.id
+      && current.res.body.body == vars.editBody
+      && current.res.body.title == vars.editTitle

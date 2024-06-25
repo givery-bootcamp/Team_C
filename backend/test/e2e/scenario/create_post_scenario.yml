@@ -20,3 +20,12 @@ steps:
         userID: '{{ steps.CreatePost.post.user.id }}'
         userName: '{{ steps.CreatePost.post.user.name }}'
         cookie: '{{ steps.Signin.cookie }}'
+  UpdatePost:
+    desc: 作成した投稿を編集できる
+    include:
+      path: ../api/posts/update_post.yml
+      vars:
+        id: '{{ steps.CreatePost.post.id }}'
+        cookie: '{{ steps.Signin.cookie }}'
+        editTitle: '{{ steps.CreatePost.post.title }}edit'
+        editBody: '{{ steps.CreatePost.post.body }}edit'

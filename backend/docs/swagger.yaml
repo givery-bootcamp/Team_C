@@ -142,7 +142,7 @@ paths:
       summary: get post by id
       tags:
       - post
-    post:
+    put:
       consumes:
       - application/json
       description: update post
