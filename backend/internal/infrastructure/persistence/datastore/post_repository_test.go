@@ -47,447 +47,310 @@ func newTestPostRepositoryDependencies(t *testing.T) (testPostRepositoryDependen
 	}, nil
 }
 
-func TestPostRepository(t *testing.T) {
-	t.Run("GetAll", func(t *testing.T) {
-		type input struct {
-			limit  int
-			offset int
-		}
+func TestPostRepository_GetAll(t *testing.T) {
+	t.Run("failed/postsテーブルのクエリに失敗したとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
 
-		tests := []struct {
-			name  string
-			input input
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` LIMIT ? OFFSET ?")).
+			WithArgs(10, 1).
+			WillReturnError(gorm.ErrInvalidDB)
 
-			buildMockQueryFn    func(sqlmock.Sqlmock)
-			expectQuery         []*sqlmock.ExpectedQuery
-			expectedFunctionErr error
-			expectReturnedPosts []*model.Post
-		}{
-			{
-				name:  "failed/postsテーブルのクエリに失敗したとき期待したエラーを返す",
-				input: input{limit: 10, offset: 1},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` LIMIT ? OFFSET ?")).
-						WithArgs(10, 1).
-						WillReturnError(gorm.ErrInvalidDB)
-				},
-				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
-				expectReturnedPosts: nil,
-			},
-			{
-				name:  "failed/usersテーブルのクエリに失敗したとき期待したエラーを返す",
-				input: input{limit: 10, offset: 1},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` LIMIT ? OFFSET ?")).
-						WithArgs(10, 1).
-						WillReturnRows(sqlmock.NewRows([]string{"id", "title", "body", "user_id", "created_at", "updated_at", "deleted_at"}).
-							AddRow(1, "タイトル", "本文", 1, time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), nil),
-						)
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE `users`.`id` = ?")).
-						WithArgs(1).
-						WillReturnError(gorm.ErrInvalidDB)
-				},
-				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
-				expectReturnedPosts: nil,
-			},
-			{
-				name:  "success",
-				input: input{limit: 10, offset: 1},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` LIMIT ? OFFSET ?")).
-						WithArgs(10, 1).
-						WillReturnRows(
-							sqlmock.NewRows([]string{"id", "title", "body", "user_id", "created_at", "updated_at", "deleted_at"}).
-								AddRow(1, "タイトル1", "本文1", 11, time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), nil).
-								AddRow(2, "タイトル2", "本文2", 12, time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), nil),
-						)
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE `users`.`id` IN (?,?)")).
-						WithArgs(11, 12).
-						WillReturnRows(
-							sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at", "deleted_at"}).
-								AddRow(11, "ユーザー11", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil).
-								AddRow(12, "ユーザー12", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
-						)
-				},
-				expectedFunctionErr: nil,
-				expectReturnedPosts: []*model.Post{
-					{
-						ID:    1,
-						Title: "タイトル1",
-						Body:  "本文1",
-						User: model.User{
-							ID:        11,
-							Name:      "ユーザー11",
-							Password:  "password",
-							CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-							UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-						},
-						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-					},
-					{
-						ID:    2,
-						Title: "タイトル2",
-						Body:  "本文2",
-						User: model.User{
-							ID:        12,
-							Name:      "ユーザー12",
-							Password:  "password",
-							CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-							UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-						},
-						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-					},
-				},
-			},
-		}
+		posts, err := deps.repo.GetAll(context.Background(), 10, 1)
 
-		for _, tt := range tests {
-			t.Run(tt.name, func(t *testing.T) {
-				deps, err := newTestPostRepositoryDependencies(t)
-				require.NoError(t, err)
-
-				tt.buildMockQueryFn(deps.mock)
-
-				posts, err := deps.repo.GetAll(context.Background(), tt.input.limit, tt.input.offset)
-
-				AssertErrMsg(t, tt.expectedFunctionErr, err)
-				assert.Equal(t, tt.expectReturnedPosts, posts)
-			})
-		}
+		AssertErrMsg(t, xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB), err)
+		assert.Nil(t, posts)
 	})
 
-	t.Run("GetByID", func(t *testing.T) {
-		type input struct {
-			id int
-		}
+	t.Run("success", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
 
-		tests := []struct {
-			name  string
-			input input
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` LIMIT ? OFFSET ?")).
+			WithArgs(10, 1).
+			WillReturnRows(
+				sqlmock.NewRows([]string{"id", "title", "body", "user_id", "created_at", "updated_at", "deleted_at"}).
+					AddRow(1, "タイトル1", "本文1", 11, time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), nil).
+					AddRow(2, "タイトル2", "本文2", 12, time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), nil),
+			)
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE `users`.`id` IN (?,?)")).
+			WithArgs(11, 12).
+			WillReturnRows(
+				sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at", "deleted_at"}).
+					AddRow(11, "ユーザー11", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil).
+					AddRow(12, "ユーザー12", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
+			)
 
-			buildMockQueryFn    func(sqlmock.Sqlmock)
-			expectQuery         []*sqlmock.ExpectedQuery
-			expectedFunctionErr error
-			expectReturnedPost  *model.Post
-		}{
+		posts, err := deps.repo.GetAll(context.Background(), 10, 1)
+
+		require.NoError(t, err)
+		assert.Equal(t, []*model.Post{
 			{
-				name:  "failed/postsテーブルのクエリに失敗したとき期待したエラーを返す",
-				input: input{id: 1},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` WHERE id = ? ORDER BY `posts`.`id` LIMIT ?")).
-						WithArgs(1, 1).
-						WillReturnError(gorm.ErrInvalidDB)
+				ID:    1,
+				Title: "タイトル1",
+				Body:  "本文1",
+				User: model.User{
+					ID:        11,
+					Name:      "ユーザー11",
+					Password:  "password",
+					CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+					UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
 				},
-				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
-				expectReturnedPost:  nil,
+				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
 			},
 			{
-				name:  "failed/usersテーブルのクエリに失敗したとき期待したエラーを返す",
-				input: input{id: 1},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` WHERE id = ? ORDER BY `posts`.`id` LIMIT ?")).
-						WithArgs(1, 1).
-						WillReturnRows(sqlmock.NewRows([]string{"id", "title", "body", "user_id", "created_at", "updated_at", "deleted_at"}).
-							AddRow(1, "タイトル", "本文", 1, time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), nil),
-						)
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE `users`.`id` = ?")).
-						WithArgs(1).
-						WillReturnError(gorm.ErrInvalidDB)
+				ID:    2,
+				Title: "タイトル2",
+				Body:  "本文2",
+				User: model.User{
+					ID:        12,
+					Name:      "ユーザー12",
+					Password:  "password",
+					CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+					UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
 				},
-				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
-				expectReturnedPost:  nil,
+				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
 			},
-			{
-				name:  "failed/指定したIDの投稿が存在しないとき期待したエラーを返す",
-				input: input{id: 1},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` WHERE id = ? ORDER BY `posts`.`id` LIMIT ?")).
-						WithArgs(1, 1).
-						WillReturnError(gorm.ErrRecordNotFound)
-				},
-				expectedFunctionErr: exception.RecordNotFoundError,
-				expectReturnedPost:  nil,
-			},
-			{
-				name:  "success",
-				input: input{id: 1},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` WHERE id = ? ORDER BY `posts`.`id` LIMIT ?")).
-						WithArgs(1, 1).
-						WillReturnRows(
-							sqlmock.NewRows([]string{"id", "title", "body", "user_id", "created_at", "updated_at", "deleted_at"}).
-								AddRow(1, "タイトル", "本文", 11, time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), nil),
-						)
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE `users`.`id` = ?")).
-						WithArgs(11).
-						WillReturnRows(
-							sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at", "deleted_at"}).
-								AddRow(11, "ユーザー11", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
-						)
-				},
-				expectedFunctionErr: nil,
-				expectReturnedPost: &model.Post{
-					ID:    1,
-					Title: "タイトル",
-					Body:  "本文",
-					User: model.User{
-						ID:        11,
-						Name:      "ユーザー11",
-						Password:  "password",
-						CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-						UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-					},
-					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-				},
-			},
-		}
+		}, posts)
+	})
+}
 
-		for _, tt := range tests {
-			t.Run(tt.name, func(t *testing.T) {
-				deps, err := newTestPostRepositoryDependencies(t)
-				require.NoError(t, err)
+func TestPostRepository_GetById(t *testing.T) {
+	t.Run("failed/postsテーブルのクエリに失敗したとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
 
-				tt.buildMockQueryFn(deps.mock)
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` WHERE id = ? ORDER BY `posts`.`id` LIMIT ?")).
+			WithArgs(1, 1).
+			WillReturnError(gorm.ErrInvalidDB)
 
-				post, err := deps.repo.GetByID(context.Background(), tt.input.id)
+		post, err := deps.repo.GetByID(context.Background(), 1)
 
-				AssertErrMsg(t, tt.expectedFunctionErr, err)
-				assert.Equal(t, tt.expectReturnedPost, post)
-			})
-		}
+		AssertErrMsg(t, xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB), err)
+		assert.Nil(t, post)
 	})
 
-	t.Run("Create", func(t *testing.T) {
-		type input struct {
-			post *model.Post
-		}
+	t.Run("failed/指定したIDの投稿が存在しないとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
 
-		tests := []struct {
-			name  string
-			input input
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` WHERE id = ? ORDER BY `posts`.`id` LIMIT ?")).
+			WithArgs(1, 1).
+			WillReturnError(gorm.ErrRecordNotFound)
 
-			buildMockQueryFn    func(sqlmock.Sqlmock)
-			expectQuery         []*sqlmock.ExpectedQuery
-			expectedFunctionErr error
-			expectReturnedPost  *model.Post
-		}{
-			{
-				name:  "failed/usersテーブルのクエリに失敗したとき期待したエラーを返す",
-				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}}},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectBegin()
-					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
-						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
-						WillReturnError(gorm.ErrInvalidDB)
+		post, err := deps.repo.GetByID(context.Background(), 1)
 
-					mock.ExpectRollback()
-				},
-				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
-				expectReturnedPost:  nil,
-			},
-			{
-				name:  "failed/postsテーブルのクエリに失敗したとき期待したエラーを返す",
-				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}}},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectBegin()
-					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
-						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
-						WillReturnResult(sqlmock.NewResult(1, 1))
-
-					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `posts` (`title`,`body`,`user_id`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?)")).
-						WithArgs("タイトル", "本文", 11, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
-						WillReturnError(gorm.ErrInvalidDB)
-
-					mock.ExpectRollback()
-				},
-				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
-				expectReturnedPost:  nil,
-			},
-			{
-				name:  "failed/usersテーブルのSELECTに失敗したとき期待したエラーを返す",
-				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}}},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectBegin()
-					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
-						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
-						WillReturnResult(sqlmock.NewResult(1, 1))
-
-					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `posts` (`title`,`body`,`user_id`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?)")).
-						WithArgs("タイトル", "本文", 11, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
-						WillReturnResult(sqlmock.NewResult(1, 1))
-					mock.ExpectCommit()
-
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
-						WithArgs(11, 1).
-						WillReturnError(gorm.ErrInvalidDB)
-				},
-				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
-				expectReturnedPost:  nil,
-			},
-			{
-				name:  "success",
-				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}}},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectBegin()
-					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
-						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
-						WillReturnResult(sqlmock.NewResult(1, 1))
-
-					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `posts` (`title`,`body`,`user_id`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?)")).
-						WithArgs("タイトル", "本文", 11, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
-						WillReturnResult(sqlmock.NewResult(1, 1))
-					mock.ExpectCommit()
-
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
-						WithArgs(11, 1).
-						WillReturnRows(
-							sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at", "deleted_at"}).
-								AddRow(11, "ユーザー", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
-						)
-				},
-				expectedFunctionErr: nil,
-				expectReturnedPost: &model.Post{
-					ID:    1,
-					Title: "タイトル",
-					Body:  "本文",
-					User: model.User{
-						ID:        11,
-						Name:      "ユーザー",
-						Password:  "password",
-						CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-						UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-					},
-					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-				},
-			},
-		}
-
-		for _, tt := range tests {
-			t.Run(tt.name, func(t *testing.T) {
-				deps, err := newTestPostRepositoryDependencies(t)
-				require.NoError(t, err)
-
-				tt.buildMockQueryFn(deps.mock)
-
-				post, err := deps.repo.Create(context.Background(), tt.input.post)
-
-				AssertErrMsg(t, tt.expectedFunctionErr, err)
-
-				// CreatedAt, UpdatedAtはGorm内部で更新されるため比較対象外にする
-				expectReturnedPost := test.DiffEq(tt.expectReturnedPost, cmpopts.IgnoreFields(model.Post{}, "CreatedAt", "UpdatedAt"))
-
-				if !expectReturnedPost.Matches(post) {
-					t.Errorf("expected: %v, but got: %v", tt.expectReturnedPost, post)
-				}
-			})
-		}
+		AssertErrMsg(t, exception.RecordNotFoundError, err)
+		assert.Nil(t, post)
 	})
 
-	t.Run("Update", func(t *testing.T) {
-		type input struct {
-			post *model.Post
-		}
+	t.Run("success", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
 
-		tests := []struct {
-			name  string
-			input input
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `posts` WHERE id = ? ORDER BY `posts`.`id` LIMIT ?")).
+			WithArgs(1, 1).
+			WillReturnRows(
+				sqlmock.NewRows([]string{"id", "title", "body", "user_id", "created_at", "updated_at", "deleted_at"}).
+					AddRow(1, "タイトル", "本文", 11, time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local), nil),
+			)
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE `users`.`id` = ?")).
+			WithArgs(11).
+			WillReturnRows(
+				sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at", "deleted_at"}).
+					AddRow(11, "ユーザー11", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
+			)
 
-			buildMockQueryFn    func(sqlmock.Sqlmock)
-			expectQuery         []*sqlmock.ExpectedQuery
-			expectedFunctionErr error
-			expectReturnedPost  *model.Post
-		}{
-			{
-				name: "failed/postsテーブルのクエリに失敗したとき期待したエラーを返す",
-				input: input{post: &model.Post{
-					ID:    1,
-					Title: "タイトル",
-					Body:  "本文",
-					User: model.User{
-						ID:        1,
-						Name:      "ユーザー",
-						Password:  "password",
-						CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-						UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-					},
-					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-				}},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectBegin()
-					mock.ExpectExec(regexp.QuoteMeta("UPDATE `posts` SET `id`=?,`title`=?,`body`=?,`user_id`=?,`created_at`=?,`updated_at`=? WHERE id = ?")).
-						WithArgs(1, "タイトル", "本文", 1, sqlmock.AnyArg(), sqlmock.AnyArg(), 1).
-						WillReturnError(gorm.ErrInvalidDB)
+		post, err := deps.repo.GetByID(context.Background(), 1)
 
-					mock.ExpectRollback()
-				},
-				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
-				expectReturnedPost:  nil,
+		require.NoError(t, err)
+		assert.Equal(t, &model.Post{
+			ID:    1,
+			Title: "タイトル",
+			Body:  "本文",
+			User: model.User{
+				ID:        11,
+				Name:      "ユーザー11",
+				Password:  "password",
+				CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+				UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
 			},
-			{
-				name: "success",
-				input: input{post: &model.Post{
-					ID:    1,
-					Title: "タイトル",
-					Body:  "本文",
-					User: model.User{
-						ID:        1,
-						Name:      "ユーザー",
-						Password:  "password",
-						CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-						UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-					},
-					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-				}},
-				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
-					mock.ExpectBegin()
-					mock.ExpectExec(regexp.QuoteMeta("UPDATE `posts` SET `id`=?,`title`=?,`body`=?,`user_id`=?,`created_at`=?,`updated_at`=? WHERE id = ?")).
-						WithArgs(1, "タイトル", "本文", 1, sqlmock.AnyArg(), sqlmock.AnyArg(), 1).
-						WillReturnResult(sqlmock.NewResult(1, 1))
-					mock.ExpectCommit()
+			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+		}, post)
+	})
+}
 
-					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
-						WithArgs(1, 1).
-						WillReturnRows(
-							sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at", "deleted_at"}).
-								AddRow(1, "ユーザー", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
-						)
-				},
-				expectedFunctionErr: nil,
-				expectReturnedPost: &model.Post{
-					ID:    1,
-					Title: "タイトル",
-					Body:  "本文",
-					User: model.User{
-						ID:        1,
-						Name:      "ユーザー",
-						Password:  "password",
-						CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-						UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
-					},
-					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
-				},
+func TestPostRepository_Create(t *testing.T) {
+	t.Run("failed/postsテーブルのクエリに失敗したとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectBegin()
+		deps.mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
+			WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+
+		deps.mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `posts` (`title`,`body`,`user_id`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?)")).
+			WithArgs("タイトル", "本文", 11, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+			WillReturnError(gorm.ErrInvalidDB)
+
+		deps.mock.ExpectRollback()
+
+		post, err := deps.repo.Create(context.Background(), &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}})
+
+		AssertErrMsg(t, xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB), err)
+		assert.Nil(t, post)
+	})
+
+	t.Run("failed/usersテーブルのSELECTクエリに失敗したとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectBegin()
+		deps.mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
+			WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+
+		deps.mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `posts` (`title`,`body`,`user_id`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?)")).
+			WithArgs("タイトル", "本文", 11, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+		deps.mock.ExpectCommit()
+
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
+			WithArgs(11, 1).
+			WillReturnError(gorm.ErrInvalidDB)
+
+		post, err := deps.repo.Create(context.Background(), &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}})
+
+		AssertErrMsg(t, xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB), err)
+		assert.Nil(t, post)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectBegin()
+		deps.mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
+			WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+
+		deps.mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `posts` (`title`,`body`,`user_id`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?)")).
+			WithArgs("タイトル", "本文", 11, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+		deps.mock.ExpectCommit()
+
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
+			WithArgs(11, 1).
+			WillReturnRows(
+				sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at", "deleted_at"}).
+					AddRow(11, "ユーザー", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
+			)
+
+		post, err := deps.repo.Create(context.Background(), &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}})
+		assert.NoError(t, err)
+
+		expectedPost := test.DiffEq(&model.Post{
+			ID:    1,
+			Title: "タイトル",
+			Body:  "本文",
+			User: model.User{
+				ID:        11,
+				Name:      "ユーザー",
+				Password:  "password",
+				CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+				UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
 			},
+			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+		}, cmpopts.IgnoreFields(model.Post{}, "CreatedAt", "UpdatedAt"))
+
+		if !expectedPost.Matches(post) {
+			t.Errorf("got unexpected post: %v", expectedPost.String())
 		}
+	})
+}
 
-		for _, tt := range tests {
-			t.Run(tt.name, func(t *testing.T) {
-				deps, err := newTestPostRepositoryDependencies(t)
-				require.NoError(t, err)
+func TestPostRepository_Update(t *testing.T) {
+	t.Run("failed/postsテーブルのクエリに失敗したとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
 
-				tt.buildMockQueryFn(deps.mock)
+		deps.mock.ExpectBegin()
+		deps.mock.ExpectExec(regexp.QuoteMeta("UPDATE `posts` SET `id`=?,`title`=?,`body`=?,`user_id`=?,`created_at`=?,`updated_at`=? WHERE id = ?")).
+			WithArgs(1, "タイトル", "本文", 1, sqlmock.AnyArg(), sqlmock.AnyArg(), 1).
+			WillReturnError(gorm.ErrInvalidDB)
 
-				post, err := deps.repo.Update(context.Background(), tt.input.post)
+		deps.mock.ExpectRollback()
 
-				AssertErrMsg(t, tt.expectedFunctionErr, err)
-				assert.Equal(t, tt.expectReturnedPost, post)
-			})
-		}
+		post, err := deps.repo.Update(context.Background(), &model.Post{
+			ID:    1,
+			Title: "タイトル",
+			Body:  "本文",
+			User: model.User{
+				ID:        1,
+				Name:      "ユーザー",
+				Password:  "password",
+				CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+				UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+			},
+			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+		})
+
+		AssertErrMsg(t, xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB), err)
+		assert.Nil(t, post)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectBegin()
+		deps.mock.ExpectExec(regexp.QuoteMeta("UPDATE `posts` SET `id`=?,`title`=?,`body`=?,`user_id`=?,`created_at`=?,`updated_at`=? WHERE id = ?")).
+			WithArgs(1, "タイトル", "本文", 1, sqlmock.AnyArg(), sqlmock.AnyArg(), 1).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+		deps.mock.ExpectCommit()
+
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
+			WithArgs(1, 1).
+			WillReturnRows(
+				sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at", "deleted_at"}).
+					AddRow(1, "ユーザー", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
+			)
+
+		post, err := deps.repo.Update(context.Background(), &model.Post{
+			ID:    1,
+			Title: "タイトル",
+			Body:  "本文",
+			User: model.User{
+				ID:        1,
+				Name:      "ユーザー",
+				Password:  "password",
+				CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+				UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+			},
+			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, &model.Post{
+			ID:    1,
+			Title: "タイトル",
+			Body:  "本文",
+			User: model.User{
+				ID:        1,
+				Name:      "ユーザー",
+				Password:  "password",
+				CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+				UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
+			},
+			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.Local),
+		}, post)
 	})
 }
