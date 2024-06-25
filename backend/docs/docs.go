@@ -66,6 +66,17 @@ const docTemplate = `{
                     "post"
                 ],
                 "summary": "create post",
+                "parameters": [
+                    {
+                        "description": "リクエスト",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreatePostParam"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": "Created",
@@ -126,6 +137,15 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "リクエスト",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdatePostParam"
+                        }
                     }
                 ],
                 "responses": {
@@ -270,6 +290,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.CreatePostParam": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "model.HelloWorld": {
             "type": "object",
             "properties": {
@@ -301,6 +332,17 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/model.User"
+                }
+            }
+        },
+        "model.UpdatePostParam": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },

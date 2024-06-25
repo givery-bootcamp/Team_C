@@ -59,6 +59,17 @@
                     "post"
                 ],
                 "summary": "create post",
+                "parameters": [
+                    {
+                        "description": "リクエスト",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreatePostParam"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": "Created",
@@ -119,6 +130,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "リクエスト",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdatePostParam"
+                        }
                     }
                 ],
                 "responses": {
@@ -263,6 +283,17 @@
         }
     },
     "definitions": {
+        "model.CreatePostParam": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "model.HelloWorld": {
             "type": "object",
             "properties": {
@@ -294,6 +325,17 @@
                 },
                 "user": {
                     "$ref": "#/definitions/model.User"
+                }
+            }
+        },
+        "model.UpdatePostParam": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },

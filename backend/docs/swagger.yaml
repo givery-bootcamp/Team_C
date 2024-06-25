@@ -1,4 +1,11 @@
 definitions:
+  model.CreatePostParam:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    type: object
   model.HelloWorld:
     properties:
       lang:
@@ -20,6 +27,13 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/model.User'
+    type: object
+  model.UpdatePostParam:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
     type: object
   model.User:
     properties:
@@ -72,6 +86,13 @@ paths:
       consumes:
       - application/json
       description: create post
+      parameters:
+      - description: リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePostParam'
       produces:
       - application/json
       responses:
@@ -131,6 +152,12 @@ paths:
         name: id
         required: true
         type: number
+      - description: リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdatePostParam'
       produces:
       - application/json
       responses:

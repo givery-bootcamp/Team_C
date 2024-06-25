@@ -116,7 +116,8 @@ func (h *PostHandler) GetByID(ctx *gin.Context) {
 //	@Tags			post
 //	@Accept			json
 //	@Produce		json
-//	@Success		201	{object}	model.Post
+//	@Param			body	body		model.CreatePostParam	true	"リクエスト"
+//	@Success		201		{object}	model.Post
 //	@Router			/api/posts [post]
 func (h *PostHandler) Create(ctx *gin.Context) {
 	var param model.CreatePostParam
@@ -148,8 +149,9 @@ func (h *PostHandler) Create(ctx *gin.Context) {
 //	@Tags			post
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		number	true	"PostID"
-//	@Success		200	{object}	model.Post
+//	@Param			id		path		number					true	"PostID"
+//	@Param			body	body		model.UpdatePostParam	true	"リクエスト"
+//	@Success		200		{object}	model.Post
 //	@Router			/api/posts/{id} [post]
 func (h *PostHandler) Update(ctx *gin.Context) {
 	query := ctx.Param("id")
