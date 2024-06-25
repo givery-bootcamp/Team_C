@@ -77,7 +77,7 @@ func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.P
 		Updates(p)
 
 	if res.Error != nil {
-		return nil, res.Error
+		return nil, xerrors.Errorf("failed to SQL execution: %w", res.Error)
 	}
 
 	return p.ToModel(), nil
