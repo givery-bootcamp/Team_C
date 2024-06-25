@@ -17,7 +17,7 @@ export const getPosts = createAsyncThunk<model_Post[]>('getPosts', async () => {
   return await getPostsResponse;
 });
 
-export const getPostDetail = createAsyncThunk<model_Post>('getPostDetail', async () => {
-  const getPostDetailResponse = await api.post.getApiPosts1({id: 1})
+export const getPostDetail = createAsyncThunk<model_Post, number>('getPostDetail', async (post_id: number) => {
+  const getPostDetailResponse = await api.post.getApiPosts1({id: post_id})
   return await getPostDetailResponse
 })

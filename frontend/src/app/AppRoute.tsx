@@ -8,7 +8,7 @@ export const AppRoute = () => {
     <Routes>
       <Route path="/" element={<HelloWorld />} />
       <Route path="/posts/" element={<Posts />} />
-        <Route path=":postId" element={ <PostDetail /> } />{/*post/のみで飛ぶように要改善*/}
+      <Route path="/posts/:postId" element={ <PostDetail /> } />
     </Routes>
   );
 };

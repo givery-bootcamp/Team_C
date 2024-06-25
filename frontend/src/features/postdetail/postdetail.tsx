@@ -7,15 +7,15 @@ import { Box } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom'
 
 export function PostDetail() {
-  const post_id = useParams()
+  const {postId} = useParams()
   const { postdetail } = useAppSelector((state) => state.postdetail);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(APIService.getPostDetail());
+    dispatch(APIService.getPostDetail(Number(postId)));
   }, [dispatch]);
 
-  console.log(post_id)
+  // console.log(postId)
 
   return(
     <Box>
