@@ -1,0 +1,24 @@
+name: Backend Test
+
+on:
+  pull_request:
+    paths:
+      - backend/**
+
+jobs:
+  test-backend:
+    name: Test backend
+    runs-on:
+      group: dena
+      labels: [dena-small]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: backend/go.sum
+      - name: E2E Test
+        shell: bash
+        run: |
+          cp ./backend/.env.test ./backend/.env
+          make test
