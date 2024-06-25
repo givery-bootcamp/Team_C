@@ -19,3 +19,4 @@ steps:
         body: '{{ steps.CreatePost.post.body }}'
         userID: '{{ steps.CreatePost.post.user.id }}'
         userName: '{{ steps.CreatePost.post.user.name }}'
+        cookie: '{{ steps.Signin.cookie }}'

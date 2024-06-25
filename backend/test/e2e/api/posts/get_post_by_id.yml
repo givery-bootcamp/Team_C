@@ -5,6 +5,7 @@ vars:
   body: "{{ parent.vars.body }}"
   userID: "{{ parent.vars.userID }}"
   userName: "{{ parent.vars.userName }}"
+  cookie: "{{ parent.vars.cookie }}"
 if: included
 steps:
   GetPostsByID:
@@ -12,6 +13,8 @@ steps:
     req:
       /api/posts/{{ vars.id }}:
         get:
+          headers:
+            Cookie: "{{ vars.cookie }}"
           body: null
     test:
       current.res.status == 200
