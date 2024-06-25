@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { APIService } from 'shared/services';
 import {
@@ -33,6 +33,7 @@ export function Posts() {
   const dispatch = useAppDispatch();
   const query = useQuery();
   const toast = useToast();
+  const [fetchParams, setFetchParams] = useState({ limit: 20, offset: 0 });
 
   useEffect(() => {
     const loginSuccess = localStorage.getItem('loginSuccess');
@@ -50,13 +51,14 @@ export function Posts() {
   }, [toast]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const limit = parseInt(query.get('limit') ?? '20', 10);
-      const offset = parseInt(query.get('offset') ?? '0', 10);
-      dispatch(APIService.getPosts({ limit, offset }));
-    };
-    fetchPosts();
-  }, [dispatch, query]);
+    const limit = parseInt(query.get('limit') ?? '20', 10);
+    const offset = parseInt(query.get('offset') ?? '0', 10);
+    setFetchParams({ limit, offset });
+  }, [query]);
+
+  useEffect(() => {
+    dispatch(APIService.getPosts(fetchParams));
+  }, [dispatch, fetchParams]);
 
   if (status === 'loading') {
     return <div>loading...</div>;

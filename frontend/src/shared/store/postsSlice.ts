@@ -27,6 +27,7 @@ export const postsSlice = createSlice({
         (state, action: PayloadAction<ModelPost[]>) => {
           state.posts = action.payload;
           state.status = 'succeeded';
+          state.error = null;
         },
       )
       .addCase(APIService.getPosts.rejected, (state, action) => {
