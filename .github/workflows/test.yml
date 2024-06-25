@@ -20,3 +20,8 @@ jobs:
         run: |
           cp ./backend/.env.test ./backend/.env
           make test
+      - name: Test
+        working-directory: ./backend
+        run: go test -tags="unit_test" ./... --cover -v -coverprofile=../coverage.out
+      - name: Exec octocov action
+        uses: k1LoW/octocov-action@v0
