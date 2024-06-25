@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
 
@@ -33,9 +34,8 @@ func TestNewHelloWorldUsecase(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewHelloWorldUsecase(tt.args.r); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewHelloWorldUsecase() = %v, want %v", got, tt.want)
-			}
+			u := NewHelloWorldUsecase(tt.args.r)
+			assert.Equal(t, u, tt.want)
 		})
 	}
 }
