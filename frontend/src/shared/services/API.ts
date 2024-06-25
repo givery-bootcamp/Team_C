@@ -44,10 +44,18 @@ export const getPosts = createAsyncThunk<
 
 export const postSignin = createAsyncThunk<
   ModelUserSigninParam,
-  ModelUserSigninParam
->('postSignin', async (userSigninParam: ModelUserSigninParam) => {
-  const api = new AuthApi(configuration, API_ENDPOINT_PATH, axiosInstance);
-  const postSignupResponse = await api.apiSigninPost(userSigninParam);
-
-  return await postSignupResponse.data;
+  { param: ModelUserSigninParam },
+  {
+    rejectValue: string;
+    state: RootState;
+  }
+>('postSignin', async (param, { rejectWithValue }) => {
+  try {
+    const api = new AuthApi(configuration, API_ENDPOINT_PATH, axiosInstance);
+    const postSigninResponse = await api.apiSigninPost(param.param);
+    return postSigninResponse.data;
+  } catch (error) {
+    const err = error as AxiosError;
+    return rejectWithValue(err.message ?? 'failed to fetch posts');
+  }
 });
