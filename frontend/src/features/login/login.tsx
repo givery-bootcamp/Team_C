@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppDispatch } from 'shared/hooks';
+import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -17,11 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { APIService } from 'shared/services';
 import * as Yup from 'yup';
-
-interface SignInFormValues {
-  name: string;
-  password: string;
-}
+import { ModelUserSigninParam } from 'api';
 
 export function SignInForm() {
   const dispatch = useAppDispatch();
@@ -29,7 +25,7 @@ export function SignInForm() {
   const toast = useToast();
   const [showPassword, setShowPassword] = React.useState(false);
 
-  const formik = useFormik<SignInFormValues>({
+  const formik = useFormik<ModelUserSigninParam>({
     initialValues: {
       name: '',
       password: '',
@@ -42,9 +38,9 @@ export function SignInForm() {
         .max(10, 'Must be 10 characters or less')
         .required('Required'),
     }),
-    onSubmit: async (values) => {
+    onSubmit: async (value) => {
       try {
-        const result = await dispatch(APIService.postSignin(values));
+        const result = await dispatch(APIService.postSignin({ param: value }));
         if (APIService.postSignin.fulfilled.match(result)) {
           localStorage.setItem('loginSuccess', 'true');
           navigate('/posts');

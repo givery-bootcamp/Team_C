@@ -1,21 +1,36 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { APIService } from '../services';
-import { model_UserSigninParam } from 'api';
+import { ModelUserSigninParam } from 'api';
 
-export type SigninState = {
-  signinParam?: model_UserSigninParam;
+interface SigninState {
+  SignInForm: ModelUserSigninParam | null;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+}
+export const initialState: SigninState = {
+  SignInForm: null,
+  status: 'idle',
+  error: null,
 };
-
-export const initialState: SigninState = {};
 
 export const signinSlice = createSlice({
   name: 'signin',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(APIService.postSignin.fulfilled, (state, action) => {
-      state.signinParam = action.payload;
-    });
+    builder
+      .addCase(APIService.postSignin.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(APIService.postSignin.fulfilled, (state, action) => {
+        state.SignInForm = action.payload;
+        state.error = null;
+        state.status = 'succeeded';
+      })
+      .addCase(APIService.postSignin.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message ?? 'unknown error';
+      });
   },
 });
 
