@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ApiClient } from 'api/ApiClient';
 import { Hello } from 'shared/models';
 import { model_Post } from 'api/models/model_Post';
-import { model_UserSigninParam } from 'api';
+import { model_UserSigninParam } from 'api/models/model_UserSigninParam';
 const API_ENDPOINT_PATH = import.meta.env.VITE_API_ENDPOINT_PATH ?? '';
 
 export const getHello = createAsyncThunk<Hello>('getHello', async () => {
