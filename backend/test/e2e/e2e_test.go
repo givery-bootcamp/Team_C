@@ -1,3 +1,6 @@
+//go:build !unit_test
+// +build !unit_test
+
 package e2e_test
 
 import (
