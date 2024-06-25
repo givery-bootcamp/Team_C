@@ -1,6 +1,4 @@
 desc: SigninAPI
-runners:
-  req: http://localhost:9000
 vars:
   request: "json://request.json"
 if: included

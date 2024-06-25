@@ -1,6 +1,4 @@
 desc: GetPostsByID
-runners:
-  req: http://localhost:9000
 vars:
   id: "{{ parent.vars.id }}"
   title: "{{ parent.vars.title }}"

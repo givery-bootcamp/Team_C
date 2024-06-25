@@ -1,8 +1,4 @@
 desc: PostsAPI
-runners:
-  req:
-    endpoint: http://localhost:9000
-    useCookie: true
 vars:
   request: "json://request.json"
   cookie: "{{ parent.vars.cookie }}"

@@ -1,7 +1,4 @@
 desc: PostsAPI
-runners:
-  req:
-    endpoint: http://localhost:9000
 vars:
   limit: 5
 if: included

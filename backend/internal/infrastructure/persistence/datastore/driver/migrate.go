@@ -23,9 +23,11 @@ func MustNewMySQLMigrator(migrateFilePath string) *MySQLMigrator {
 
 func (m *MySQLMigrator) Migrate() error {
 	err := m.client.Up()
-
+	if err == nil {
+		return nil
+	}
 	if err != migrate.ErrNoChange {
-		return xerrors.Errorf("failed to migrate: %w", err)
+		return xerrors.Errorf("failed to migrate: %v", err)
 	}
 	return nil
 }
