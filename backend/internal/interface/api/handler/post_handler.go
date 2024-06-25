@@ -158,3 +158,26 @@ func (h *PostHandler) Update(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, updatedPost)
 }
+
+func (h *PostHandler) Delete(ctx *gin.Context) {
+	query := ctx.Param("id")
+	postID, err := strconv.Atoi(query)
+	if err != nil {
+		ctx.Error(exception.InvalidRequestError)
+		return
+	}
+
+	userId, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	err = h.u.Delete(ctx, postID, userId)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}

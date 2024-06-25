@@ -12,4 +12,5 @@ type PostRepository interface {
 	GetByID(ctx context.Context, id int) (*model.Post, error)
 	Create(ctx context.Context, post *model.Post) (*model.Post, error)
 	Update(ctx context.Context, post *model.Post) (*model.Post, error)
+	Delete(ctx context.Context, id int) error
 }
