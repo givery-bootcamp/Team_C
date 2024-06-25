@@ -121,16 +121,16 @@ export function Posts() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Create New Post</ModalHeader>
+          <ModalHeader>投稿する</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={4}>
               <FormControl>
-                <FormLabel>Title</FormLabel>
+                <FormLabel>タイトル</FormLabel>
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter post title"
+                  placeholder="タイトルは？？"
                 />
               </FormControl>
               <FormControl>
@@ -138,7 +138,7 @@ export function Posts() {
                 <Textarea
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  placeholder="Enter post content"
+                  placeholder="中身ないような内容を書くな！"
                 />
               </FormControl>
             </VStack>
