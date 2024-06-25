@@ -7,10 +7,5 @@ test:
 
 .PHONY: test-cover
 test-cover:
-	@docker compose -f compose.test.yml up -d
-	@docker compose exec test-backend \
-		go test -v -p=1 -cover ./... -coverprofile=cover.out
-	@docker compose exec test-backend \
-		go tool cover -html=cover.out -o cover.html
+	@cd backend; go test -v -p=1 -cover -tags="unit_test" ./... -coverprofile=cover.out
 	@open ./backend/cover.html
-	@docker compose -f compose.test.yml down
