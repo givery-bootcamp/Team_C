@@ -276,11 +276,11 @@ func TestPostRepository(t *testing.T) {
 		}{
 			{
 				name:  "failed/usersテーブルのクエリに失敗したとき期待したエラーを返す",
-				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 1, Name: "ユーザー", Password: "password"}}},
+				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}}},
 				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
 					mock.ExpectBegin()
 					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
-						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 1).
+						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
 						WillReturnError(gorm.ErrInvalidDB)
 
 					mock.ExpectRollback()
@@ -290,15 +290,15 @@ func TestPostRepository(t *testing.T) {
 			},
 			{
 				name:  "failed/postsテーブルのクエリに失敗したとき期待したエラーを返す",
-				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 1, Name: "ユーザー", Password: "password"}}},
+				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}}},
 				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
 					mock.ExpectBegin()
 					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
-						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 1).
+						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
 						WillReturnResult(sqlmock.NewResult(1, 1))
 
 					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `posts` (`title`,`body`,`user_id`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?)")).
-						WithArgs("タイトル", "本文", 1, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+						WithArgs("タイトル", "本文", 11, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
 						WillReturnError(gorm.ErrInvalidDB)
 
 					mock.ExpectRollback()
@@ -308,20 +308,20 @@ func TestPostRepository(t *testing.T) {
 			},
 			{
 				name:  "failed/usersテーブルのSELECTに失敗したとき期待したエラーを返す",
-				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 1, Name: "ユーザー", Password: "password"}}},
+				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}}},
 				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
 					mock.ExpectBegin()
 					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
-						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 1).
+						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
 						WillReturnResult(sqlmock.NewResult(1, 1))
 
 					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `posts` (`title`,`body`,`user_id`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?)")).
-						WithArgs("タイトル", "本文", 1, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+						WithArgs("タイトル", "本文", 11, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
 						WillReturnResult(sqlmock.NewResult(1, 1))
 					mock.ExpectCommit()
 
 					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
-						WithArgs(1, 1).
+						WithArgs(11, 1).
 						WillReturnError(gorm.ErrInvalidDB)
 				},
 				expectedFunctionErr: xerrors.Errorf("failed to SQL execution: %w", gorm.ErrInvalidDB),
@@ -329,23 +329,23 @@ func TestPostRepository(t *testing.T) {
 			},
 			{
 				name:  "success",
-				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 1, Name: "ユーザー", Password: "password"}}},
+				input: input{post: &model.Post{Title: "タイトル", Body: "本文", User: model.User{ID: 11, Name: "ユーザー", Password: "password"}}},
 				buildMockQueryFn: func(mock sqlmock.Sqlmock) {
 					mock.ExpectBegin()
 					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`,`id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id`=`id`")).
-						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 1).
+						WithArgs("ユーザー", "password", sqlmock.AnyArg(), sqlmock.AnyArg(), nil, 11).
 						WillReturnResult(sqlmock.NewResult(1, 1))
 
 					mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `posts` (`title`,`body`,`user_id`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?)")).
-						WithArgs("タイトル", "本文", 1, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+						WithArgs("タイトル", "本文", 11, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
 						WillReturnResult(sqlmock.NewResult(1, 1))
 					mock.ExpectCommit()
 
 					mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
-						WithArgs(1, 1).
+						WithArgs(11, 1).
 						WillReturnRows(
 							sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at", "deleted_at"}).
-								AddRow(1, "ユーザー", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
+								AddRow(11, "ユーザー", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local), nil),
 						)
 				},
 				expectedFunctionErr: nil,
@@ -354,7 +354,7 @@ func TestPostRepository(t *testing.T) {
 					Title: "タイトル",
 					Body:  "本文",
 					User: model.User{
-						ID:        1,
+						ID:        11,
 						Name:      "ユーザー",
 						Password:  "password",
 						CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.Local),
