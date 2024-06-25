@@ -26,6 +26,44 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
 /**
  * 
  * @export
+ * @interface ModelCreatePostParam
+ */
+export interface ModelCreatePostParam {
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelCreatePostParam
+     */
+    'body'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelCreatePostParam
+     */
+    'title'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface ModelHelloWorld
+ */
+export interface ModelHelloWorld {
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelHelloWorld
+     */
+    'lang'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelHelloWorld
+     */
+    'message'?: string;
+}
+/**
+ * 
+ * @export
  * @interface ModelPost
  */
 export interface ModelPost {
@@ -65,6 +103,25 @@ export interface ModelPost {
      * @memberof ModelPost
      */
     'user'?: ModelUser;
+}
+/**
+ * 
+ * @export
+ * @interface ModelUpdatePostParam
+ */
+export interface ModelUpdatePostParam {
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelUpdatePostParam
+     */
+    'body'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelUpdatePostParam
+     */
+    'title'?: string;
 }
 /**
  * 
@@ -278,6 +335,107 @@ export class AuthApi extends BaseAPI {
 
 
 /**
+ * HelloWorldApi - axios parameter creator
+ * @export
+ */
+export const HelloWorldApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * hello world
+         * @summary hello world
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        helloGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/hello`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * HelloWorldApi - functional programming interface
+ * @export
+ */
+export const HelloWorldApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = HelloWorldApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * hello world
+         * @summary hello world
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async helloGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelHelloWorld>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.helloGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['HelloWorldApi.helloGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * HelloWorldApi - factory interface
+ * @export
+ */
+export const HelloWorldApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = HelloWorldApiFp(configuration)
+    return {
+        /**
+         * hello world
+         * @summary hello world
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        helloGet(options?: any): AxiosPromise<ModelHelloWorld> {
+            return localVarFp.helloGet(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * HelloWorldApi - object-oriented interface
+ * @export
+ * @class HelloWorldApi
+ * @extends {BaseAPI}
+ */
+export class HelloWorldApi extends BaseAPI {
+    /**
+     * hello world
+     * @summary hello world
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HelloWorldApi
+     */
+    public helloGet(options?: RawAxiosRequestConfig) {
+        return HelloWorldApiFp(this.configuration).helloGet(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * PostApi - axios parameter creator
  * @export
  */
@@ -324,6 +482,40 @@ export const PostApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
+         * delete post
+         * @summary delete post
+         * @param {number} id PostID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiPostsIdDelete: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('apiPostsIdDelete', 'id', id)
+            const localVarPath = `/api/posts/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * get post by id
          * @summary get post by id
          * @param {number} id PostID
@@ -357,6 +549,82 @@ export const PostApiAxiosParamCreator = function (configuration?: Configuration)
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * update post
+         * @summary update post
+         * @param {number} id PostID
+         * @param {ModelUpdatePostParam} body リクエスト
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiPostsIdPut: async (id: number, body: ModelUpdatePostParam, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('apiPostsIdPut', 'id', id)
+            // verify required parameter 'body' is not null or undefined
+            assertParamExists('apiPostsIdPut', 'body', body)
+            const localVarPath = `/api/posts/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * create post
+         * @summary create post
+         * @param {ModelCreatePostParam} body リクエスト
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiPostsPost: async (body: ModelCreatePostParam, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            assertParamExists('apiPostsPost', 'body', body)
+            const localVarPath = `/api/posts`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -382,6 +650,19 @@ export const PostApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * delete post
+         * @summary delete post
+         * @param {number} id PostID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiPostsIdDelete(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiPostsIdDelete(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PostApi.apiPostsIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * get post by id
          * @summary get post by id
          * @param {number} id PostID
@@ -392,6 +673,33 @@ export const PostApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiPostsIdGet(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PostApi.apiPostsIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * update post
+         * @summary update post
+         * @param {number} id PostID
+         * @param {ModelUpdatePostParam} body リクエスト
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiPostsIdPut(id: number, body: ModelUpdatePostParam, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelPost>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiPostsIdPut(id, body, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PostApi.apiPostsIdPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * create post
+         * @summary create post
+         * @param {ModelCreatePostParam} body リクエスト
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiPostsPost(body: ModelCreatePostParam, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelPost>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiPostsPost(body, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PostApi.apiPostsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -416,6 +724,16 @@ export const PostApiFactory = function (configuration?: Configuration, basePath?
             return localVarFp.apiPostsGet(limit, offset, options).then((request) => request(axios, basePath));
         },
         /**
+         * delete post
+         * @summary delete post
+         * @param {number} id PostID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiPostsIdDelete(id: number, options?: any): AxiosPromise<void> {
+            return localVarFp.apiPostsIdDelete(id, options).then((request) => request(axios, basePath));
+        },
+        /**
          * get post by id
          * @summary get post by id
          * @param {number} id PostID
@@ -424,6 +742,27 @@ export const PostApiFactory = function (configuration?: Configuration, basePath?
          */
         apiPostsIdGet(id: number, options?: any): AxiosPromise<ModelPost> {
             return localVarFp.apiPostsIdGet(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * update post
+         * @summary update post
+         * @param {number} id PostID
+         * @param {ModelUpdatePostParam} body リクエスト
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiPostsIdPut(id: number, body: ModelUpdatePostParam, options?: any): AxiosPromise<ModelPost> {
+            return localVarFp.apiPostsIdPut(id, body, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * create post
+         * @summary create post
+         * @param {ModelCreatePostParam} body リクエスト
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiPostsPost(body: ModelCreatePostParam, options?: any): AxiosPromise<ModelPost> {
+            return localVarFp.apiPostsPost(body, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -449,6 +788,18 @@ export class PostApi extends BaseAPI {
     }
 
     /**
+     * delete post
+     * @summary delete post
+     * @param {number} id PostID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostApi
+     */
+    public apiPostsIdDelete(id: number, options?: RawAxiosRequestConfig) {
+        return PostApiFp(this.configuration).apiPostsIdDelete(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * get post by id
      * @summary get post by id
      * @param {number} id PostID
@@ -458,6 +809,31 @@ export class PostApi extends BaseAPI {
      */
     public apiPostsIdGet(id: number, options?: RawAxiosRequestConfig) {
         return PostApiFp(this.configuration).apiPostsIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * update post
+     * @summary update post
+     * @param {number} id PostID
+     * @param {ModelUpdatePostParam} body リクエスト
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostApi
+     */
+    public apiPostsIdPut(id: number, body: ModelUpdatePostParam, options?: RawAxiosRequestConfig) {
+        return PostApiFp(this.configuration).apiPostsIdPut(id, body, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * create post
+     * @summary create post
+     * @param {ModelCreatePostParam} body リクエスト
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PostApi
+     */
+    public apiPostsPost(body: ModelCreatePostParam, options?: RawAxiosRequestConfig) {
+        return PostApiFp(this.configuration).apiPostsPost(body, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

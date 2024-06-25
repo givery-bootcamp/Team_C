@@ -59,3 +59,14 @@ export const postSignin = createAsyncThunk<
     return rejectWithValue(err.message ?? 'failed to fetch posts');
   }
 });
+
+
+export const postPost = createAsyncThunk<
+  ModelPost,
+  { param: ModelPost },
+  {
+    rejectValue: string;
+    state: RootState;
+  }
+>('postPost', async (param, { rejectWithValue }) => {
+  
