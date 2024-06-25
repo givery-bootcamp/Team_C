@@ -25,7 +25,6 @@ export const postSignin = createAsyncThunk<
   model_UserSigninParam,
   model_UserSigninParam
 >('postSignin', async (userSigninParam: model_UserSigninParam) => {
-  const api = new ApiClient({ BASE: API_ENDPOINT_PATH });
   const postSignupResponse = await api.auth.postApiSignin({
     body: userSigninParam,
   });
