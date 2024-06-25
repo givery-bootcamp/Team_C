@@ -42,7 +42,6 @@ func TestNewHelloWorldUsecase(t *testing.T) {
 
 func TestHelloWorldUsecase_Execute(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
 
 	mockRepo := repository_mock.NewMockHelloWorldRepository(ctrl)
 
