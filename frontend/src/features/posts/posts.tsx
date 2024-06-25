@@ -15,6 +15,7 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom'
 
 function PostsHeader() {
   return (
@@ -25,6 +26,7 @@ function PostsHeader() {
 }
 
 export function Posts() {
+  const navigate = useNavigate()
   const { posts } = useAppSelector((state) => state.post);
   const dispatch = useAppDispatch();
 
@@ -36,7 +38,7 @@ export function Posts() {
     <div className="posts-container">
       <PostsHeader />
       {posts?.map((post: model_Post) => (
-        <Card key={post.id} margin={2}>
+        <Card key={post.id} margin={2} onClick={() => {navigate(`${post.id}`)}} cursor={'pointer'} _hover={{ bg: "gray.100" }}>
           <CardHeader>
             <Flex>
               <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
