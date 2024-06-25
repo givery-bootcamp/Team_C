@@ -4,29 +4,36 @@ import { APIService } from 'shared/services';
 import {
   Avatar,
   Box,
+  Button,
   Card,
   CardBody,
   CardFooter,
   CardHeader,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
   Icon,
   IconButton,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Textarea,
+  useDisclosure,
   useToast,
+  VStack,
 } from '@chakra-ui/react';
 import { useQuery } from 'shared/hooks/usequery';
-import { ModelPost } from 'api';
+import { ModelCreatePostParam } from 'api';
 import { RootState } from 'shared/store';
 
-function PostsHeader() {
-  return (
-    <Flex fontSize={'4xl'} p={3}>
-      投稿一覧
-    </Flex>
-  );
-}
-
 export function Posts() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { posts, status, error } = useAppSelector(
     (state: RootState) => state.post,
   );
@@ -34,6 +41,9 @@ export function Posts() {
   const query = useQuery();
   const toast = useToast();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+
   useEffect(() => {
     const loginSuccess = localStorage.getItem('loginSuccess');
     if (loginSuccess == 'true') {
@@ -48,6 +58,33 @@ export function Posts() {
       localStorage.removeItem('loginSuccess');
     }
   }, [toast]);
+
+  const handleCreatePost = async () => {
+    const postData: ModelCreatePostParam = { title, body };
+    const resultAction = await dispatch(
+      APIService.createPost({ param: postData }),
+    );
+    if (APIService.createPost.fulfilled.match(resultAction)) {
+      onClose();
+      setTitle('');
+      setBody('');
+      toast({
+        title: 'Post created.',
+        description: 'Your new post has been successfully created.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Failed to create post. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   useEffect(() => {
     if (isInitialLoad) {
@@ -67,36 +104,61 @@ export function Posts() {
   }
 
   return (
-    <div className="posts-container">
-      <PostsHeader />
-      {posts?.map((post: ModelPost) => (
-        <Card key={post.id} margin={2}>
-          <CardHeader>
-            <Flex>
-              <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
-                <Avatar size="sm" name={post.user?.name} />
-                <Box>
-                  <Heading size="sm">{post.user?.name}</Heading>
-                  <text>@{post.user?.id}</text>
-                </Box>
-              </Flex>
-              <IconButton
-                variant={'ghost'}
-                colorScheme="gray"
-                aria-label="icon"
-                icon={<Icon />}
-              />
-            </Flex>
-          </CardHeader>
-          <CardBody>
-            <Heading size="md">{post.title}</Heading>
-            <text>{post.body}</text>
-          </CardBody>
-          <CardFooter>
-            {post.created_at} - {post.updated_at}
-          </CardFooter>
-        </Card>
-      ))}
-    </div>
+    <Box>
+      <Button colorScheme="blue" onClick={onOpen} mb={4}>
+        Create New Post
+      </Button>
+
+      <VStack spacing={4} align="stretch">
+        {posts?.map((post) => (
+          <Box key={post.id} p={4} borderWidth={1} borderRadius="md">
+            <h2>{post.title}</h2>
+            <p>{post.body}</p>
+          </Box>
+        ))}
+      </VStack>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create New Post</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4}>
+              <FormControl>
+                <FormLabel>Title</FormLabel>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter post title"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Content</FormLabel>
+                <Textarea
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  placeholder="Enter post content"
+                />
+              </FormControl>
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={handleCreatePost}
+              isLoading={status === 'loading'}
+            >
+              Create
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Box>
   );
 }
