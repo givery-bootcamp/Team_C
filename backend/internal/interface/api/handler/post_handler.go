@@ -152,7 +152,7 @@ func (h *PostHandler) Create(ctx *gin.Context) {
 //	@Param			id		path		number					true	"PostID"
 //	@Param			body	body		model.UpdatePostParam	true	"リクエスト"
 //	@Success		200		{object}	model.Post
-//	@Router			/api/posts/{id} [post]
+//	@Router			/api/posts/{id} [put]
 func (h *PostHandler) Update(ctx *gin.Context) {
 	query := ctx.Param("id")
 	postID, err := strconv.Atoi(query)

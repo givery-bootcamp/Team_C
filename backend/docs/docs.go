@@ -118,7 +118,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "post": {
+            "put": {
                 "description": "update post",
                 "consumes": [
                     "application/json"
