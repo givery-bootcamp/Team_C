@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
-
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { APIService } from 'shared/services';
-import { model_Post } from 'api';
 import {
   Avatar,
   Box,
@@ -16,6 +14,9 @@ import {
   IconButton,
   useToast,
 } from '@chakra-ui/react';
+import { useQuery } from 'shared/hooks/usequery';
+import { ModelPost } from 'api';
+import { RootState } from 'shared/store';
 
 function PostsHeader() {
   return (
@@ -26,8 +27,11 @@ function PostsHeader() {
 }
 
 export function Posts() {
-  const { posts } = useAppSelector((state) => state.post);
+  const { posts, status, error } = useAppSelector(
+    (state: RootState) => state.post,
+  );
   const dispatch = useAppDispatch();
+  const query = useQuery();
   const toast = useToast();
 
   useEffect(() => {
@@ -46,13 +50,25 @@ export function Posts() {
   }, [toast]);
 
   useEffect(() => {
-    dispatch(APIService.getPosts());
-  }, [dispatch]);
+    const fetchPosts = async () => {
+      const limit = parseInt(query.get('limit') ?? '20', 10);
+      const offset = parseInt(query.get('offset') ?? '0', 10);
+      dispatch(APIService.getPosts({ limit, offset }));
+    };
+    fetchPosts();
+  }, [dispatch, query]);
+
+  if (status === 'loading') {
+    return <div>loading...</div>;
+  }
+  if (status === 'failed') {
+    return <div>failed to fetch posts: {error}</div>;
+  }
 
   return (
     <div className="posts-container">
       <PostsHeader />
-      {posts?.map((post: model_Post) => (
+      {posts?.map((post: ModelPost) => (
         <Card key={post.id} margin={2}>
           <CardHeader>
             <Flex>
