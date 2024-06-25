@@ -108,6 +108,16 @@ func (h *PostHandler) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
+// Create godoc
+//
+//	@Summary	create post
+//	@Schemes
+//	@Description	create post
+//	@Tags			post
+//	@Accept			json
+//	@Produce		json
+//	@Success		201	{object}	model.Post
+//	@Router			/api/posts [post]
 func (h *PostHandler) Create(ctx *gin.Context) {
 	var param model.CreatePostParam
 	if err := ctx.ShouldBindJSON(&param); err != nil {
@@ -130,6 +140,17 @@ func (h *PostHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, newPost)
 }
 
+// Update godoc
+//
+//	@Summary	update post
+//	@Schemes
+//	@Description	update post
+//	@Tags			post
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		number	true	"PostID"
+//	@Success		200	{object}	model.Post
+//	@Router			/api/posts/{id} [post]
 func (h *PostHandler) Update(ctx *gin.Context) {
 	query := ctx.Param("id")
 	postID, err := strconv.Atoi(query)
@@ -159,6 +180,17 @@ func (h *PostHandler) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, updatedPost)
 }
 
+// Delete godoc
+//
+//	@Summary	delete post
+//	@Schemes
+//	@Description	delete post
+//	@Tags			post
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	number	true	"PostID"
+//	@Success		204
+//	@Router			/api/posts/{id} [delete]
 func (h *PostHandler) Delete(ctx *gin.Context) {
 	query := ctx.Param("id")
 	postID, err := strconv.Atoi(query)

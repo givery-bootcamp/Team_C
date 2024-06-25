@@ -53,6 +53,27 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "create post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "create post",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Post"
+                        }
+                    }
+                }
             }
         },
         "/api/posts/{id}": {
@@ -83,6 +104,63 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.Post"
                         }
+                    }
+                }
+            },
+            "post": {
+                "description": "update post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "update post",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "PostID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Post"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "delete post",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "PostID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -166,9 +244,43 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/hello": {
+            "get": {
+                "description": "hello world",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "helloWorld"
+                ],
+                "summary": "hello world",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.HelloWorld"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "model.HelloWorld": {
+            "type": "object",
+            "properties": {
+                "lang": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Post": {
             "type": "object",
             "properties": {
