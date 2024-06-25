@@ -13,16 +13,29 @@ type Post struct {
 }
 
 func NewPost(title string, body string, user User) *Post {
+	t := time.Now()
 	return &Post{
 		Title:     title,
 		Body:      body,
 		User:      user,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: t,
+		UpdatedAt: t,
 	}
 }
 
 type CreatePostParam struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
+}
+
+func (post *Post) UpdatePost(title, body string) *Post {
+  post.Title = title
+  post.Body = body
+  post.UpdatedAt = time.Now()
+  return post
+}
+
+type UpdatePostParam struct {
 	Title string `json:"title"`
 	Body  string `json:"body"`
 }
