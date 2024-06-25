@@ -11,6 +11,16 @@ type User struct {
 	DeletedAt *time.Time `json:"-"`
 }
 
+func NewUser(name, password string) *User {
+	t := time.Now()
+	return &User{
+		Name:      name,
+		Password:  password,
+		CreatedAt: t,
+		UpdatedAt: t,
+	}
+}
+
 type UserSigninParam struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`

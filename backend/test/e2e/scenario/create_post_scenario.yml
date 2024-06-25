@@ -1,0 +1,31 @@
+desc: CreatePostScenario
+steps:
+  Signin:
+    desc: ログインしてCookieを用意する
+    include: ../api/signin/signin.yml
+  CreatePost:
+    desc: 投稿が作成できる
+    include:
+      path: ../api/posts/create_post.yml
+      vars:
+        cookie: '{{ steps.Signin.cookie }}'
+  GetPostByID:
+    desc: 作成した投稿を取得できる
+    include:
+      path: ../api/posts/get_post_by_id.yml
+      vars:
+        id: '{{ steps.CreatePost.post.id }}'
+        title: '{{ steps.CreatePost.post.title }}'
+        body: '{{ steps.CreatePost.post.body }}'
+        userID: '{{ steps.CreatePost.post.user.id }}'
+        userName: '{{ steps.CreatePost.post.user.name }}'
+        cookie: '{{ steps.Signin.cookie }}'
+  UpdatePost:
+    desc: 作成した投稿を編集できる
+    include:
+      path: ../api/posts/update_post.yml
+      vars:
+        id: '{{ steps.CreatePost.post.id }}'
+        cookie: '{{ steps.Signin.cookie }}'
+        editTitle: '{{ steps.CreatePost.post.title }}edit'
+        editBody: '{{ steps.CreatePost.post.body }}edit'

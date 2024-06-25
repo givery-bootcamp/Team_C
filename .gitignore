@@ -6,3 +6,6 @@ backend/myapp
 .vscode/
 .metals
 .env
+
+cover.html
+cover.out

@@ -1,4 +1,18 @@
 definitions:
+  model.CreatePostParam:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    type: object
+  model.HelloWorld:
+    properties:
+      lang:
+        type: string
+      message:
+        type: string
+    type: object
   model.Post:
     properties:
       body:
@@ -13,6 +27,13 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/model.User'
+    type: object
+  model.UpdatePostParam:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
     type: object
   model.User:
     properties:
@@ -61,7 +82,46 @@ paths:
       summary: get posts
       tags:
       - post
+    post:
+      consumes:
+      - application/json
+      description: create post
+      parameters:
+      - description: リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePostParam'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Post'
+      summary: create post
+      tags:
+      - post
   /api/posts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete post
+      parameters:
+      - description: PostID
+        in: path
+        name: id
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: delete post
+      tags:
+      - post
     get:
       consumes:
       - application/json
@@ -80,6 +140,32 @@ paths:
           schema:
             $ref: '#/definitions/model.Post'
       summary: get post by id
+      tags:
+      - post
+    put:
+      consumes:
+      - application/json
+      description: update post
+      parameters:
+      - description: PostID
+        in: path
+        name: id
+        required: true
+        type: number
+      - description: リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdatePostParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Post'
+      summary: update post
       tags:
       - post
   /api/signin:
@@ -134,4 +220,19 @@ paths:
       summary: get login user
       tags:
       - user
+  /hello:
+    get:
+      consumes:
+      - application/json
+      description: hello world
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.HelloWorld'
+      summary: hello world
+      tags:
+      - helloWorld
 swagger: "2.0"

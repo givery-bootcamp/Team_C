@@ -14,6 +14,7 @@ import {
   Heading,
   Icon,
   IconButton,
+  useToast,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom'
 
@@ -22,13 +23,29 @@ function PostsHeader() {
     <Flex fontSize={'4xl'} p={3}>
       投稿一覧
     </Flex>
-  )
+  );
 }
 
 export function Posts() {
   const navigate = useNavigate()
   const { posts } = useAppSelector((state) => state.post);
   const dispatch = useAppDispatch();
+  const toast = useToast();
+
+  useEffect(() => {
+    const loginSuccess = localStorage.getItem('loginSuccess');
+    if (loginSuccess == 'true') {
+      toast({
+        title: 'ログイン成功',
+        description: 'ログインに成功しました。',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      localStorage.removeItem('loginSuccess');
+    }
+  }, [toast]);
 
   useEffect(() => {
     dispatch(APIService.getPosts());

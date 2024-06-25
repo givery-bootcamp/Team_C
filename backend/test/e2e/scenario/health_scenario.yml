@@ -1,0 +1,6 @@
+desc: HealthCheckScenario
+steps:
+  GetPosts:
+    desc: HealthCheckができる
+    include:
+      path: ../api/health/health.yml

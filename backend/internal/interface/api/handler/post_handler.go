@@ -108,6 +108,17 @@ func (h *PostHandler) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
+// Create godoc
+//
+//	@Summary	create post
+//	@Schemes
+//	@Description	create post
+//	@Tags			post
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		model.CreatePostParam	true	"リクエスト"
+//	@Success		201		{object}	model.Post
+//	@Router			/api/posts [post]
 func (h *PostHandler) Create(ctx *gin.Context) {
 	var param model.CreatePostParam
 	if err := ctx.ShouldBindJSON(&param); err != nil {
@@ -128,4 +139,79 @@ func (h *PostHandler) Create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, newPost)
+}
+
+// Update godoc
+//
+//	@Summary	update post
+//	@Schemes
+//	@Description	update post
+//	@Tags			post
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		number					true	"PostID"
+//	@Param			body	body		model.UpdatePostParam	true	"リクエスト"
+//	@Success		200		{object}	model.Post
+//	@Router			/api/posts/{id} [put]
+func (h *PostHandler) Update(ctx *gin.Context) {
+	query := ctx.Param("id")
+	postID, err := strconv.Atoi(query)
+	if err != nil {
+		ctx.Error(exception.InvalidRequestError)
+		return
+	}
+
+	userId, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	var param model.UpdatePostParam
+	if err := ctx.ShouldBindJSON(&param); err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	updatedPost, err := h.u.Update(ctx, param.Title, param.Body, postID, userId)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedPost)
+}
+
+// Delete godoc
+//
+//	@Summary	delete post
+//	@Schemes
+//	@Description	delete post
+//	@Tags			post
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	number	true	"PostID"
+//	@Success		204
+//	@Router			/api/posts/{id} [delete]
+func (h *PostHandler) Delete(ctx *gin.Context) {
+	query := ctx.Param("id")
+	postID, err := strconv.Atoi(query)
+	if err != nil {
+		ctx.Error(exception.InvalidRequestError)
+		return
+	}
+
+	userId, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	err = h.u.Delete(ctx, postID, userId)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
 }

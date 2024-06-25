@@ -1,0 +1,36 @@
+name: Backend Test
+
+on:
+  pull_request:
+    paths:
+      - backend/**
+
+jobs:
+  e2e-test:
+    name: E2E Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: backend/go.sum
+      - name: Test
+        shell: bash
+        run: |
+          cp ./backend/.env.test ./backend/.env
+          make test
+  unit-test:
+    name: Unit Test Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: backend/go.sum
+      - name: Test
+        working-directory: ./backend
+        run: go test -tags="unit_test" ./... --cover -v -coverprofile=../coverage.out
+      - name: Exec octocov action
+        uses: k1LoW/octocov-action@v0

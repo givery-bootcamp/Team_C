@@ -1,0 +1,27 @@
+services:
+  test-backend:
+    container_name: test-backend
+    build:
+      context: ./docker
+      dockerfile: backend.Dockerfile
+    volumes:
+      - ./backend:/go/src/myapp
+    depends_on:
+      test-db:
+        condition: service_healthy
+    command: "air"
+    env_file:
+      - ./backend/.env.test
+  test-db:
+    container_name: test-db
+    build:
+      context: ./docker
+      dockerfile: mysql.Dockerfile
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=training
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10

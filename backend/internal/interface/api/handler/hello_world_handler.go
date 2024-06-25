@@ -18,6 +18,16 @@ func NewHelloWorldHandler(u usecase.HelloWorldUsecase) HelloWorldHandler {
 	}
 }
 
+// HelloWorld godoc
+//
+//	@Summary	hello world
+//	@Schemes
+//	@Description	hello world
+//	@Tags			helloWorld
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	model.HelloWorld
+//	@Router			/hello [get]
 func (h *HelloWorldHandler) HelloWorld(ctx *gin.Context) {
 	lang := ctx.DefaultQuery("lang", "ja")
 	if err := validateHelloWorldParameters(lang); err != nil {
