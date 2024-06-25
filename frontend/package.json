@@ -15,7 +15,7 @@
     "fix:prettier": "prettier . --write",
     "fix:eslint": "eslint . --ext .ts,.tsx --fix",
     "prepare": "husky",
-    "generate": "openapi --input ../backend/docs/swagger.yaml --output ./src/api --name ApiClient --useOptions true"
+    "generate": "npx @openapitools/openapi-generator-cli generate -i ../backend/docs/swagger.yaml -g typescript-axios -o src/api"
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
