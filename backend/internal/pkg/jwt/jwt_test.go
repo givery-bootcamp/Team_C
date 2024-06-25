@@ -3,7 +3,6 @@ package jwt_test
 import (
 	"myapp/internal/exception"
 	"myapp/internal/pkg/jwt"
-	"os"
 	"testing"
 	"time"
 
@@ -11,13 +10,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGenerateToken(t *testing.T) {
-	// 元の環境変数を保存
-	originalJWTKey := os.Getenv("JWT_KEY")
-	defer os.Setenv("JWT_KEY", originalJWTKey)
+func setupEnv(t *testing.T, envs map[string]string) {
+	for k, v := range envs {
+		t.Setenv(k, v)
+	}
+}
 
+func TestGenerateToken(t *testing.T) {
 	t.Run("JWT_KEYが空の場合エラーが返る", func(t *testing.T) {
-		os.Setenv("JWT_KEY", "")
+		setupEnv(t, map[string]string{"JWT_KEY": ""})
 		token, err := jwt.GenerateToken(123)
 		assert.Error(t, err)
 		assert.Equal(t, exception.ServerError, err)
@@ -25,7 +26,7 @@ func TestGenerateToken(t *testing.T) {
 	})
 
 	t.Run("Success", func(t *testing.T) {
-		os.Setenv("JWT_KEY", "test_secret_key")
+		setupEnv(t, map[string]string{"JWT_KEY": "test_secret_key"})
 		token, err := jwt.GenerateToken(123)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
@@ -33,11 +34,7 @@ func TestGenerateToken(t *testing.T) {
 }
 
 func TestGetUserIDFromToken(t *testing.T) {
-	// 元の環境変数を保存
-	originalJWTKey := os.Getenv("JWT_KEY")
-	defer os.Setenv("JWT_KEY", originalJWTKey)
-
-	os.Setenv("JWT_KEY", "test_secret_key")
+	setupEnv(t, map[string]string{"JWT_KEY": "test_secret_key"})
 
 	t.Run("Tokenが適切な形式でない場合エラーを返す", func(t *testing.T) {
 		userID, err := jwt.GetUserIDFromToken("invalid_token")
