@@ -4,20 +4,30 @@ on:
   push:
     branches:
       - main
+  pull_request:
 
 
 jobs:
     swagger-gen:
         name: swagger-gen
         permissions:
+          actions: write
+          checks: write
           contents: write
+          deployments: write
+          issues: write
+          packages: write
+          pull-requests: write
+          repository-projects: write
+          security-events: write
+          statuses: write
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
               with:
                 fetch-depth: 0
-                token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+                token: ${{ secrets.GITHUB_TOKEN }}
             - name: safe dirctory
               run: git config --global --add safe.directory $(pwd)
             - name: Set up Go
@@ -51,7 +61,7 @@ jobs:
             - name: Create Pull Request
               uses: peter-evans/create-pull-request@v4
               with:
-                token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+                token: ${{ secrets.GITHUB_TOKEN }}
                 commit-message: generate swagger model
                 title: generate swagger model
                 body: generate swagger model by @${{ github.actor }}
