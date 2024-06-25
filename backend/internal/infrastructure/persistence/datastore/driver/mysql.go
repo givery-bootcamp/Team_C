@@ -1,3 +1,4 @@
+//go:generate mockgen -source=mysql.go -destination=driver_mock/driver_mock.go -package=driver_mock
 package driver
 
 import (
