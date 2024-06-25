@@ -33,8 +33,7 @@ export function Posts() {
   const dispatch = useAppDispatch();
   const query = useQuery();
   const toast = useToast();
-  const [fetchParams, setFetchParams] = useState({ limit: 20, offset: 0 });
-
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   useEffect(() => {
     const loginSuccess = localStorage.getItem('loginSuccess');
     if (loginSuccess == 'true') {
@@ -51,16 +50,16 @@ export function Posts() {
   }, [toast]);
 
   useEffect(() => {
-    const limit = parseInt(query.get('limit') ?? '20', 10);
-    const offset = parseInt(query.get('offset') ?? '0', 10);
-    setFetchParams({ limit, offset });
-  }, [query]);
+    if (isInitialLoad) {
+      const limit = parseInt(query.get('limit') ?? '20', 10);
+      const offset = parseInt(query.get('offset') ?? '0', 10);
 
-  useEffect(() => {
-    dispatch(APIService.getPosts(fetchParams));
-  }, [dispatch, fetchParams]);
+      dispatch(APIService.getPosts({ limit, offset }));
+      setIsInitialLoad(false);
+    }
+  }, [dispatch, query, isInitialLoad]);
 
-  if (status === 'loading') {
+  if (status === 'loading' && isInitialLoad) {
     return <div>loading...</div>;
   }
   if (status === 'failed') {
