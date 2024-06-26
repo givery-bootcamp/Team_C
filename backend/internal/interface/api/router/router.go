@@ -16,7 +16,6 @@ func CreateRouter() *gin.Engine {
 	app.Use(middleware.Cors())
 
 	db := driver.NewDB()
-
 	hr := datastore.NewHelloWorldRepository(db)
 	pr := datastore.NewPostRepository(db)
 	ur := datastore.NewUserRepository(db)
