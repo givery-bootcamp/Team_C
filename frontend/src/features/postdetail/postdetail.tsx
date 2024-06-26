@@ -17,8 +17,6 @@ export function PostDetail() {
   console.log(postId)
 
   useEffect(() => {
-    // const postId = Number(params.postId)
-    
     dispatch(APIService.getPostDetail( {id:postId} ));
   }, [dispatch]);
  
