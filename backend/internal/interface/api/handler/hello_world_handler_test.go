@@ -73,11 +73,7 @@ func TestHelloWorldHandler_HelloWorld(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.mockError == nil {
-				mockRepo.EXPECT().Get(gomock.Any(), tt.lang).Return(tt.mockReturn, nil).AnyTimes()
-			} else {
-				mockRepo.EXPECT().Get(gomock.Any(), tt.lang).Return(nil, tt.mockError).AnyTimes()
-			}
+			mockRepo.EXPECT().Get(gomock.Any(), tt.lang).Return(tt.mockReturn, tt.mockError)
 
 			gin.SetMode(gin.TestMode)
 			r := gin.Default()
