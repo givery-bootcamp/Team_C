@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - backend/**
+  push:
+    branches:
+      - main
 
 jobs:
   e2e-test:
