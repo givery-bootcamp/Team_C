@@ -5,7 +5,6 @@ import (
 	"myapp/internal/application/usecase"
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository/repository_mock"
-	"myapp/internal/exception"
 	"myapp/internal/interface/api/middleware"
 	"net/http"
 	"net/http/httptest"
@@ -57,6 +56,21 @@ func TestHelloWorldHandler_HelloWorld(t *testing.T) {
 	mockUsecase := usecase.NewHelloWorldUsecase(mockRepo)
 	handler := NewHelloWorldHandler(mockUsecase)
 
+	t.Run("invalid lang parameter", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+		r := gin.Default()
+		r.Use(middleware.HandleError())
+		r.GET("/hello", handler.HelloWorld)
+
+		req, _ := http.NewRequest("GET", "/hello?lang=english", nil)
+		w := httptest.NewRecorder()
+
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.JSONEq(t, `{"code":0, "message":"リクエストが不正です"}`, w.Body.String())
+	})
+
 	tests := []struct {
 		name           string
 		lang           string
@@ -89,47 +103,24 @@ func TestHelloWorldHandler_HelloWorld(t *testing.T) {
 			expectedStatus: http.StatusNotFound,
 			expectedBody:   `{"code":0,"message":"レコードが見つかりませんでした"}`,
 		},
-		{
-			name:           "invalid lang parameter",
-			lang:           "english",
-			mockReturn:     nil,
-			mockError:      exception.InvalidRequestError,
-			expectedStatus: http.StatusBadRequest,
-			expectedBody:   `{"code":0, "message":"リクエストが不正です"}`,
-		}}
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.name == "invalid lang parameter" {
-				// Skip repository mock for invalid parameter test case
-				gin.SetMode(gin.TestMode)
-				r := gin.Default()
-				r.Use(middleware.HandleError())
-				r.GET("/hello", handler.HelloWorld)
+			mockRepo.EXPECT().Get(gomock.Any(), tt.lang).Return(tt.mockReturn, tt.mockError)
 
-				req, _ := http.NewRequest("GET", "/hello?lang="+tt.lang, nil)
-				w := httptest.NewRecorder()
+			gin.SetMode(gin.TestMode)
+			r := gin.Default()
+			r.Use(middleware.HandleError())
+			r.GET("/hello", handler.HelloWorld)
 
-				r.ServeHTTP(w, req)
+			req, _ := http.NewRequest("GET", "/hello?lang="+tt.lang, nil)
+			w := httptest.NewRecorder()
 
-				assert.Equal(t, tt.expectedStatus, w.Code)
-				assert.JSONEq(t, tt.expectedBody, w.Body.String())
-			} else {
-				mockRepo.EXPECT().Get(gomock.Any(), tt.lang).Return(tt.mockReturn, tt.mockError)
+			r.ServeHTTP(w, req)
 
-				gin.SetMode(gin.TestMode)
-				r := gin.Default()
-				r.Use(middleware.HandleError())
-				r.GET("/hello", handler.HelloWorld)
-
-				req, _ := http.NewRequest("GET", "/hello?lang="+tt.lang, nil)
-				w := httptest.NewRecorder()
-
-				r.ServeHTTP(w, req)
-
-				assert.Equal(t, tt.expectedStatus, w.Code)
-				assert.JSONEq(t, tt.expectedBody, w.Body.String())
-			}
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			assert.JSONEq(t, tt.expectedBody, w.Body.String())
 		})
 	}
 }
