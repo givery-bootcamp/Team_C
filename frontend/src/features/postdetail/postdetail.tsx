@@ -26,13 +26,13 @@ export function PostDetail() {
           <Avatar size="sm" name={postdetail?.user?.name} />
           <Text as={'span'}>{postdetail?.user?.name}</Text>
         </HStack>
-        <HStack spacing={10}>
+        <Text paddingTop={5}>{postdetail?.body}</Text>
+        <Divider />
+        <HStack spacing={10} fontSize={'small'} color={'gray'}>
           <Text as={'span'}>作成日時 {DateService.formatDate(postdetail?.created_at)}</Text>
           <Text as={'span'}>投稿日時 {DateService.formatDate(postdetail?.updated_at)}</Text>
-        </HStack>
-        <Divider />
-        <Text>{postdetail?.body}</Text>
-        <ButtonGroup colorScheme='blue'>
+        </HStack> 
+        <ButtonGroup colorScheme='blue' paddingTop={5}>
           <Button>編集</Button>
           <Button>削除</Button>
         </ButtonGroup>        
