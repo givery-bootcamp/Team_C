@@ -33,8 +33,21 @@ export const postsSlice = createSlice({
       .addCase(APIService.getPosts.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message ?? 'unknown error';
+      })
+      .addCase(APIService.createPost.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(APIService.createPost.fulfilled, (state, action) => {
+        state.posts?.unshift(action.payload);
+        state.status = 'succeeded';
+        state.error = null;
+      })
+      .addCase(APIService.createPost.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message ?? 'failed to create post';
       });
   },
 });
 
+export const selectPosts = (state: { post: PostsState }) => state.post;
 export default postsSlice.reducer;

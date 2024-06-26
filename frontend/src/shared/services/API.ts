@@ -9,6 +9,7 @@ import {
   PostApi,
 } from 'api';
 import { RootState } from 'shared/store';
+import { ModelCreatePostParam } from '../../api/api';
 const API_ENDPOINT_PATH = import.meta.env.VITE_API_ENDPOINT_PATH ?? '';
 
 const configuration = new Configuration({
@@ -53,6 +54,24 @@ export const postSignin = createAsyncThunk<
   try {
     const api = new AuthApi(configuration, API_ENDPOINT_PATH, axiosInstance);
     const postSigninResponse = await api.apiSigninPost(param.param);
+    return postSigninResponse.data;
+  } catch (error) {
+    const err = error as AxiosError;
+    return rejectWithValue(err.message ?? 'failed to fetch posts');
+  }
+});
+
+export const createPost = createAsyncThunk<
+  ModelPost,
+  { param: ModelCreatePostParam },
+  {
+    rejectValue: string;
+    state: RootState;
+  }
+>('createPost', async (param, { rejectWithValue }) => {
+  try {
+    const api = new PostApi(configuration, API_ENDPOINT_PATH, axiosInstance);
+    const postSigninResponse = await api.apiPostsPost(param.param);
     return postSigninResponse.data;
   } catch (error) {
     const err = error as AxiosError;

@@ -1,18 +1,37 @@
 import { AppRoute } from './AppRoute';
 
-import './App.scss';
-import { ChakraProvider } from '@chakra-ui/react';
+import {
+  ChakraProvider,
+  Container,
+  useColorModeValue,
+  Box,
+} from '@chakra-ui/react';
 import { Header } from 'components/header';
 
 function App() {
+  const bgColor = useColorModeValue('gray.50', 'gray.800');
   return (
     <ChakraProvider>
-      <div className="app-root">
+      <Box
+        height="100vh"
+        width="100vw"
+        display="flex"
+        flexDirection="column"
+        bg={bgColor}
+      >
         <Header />
-        <main className="app-body container">
+        <Container
+          as="main"
+          maxW="container.xl"
+          flex="1"
+          display="flex"
+          flexDirection="column"
+          overflow="auto"
+          px={12}
+        >
           <AppRoute />
-        </main>
-      </div>
+        </Container>
+      </Box>
     </ChakraProvider>
   );
 }

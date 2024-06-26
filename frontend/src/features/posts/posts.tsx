@@ -1,32 +1,92 @@
-import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from 'shared/hooks';
-import { APIService } from 'shared/services';
 import {
   Avatar,
   Box,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
+  Button,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
-  Icon,
-  IconButton,
+  HStack,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Spacer,
+  Text,
+  Textarea,
+  useColorModeValue,
+  useDisclosure,
   useToast,
+  VStack,
 } from '@chakra-ui/react';
+import { ModelCreatePostParam, ModelPost } from 'api';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { useQuery } from 'shared/hooks/usequery';
-import { ModelPost } from 'api';
+import { APIService } from 'shared/services';
 import { RootState } from 'shared/store';
+const EnhancedPostsList: React.FC<{ posts: ModelPost[] }> = ({ posts }) => {
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
-function PostsHeader() {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
   return (
-    <Flex fontSize={'4xl'} p={3}>
-      投稿一覧
-    </Flex>
-  );
-}
+    <VStack spacing={6} align="stretch" width="100%">
+      {posts?.map((post) => (
+        <Box
+          key={post.id}
+          p={5}
+          shadow="md"
+          borderWidth={1}
+          borderRadius="lg"
+          bg={bgColor}
+          borderColor={borderColor}
+          _hover={{ shadow: 'lg' }}
+          transition="all 0.3s"
+        >
+          <Flex align="center" mb={4}>
+            <Avatar size="sm" name={post.user?.name} mr={2} />
+            <Text fontWeight="bold">{post.user?.name}</Text>
+            <Spacer />
+            <Text fontSize="sm" color="gray.500">
+              {formatDate(post.created_at)}
+            </Text>
+          </Flex>
 
+          <Heading as="h3" size="md" mb={2}>
+            {post.title}
+          </Heading>
+
+          <Text noOfLines={3} mb={4}>
+            {post.body}
+          </Text>
+
+          <HStack spacing={4} fontSize="sm" color="gray.500">
+            <Text>作成日: {formatDate(post.created_at)}</Text>
+            <Text>更新日: {formatDate(post.updated_at)}</Text>
+          </HStack>
+        </Box>
+      ))}
+    </VStack>
+  );
+};
+
+export default EnhancedPostsList;
 export function Posts() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { posts, status, error } = useAppSelector(
     (state: RootState) => state.post,
   );
@@ -34,6 +94,9 @@ export function Posts() {
   const query = useQuery();
   const toast = useToast();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+
   useEffect(() => {
     const loginSuccess = localStorage.getItem('loginSuccess');
     if (loginSuccess == 'true') {
@@ -48,6 +111,33 @@ export function Posts() {
       localStorage.removeItem('loginSuccess');
     }
   }, [toast]);
+
+  const handleCreatePost = async () => {
+    const postData: ModelCreatePostParam = { title, body };
+    const resultAction = await dispatch(
+      APIService.createPost({ param: postData }),
+    );
+    if (APIService.createPost.fulfilled.match(resultAction)) {
+      onClose();
+      setTitle('');
+      setBody('');
+      toast({
+        title: 'Post created.',
+        description: 'Your new post has been successfully created.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Failed to create post. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   useEffect(() => {
     if (isInitialLoad) {
@@ -67,36 +157,53 @@ export function Posts() {
   }
 
   return (
-    <div className="posts-container">
-      <PostsHeader />
-      {posts?.map((post: ModelPost) => (
-        <Card key={post.id} margin={2}>
-          <CardHeader>
-            <Flex>
-              <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
-                <Avatar size="sm" name={post.user?.name} />
-                <Box>
-                  <Heading size="sm">{post.user?.name}</Heading>
-                  <text>@{post.user?.id}</text>
-                </Box>
-              </Flex>
-              <IconButton
-                variant={'ghost'}
-                colorScheme="gray"
-                aria-label="icon"
-                icon={<Icon />}
-              />
-            </Flex>
-          </CardHeader>
-          <CardBody>
-            <Heading size="md">{post.title}</Heading>
-            <text>{post.body}</text>
-          </CardBody>
-          <CardFooter>
-            {post.created_at} - {post.updated_at}
-          </CardFooter>
-        </Card>
-      ))}
-    </div>
+    <Box>
+      <Button colorScheme="blue" onClick={onOpen} mb={4}>
+        新規投稿を作成
+      </Button>
+      {status === 'succeeded' && <EnhancedPostsList posts={posts ?? []} />}
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>投稿する</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4}>
+              <FormControl>
+                <FormLabel>タイトル</FormLabel>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="タイトルは？？"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Content</FormLabel>
+                <Textarea
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  placeholder="中身ないような内容を書くな！"
+                />
+              </FormControl>
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={handleCreatePost}
+              isLoading={status === 'loading'}
+            >
+              Create
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Box>
   );
 }
