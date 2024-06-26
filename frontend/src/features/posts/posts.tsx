@@ -13,6 +13,7 @@ import {
   FormControl,
   FormLabel,
   Heading,
+  HStack,
   Icon,
   IconButton,
   Input,
@@ -23,15 +24,73 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spacer,
+  Text,
   Textarea,
+  useColorModeValue,
   useDisclosure,
   useToast,
   VStack,
 } from '@chakra-ui/react';
 import { useQuery } from 'shared/hooks/usequery';
-import { ModelCreatePostParam } from 'api';
+import { ModelCreatePostParam, ModelPost } from 'api';
 import { RootState } from 'shared/store';
+const EnhancedPostsList: React.FC<{ posts: ModelPost[] }> = ({ posts }) => {
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  return (
+    <VStack spacing={6} align="stretch" width="100%">
+      {posts?.map((post) => (
+        <Box
+          key={post.id}
+          p={5}
+          shadow="md"
+          borderWidth={1}
+          borderRadius="lg"
+          bg={bgColor}
+          borderColor={borderColor}
+          _hover={{ shadow: 'lg' }}
+          transition="all 0.3s"
+        >
+          <Flex align="center" mb={4}>
+            <Avatar size="sm" name={post.user?.name} mr={2} />
+            <Text fontWeight="bold">{post.user?.name}</Text>
+            <Spacer />
+            <Text fontSize="sm" color="gray.500">
+              {formatDate(post.created_at)}
+            </Text>
+          </Flex>
+
+          <Heading as="h3" size="md" mb={2}>
+            {post.title}
+          </Heading>
+
+          <Text noOfLines={3} mb={4}>
+            {post.body}
+          </Text>
+
+          <HStack spacing={4} fontSize="sm" color="gray.500">
+            <Text>作成日: {formatDate(post.created_at)}</Text>
+            <Text>更新日: {formatDate(post.updated_at)}</Text>
+          </HStack>
+        </Box>
+      ))}
+    </VStack>
+  );
+};
+
+export default EnhancedPostsList;
 export function Posts() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { posts, status, error } = useAppSelector(
@@ -106,17 +165,9 @@ export function Posts() {
   return (
     <Box>
       <Button colorScheme="blue" onClick={onOpen} mb={4}>
-        Create New Post
+        新規投稿を作成
       </Button>
-
-      <VStack spacing={4} align="stretch">
-        {posts?.map((post) => (
-          <Box key={post.id} p={4} borderWidth={1} borderRadius="md">
-            <h2>{post.title}</h2>
-            <p>{post.body}</p>
-          </Box>
-        ))}
-      </VStack>
+      {status === 'succeeded' && <EnhancedPostsList posts={posts ?? []} />}
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
