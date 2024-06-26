@@ -85,7 +85,6 @@ func (r *PostRepository) Update(ctx context.Context, post *model.Post) (*model.P
 
 func (r *PostRepository) Delete(ctx context.Context, id int) error {
 	conn := r.db.GetDB(ctx)
-
 	tx := conn.Begin()
 	if tx.Error != nil {
 		return xerrors.Errorf("failed to begin transaction: %w", tx.Error)
