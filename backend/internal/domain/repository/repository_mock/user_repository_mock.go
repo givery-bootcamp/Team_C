@@ -40,6 +40,21 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 	return m.recorder
 }
 
+// Create mocks base method.
+func (m *MockUserRepository) Create(ctx context.Context, user model.User) (*model.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", ctx, user)
+	ret0, _ := ret[0].(*model.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockUserRepositoryMockRecorder) Create(ctx, user any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserRepository)(nil).Create), ctx, user)
+}
+
 // GetByID mocks base method.
 func (m *MockUserRepository) GetByID(ctx context.Context, id int) (*model.User, error) {
 	m.ctrl.T.Helper()
@@ -55,17 +70,17 @@ func (mr *MockUserRepositoryMockRecorder) GetByID(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUserRepository)(nil).GetByID), ctx, id)
 }
 
-// GetBySigninParam mocks base method.
-func (m *MockUserRepository) GetBySigninParam(ctx context.Context, param model.UserSigninParam) (*model.User, error) {
+// GetByName mocks base method.
+func (m *MockUserRepository) GetByName(ctx context.Context, name string) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetBySigninParam", ctx, param)
+	ret := m.ctrl.Call(m, "GetByName", ctx, name)
 	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetBySigninParam indicates an expected call of GetBySigninParam.
-func (mr *MockUserRepositoryMockRecorder) GetBySigninParam(ctx, param any) *gomock.Call {
+// GetByName indicates an expected call of GetByName.
+func (mr *MockUserRepositoryMockRecorder) GetByName(ctx, name any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBySigninParam", reflect.TypeOf((*MockUserRepository)(nil).GetBySigninParam), ctx, param)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByName", reflect.TypeOf((*MockUserRepository)(nil).GetByName), ctx, name)
 }
