@@ -354,3 +354,86 @@ func TestPostRepository_Update(t *testing.T) {
 		}, post)
 	})
 }
+
+func TestPostRepository_Delete(t *testing.T) {
+	t.Run("failed/トランザクションの開始に失敗したとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectBegin().
+			WillReturnError(gorm.ErrInvalidDB)
+
+		err = deps.repo.Delete(context.Background(), 1)
+
+		AssertErrMsg(t, xerrors.Errorf("failed to begin transaction: %w", gorm.ErrInvalidDB), err)
+	})
+
+	t.Run("failed/commentsテーブルのクエリに失敗したとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectBegin()
+		deps.mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `comments` WHERE post_id = ?")).
+			WithArgs(1).
+			WillReturnError(gorm.ErrInvalidDB)
+		deps.mock.ExpectRollback()
+
+		err = deps.repo.Delete(context.Background(), 1)
+
+		AssertErrMsg(t, xerrors.Errorf("failed to delete comments: %w", gorm.ErrInvalidDB), err)
+	})
+
+	t.Run("failed/postsテーブルのクエリに失敗したとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectBegin()
+		deps.mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `comments` WHERE post_id = ?")).
+			WithArgs(1).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+		deps.mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `posts` WHERE id = ?")).
+			WithArgs(1).
+			WillReturnError(gorm.ErrInvalidDB)
+		deps.mock.ExpectRollback()
+
+		err = deps.repo.Delete(context.Background(), 1)
+
+		AssertErrMsg(t, xerrors.Errorf("failed to delete posts: %w", gorm.ErrInvalidDB), err)
+	})
+
+	t.Run("failed/トランザクションのコミットに失敗したとき期待したエラーを返す", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectBegin()
+		deps.mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `comments` WHERE post_id = ?")).
+			WithArgs(1).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+		deps.mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `posts` WHERE id = ?")).
+			WithArgs(1).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+		deps.mock.ExpectCommit().
+			WillReturnError(gorm.ErrInvalidDB)
+
+		err = deps.repo.Delete(context.Background(), 1)
+
+		AssertErrMsg(t, xerrors.Errorf("failed to commit transaction: %w", gorm.ErrInvalidDB), err)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		deps, err := newTestPostRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectBegin()
+		deps.mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `comments` WHERE post_id = ?")).
+			WithArgs(1).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+		deps.mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `posts` WHERE id = ?")).
+			WithArgs(1).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+		deps.mock.ExpectCommit()
+
+		err = deps.repo.Delete(context.Background(), 1)
+		assert.NoError(t, err)
+	})
+}

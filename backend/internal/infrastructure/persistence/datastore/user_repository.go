@@ -49,7 +49,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id int) (*model.User, erro
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, xerrors.Errorf("failed to SQL execution: %w", err)
 	}
 
 	return user.ToModel(), nil
