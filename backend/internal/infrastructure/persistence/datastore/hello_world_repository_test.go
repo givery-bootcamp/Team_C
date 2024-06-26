@@ -2,6 +2,7 @@ package datastore_test
 
 import (
 	"context"
+	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
 	"myapp/internal/infrastructure/persistence/datastore"
 	"myapp/internal/infrastructure/persistence/datastore/driver/driver_mock"
@@ -81,6 +82,9 @@ func TestHelloWorldRepository_Get(t *testing.T) {
 		helloWorld, err := deps.repo.Get(context.Background(), "ja")
 
 		assert.NoError(t, err)
-		assert.Equal(t, "こんにちは", helloWorld.Message)
+		assert.Equal(t, &model.HelloWorld{
+			Lang:    "ja",
+			Message: "こんにちは",
+		}, helloWorld)
 	})
 }
