@@ -1,4 +1,4 @@
-desc: SigninAPI
+desc: SignupAPI
 vars:
   request: "json://request.json"
 if: included
