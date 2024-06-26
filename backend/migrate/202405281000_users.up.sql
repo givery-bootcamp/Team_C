@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS users(
   password   VARCHAR(100) NOT NULL,
   created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME     NULL
+  deleted_at DATETIME     NULL,
+  UNIQUE KEY(name)
 );
 
 INSERT INTO users (name, password) VALUES ('taro', 'password');

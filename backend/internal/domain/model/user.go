@@ -25,3 +25,8 @@ type UserSigninParam struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
 }
+
+type CreateUserParam struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}
