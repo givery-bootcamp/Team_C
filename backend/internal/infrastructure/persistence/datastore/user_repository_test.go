@@ -43,35 +43,29 @@ func newTestUserRepositoryDependencies(t *testing.T) (testUserRepositoryDependen
 	}, nil
 }
 
-func TestUserRepository_GetBySigninParam(t *testing.T) {
+func TestUserRepository_GetByName(t *testing.T) {
 	t.Run("failed/Userのレコードが見つからない場合エラーを返す", func(t *testing.T) {
 		deps, err := newTestUserRepositoryDependencies(t)
 		require.NoError(t, err)
 
-		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE name = ? AND password = ? ORDER BY `users`.`id` LIMIT ?")).
-			WithArgs("user", "password", 1).
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE name = ? ORDER BY `users`.`id` LIMIT ?")).
+			WithArgs("user", 1).
 			WillReturnError(gorm.ErrRecordNotFound)
 
-		_, err = deps.repo.GetBySigninParam(context.Background(), model.UserSigninParam{
-			Name:     "user",
-			Password: "password",
-		})
+		_, err = deps.repo.GetByName(context.Background(), "user")
 
-		assert.Equal(t, "failed to get sign in params: サインインに失敗しました", err.Error())
+		assert.Equal(t, "failed to get sign in params: レコードが見つかりませんでした", err.Error())
 	})
 
 	t.Run("failed/usersテーブルのクエリに失敗した時エラーを返す", func(t *testing.T) {
 		deps, err := newTestUserRepositoryDependencies(t)
 		require.NoError(t, err)
 
-		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE name = ? AND password = ? ORDER BY `users`.`id` LIMIT ?")).
-			WithArgs("user", "password", 1).
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE name = ? ORDER BY `users`.`id` LIMIT ?")).
+			WithArgs("user", 1).
 			WillReturnError(gorm.ErrInvalidDB)
 
-		_, err = deps.repo.GetBySigninParam(context.Background(), model.UserSigninParam{
-			Name:     "user",
-			Password: "password",
-		})
+		_, err = deps.repo.GetByName(context.Background(), "user")
 
 		assert.Equal(t, "failed to SQL execution: invalid db", err.Error())
 	})
@@ -83,16 +77,13 @@ func TestUserRepository_GetBySigninParam(t *testing.T) {
 		}
 		defer deps.ctrl.Finish()
 
-		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE name = ? AND password = ? ORDER BY `users`.`id` LIMIT ?")).
-			WithArgs("user", "password", 1).
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE name = ? ORDER BY `users`.`id` LIMIT ?")).
+			WithArgs("user", 1).
 			WillReturnRows(sqlmock.NewRows([]string{"id", "name", "password", "created_at", "updated_at"}).
 				AddRow(1, "user", "password", time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC)),
 			)
 
-		user, err := deps.repo.GetBySigninParam(context.Background(), model.UserSigninParam{
-			Name:     "user",
-			Password: "password",
-		})
+		user, err := deps.repo.GetByName(context.Background(), "user")
 
 		assert.NoError(t, err)
 		assert.Equal(t, &model.User{
