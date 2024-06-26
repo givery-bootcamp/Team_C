@@ -33,7 +33,7 @@ jobs:
         working-directory: ./backend
         run: |
           go test -tags="unit_test" ./... --cover -v -coverprofile=../coverage.out.tmp
-          cat ../coverage.out.tmp | grep -v "myapp/docs/docs.go" > ../coverage.out
-          rm ../coverage.out.tmp
+          grep -v "myapp/docs/docs.go" coverage.out > coverage_filtered.out
+          mv coverage_filtered.out coverage.out
       - name: Exec octocov action
         uses: k1LoW/octocov-action@v0
