@@ -6,7 +6,6 @@ import (
 	"myapp/internal/domain/repository/repository_mock"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -41,9 +40,8 @@ func TestNewHelloWorldHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewHelloWorldHandler(tt.args.u); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewHelloWorldHandler() = %v, want %v", got, tt.want)
-			}
+			u := NewHelloWorldHandler(tt.args.u)
+			assert.Equal(t, tt.want, u)
 		})
 	}
 }
@@ -123,9 +121,8 @@ func Test_validateHelloWorldParameters(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateHelloWorldParameters(tt.args.lang); (err != nil) != tt.wantErr {
-				t.Errorf("validateHelloWorldParameters() error = %v, wantErr %v", err, tt.wantErr)
-			}
+			err := validateHelloWorldParameters(tt.args.lang)
+			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
 }
