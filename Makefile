@@ -20,5 +20,5 @@ test-unit:
 .PHONY: gen-swag
 gen-swag:
 	@cd backend; swag fmt; swag init
-	@find ./backend/docs/ -type f \( -name "*.json" \) -exec sed -i '' 's/"swagger": "2.0"/"openapi": "3.2.0"/g' {} +
-	@find ./backend/docs/ -type f \( -name "*.yaml" \) -exec sed -i '' 's/swagger: "2.0"/"openapi": "3.2.0"/g' {} +
+	@find ./backend/docs/ -type f \( -name "*.json" \) -exec sed -i '' 's/"swagger": "2.0"/"openapi": "3.0.2"/g' {} +
+	@find ./backend/docs/ -type f \( -name "*.yaml" \) -exec sed -i '' 's/swagger: "2.0"/openapi: "3.0.2"/g' {} +
