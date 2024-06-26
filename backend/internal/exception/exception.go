@@ -21,10 +21,11 @@ func newException(status int, message string, code int) *Exception {
 }
 
 var (
-	ServerError         = newException(http.StatusInternalServerError, "エラーが発生しました", 0)
-	ValidationError     = newException(http.StatusBadRequest, "バリデーションエラーが発生しました", 0)
-	AuthError           = newException(http.StatusUnauthorized, "認証エラーが発生しました", 0)
-	InvalidRequestError = newException(http.StatusBadRequest, "リクエストが不正です", 0)
-	FailedToSigninError = newException(http.StatusBadRequest, "サインインに失敗しました", 0)
-	RecordNotFoundError = newException(http.StatusNotFound, "レコードが見つかりませんでした", 0)
+	ServerError            = newException(http.StatusInternalServerError, "エラーが発生しました", 0)
+	ValidationError        = newException(http.StatusBadRequest, "バリデーションエラーが発生しました", 0)
+	AuthError              = newException(http.StatusUnauthorized, "認証エラーが発生しました", 0)
+	InvalidRequestError    = newException(http.StatusBadRequest, "リクエストが不正です", 0)
+	FailedToSigninError    = newException(http.StatusBadRequest, "サインインに失敗しました", 0)
+	RecordNotFoundError    = newException(http.StatusNotFound, "レコードが見つかりませんでした", 0)
+	UserAlreadyExistsError = newException(http.StatusBadRequest, "すでに使われているユーザー名です", 0)
 )

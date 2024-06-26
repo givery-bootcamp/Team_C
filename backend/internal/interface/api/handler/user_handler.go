@@ -93,3 +93,31 @@ func (h *UserHandler) GetByIDFromContext(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, res)
 }
+
+// Signup godoc
+//
+//	@Summary	Signup User
+//	@Schemes
+//	@Description	Create User
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		model.CreateUserParam	true	"リクエスト"
+//	@Success		201		{object}	model.User				"Created"
+//	@Router			/api/signup [post]
+func (h *UserHandler) Signup(ctx *gin.Context) {
+	body := model.CreateUserParam{}
+	if ctx.ShouldBindJSON(&body) != nil {
+		ctx.Error(exception.InvalidRequestError)
+		return
+	}
+
+	res, err := h.u.Create(ctx, body)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	middleware.SetJWTCookie(ctx, res.ID)
+	ctx.JSON(http.StatusCreated, res)
+}
