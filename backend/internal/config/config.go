@@ -19,6 +19,10 @@ var (
 )
 
 func init() {
+	LoadConfig()
+}
+
+func LoadConfig() {
 	if v := os.Getenv("HOSTNAME"); v != "" {
 		HostName = v
 	}
