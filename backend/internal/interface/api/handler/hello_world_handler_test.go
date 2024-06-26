@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"fmt"
 	"myapp/internal/application/usecase"
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository/repository_mock"
+	"myapp/internal/exception"
+	"myapp/internal/interface/api/middleware"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
+	"gorm.io/gorm"
 )
 
 func TestNewHelloWorldHandler(t *testing.T) {
@@ -69,23 +73,63 @@ func TestHelloWorldHandler_HelloWorld(t *testing.T) {
 			expectedStatus: http.StatusOK,
 			expectedBody:   `{"message":"Hello, World!","lang":"en"}`,
 		},
-	}
+		{
+			name:           "repository error",
+			lang:           "en",
+			mockReturn:     nil,
+			mockError:      fmt.Errorf("repository error"),
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
+		},
+		{
+			name:           "record not found",
+			lang:           "en",
+			mockReturn:     nil,
+			mockError:      gorm.ErrRecordNotFound,
+			expectedStatus: http.StatusNotFound,
+			expectedBody:   `{"code":0,"message":"レコードが見つかりませんでした"}`,
+		},
+		{
+			name:           "invalid lang parameter",
+			lang:           "english",
+			mockReturn:     nil,
+			mockError:      exception.InvalidRequestError,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0, "message":"リクエストが不正です"}`,
+		}}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo.EXPECT().Get(gomock.Any(), tt.lang).Return(tt.mockReturn, tt.mockError)
+			if tt.name == "invalid lang parameter" {
+				// Skip repository mock for invalid parameter test case
+				gin.SetMode(gin.TestMode)
+				r := gin.Default()
+				r.Use(middleware.HandleError())
+				r.GET("/hello", handler.HelloWorld)
 
-			gin.SetMode(gin.TestMode)
-			r := gin.Default()
-			r.GET("/hello", handler.HelloWorld)
+				req, _ := http.NewRequest("GET", "/hello?lang="+tt.lang, nil)
+				w := httptest.NewRecorder()
 
-			req, _ := http.NewRequest("GET", "/hello?lang="+tt.lang, nil)
-			w := httptest.NewRecorder()
+				r.ServeHTTP(w, req)
 
-			r.ServeHTTP(w, req)
+				assert.Equal(t, tt.expectedStatus, w.Code)
+				assert.JSONEq(t, tt.expectedBody, w.Body.String())
+			} else {
+				mockRepo.EXPECT().Get(gomock.Any(), tt.lang).Return(tt.mockReturn, tt.mockError)
 
-			assert.Equal(t, tt.expectedStatus, w.Code)
-			assert.JSONEq(t, tt.expectedBody, w.Body.String())
+				gin.SetMode(gin.TestMode)
+				r := gin.Default()
+				r.Use(middleware.HandleError())
+				r.GET("/hello", handler.HelloWorld)
+
+				req, _ := http.NewRequest("GET", "/hello?lang="+tt.lang, nil)
+				w := httptest.NewRecorder()
+
+				r.ServeHTTP(w, req)
+
+				assert.Equal(t, tt.expectedStatus, w.Code)
+				assert.JSONEq(t, tt.expectedBody, w.Body.String())
+			}
 		})
 	}
 }
@@ -98,27 +142,35 @@ func Test_validateHelloWorldParameters(t *testing.T) {
 		name    string
 		args    args
 		wantErr bool
+		errMsg  string
 	}{
 		{
 			name:    "valid lang parameter",
 			args:    args{lang: "en"},
 			wantErr: false,
+			errMsg:  "",
 		},
 		{
 			name:    "invalid lang parameter length",
 			args:    args{lang: "english"},
 			wantErr: true,
+			errMsg:  "Invalid lang parameter: english",
 		},
 		{
 			name:    "empty lang parameter",
 			args:    args{lang: ""},
 			wantErr: true,
+			errMsg:  "Invalid lang parameter: ",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validateHelloWorldParameters(tt.args.lang)
-			assert.Equal(t, tt.wantErr, err != nil)
+			if tt.wantErr {
+				assert.EqualError(t, err, tt.errMsg)
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }
