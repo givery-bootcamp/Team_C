@@ -39,7 +39,6 @@ export function Posts() {
   const dispatch = useAppDispatch();
   const query = useQuery();
   const toast = useToast();
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [offset, setOffset] = useState(0);
@@ -103,11 +102,8 @@ export function Posts() {
   const limit = parseInt(query.get('limit') ?? '20', 10);
 
   useEffect(() => {
-    if (isInitialLoad) {
-      dispatch(APIService.getPosts({ limit, offset: 0 }));
-      setIsInitialLoad(false);
-    }
-  }, [dispatch, limit, isInitialLoad]);
+    dispatch(APIService.getPosts({ limit, offset: 0 }));
+  }, [dispatch, limit]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -134,7 +130,7 @@ export function Posts() {
     return <div>failed to fetch posts: {error}</div>;
   }
   const Loading = () => {
-    if (status === 'loading' && isInitialLoad) {
+    if (status === 'loading') {
       return <Spinner />;
     }
   };
@@ -186,11 +182,6 @@ export function Posts() {
           <Box ref={loadMoreRef} h="20px" mt={4}>
             {Loading()}
           </Box>
-          {!hasMore && (
-            <Text textAlign="center" mt={4}>
-              All posts loaded
-            </Text>
-          )}
         </Box>
       )}
 
