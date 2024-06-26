@@ -1,6 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from 'shared/hooks';
-import { APIService } from 'shared/services';
 import {
   Avatar,
   Box,
@@ -26,8 +23,11 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import { useQuery } from 'shared/hooks/usequery';
 import { ModelCreatePostParam, ModelPost } from 'api';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from 'shared/hooks';
+import { useQuery } from 'shared/hooks/usequery';
+import { APIService } from 'shared/services';
 import { RootState } from 'shared/store';
 const EnhancedPostsList: React.FC<{ posts: ModelPost[] }> = ({ posts }) => {
   const bgColor = useColorModeValue('white', 'gray.800');
