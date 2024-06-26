@@ -264,4 +264,4 @@ paths:
       summary: hello world
       tags:
       - helloWorld
-swagger: "2.0"
+openapi: "3.0.2"
