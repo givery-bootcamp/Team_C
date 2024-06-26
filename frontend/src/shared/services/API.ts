@@ -78,3 +78,21 @@ export const createPost = createAsyncThunk<
     return rejectWithValue(err.message ?? 'failed to fetch posts');
   }
 });
+
+export const getPostDetail = createAsyncThunk<
+  ModelPost,
+  { id: number },
+  {
+    rejectValue: string;
+    state: RootState;
+  }
+>('getPostDetail', async ({ id }, { rejectWithValue }) => {
+  try {
+    const api = new PostApi(configuration, API_ENDPOINT_PATH, axiosInstance);
+    const getPostDetailResponse = await api.apiPostsIdGet(id);
+    return getPostDetailResponse.data;
+  } catch (error) {
+    const err = error as AxiosError;
+    return rejectWithValue(err.message ?? 'failed to fetch postdetail');
+  }
+});
