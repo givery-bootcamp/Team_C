@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"myapp/internal/application/usecase"
+	"myapp/internal/exception"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type HelloWorldHandler struct {
@@ -31,12 +33,16 @@ func NewHelloWorldHandler(u usecase.HelloWorldUsecase) HelloWorldHandler {
 func (h *HelloWorldHandler) HelloWorld(ctx *gin.Context) {
 	lang := ctx.DefaultQuery("lang", "ja")
 	if err := validateHelloWorldParameters(lang); err != nil {
-		ctx.Error(err)
+		ctx.Error(exception.InvalidRequestError)
 		return
 	}
 	result, err := h.u.Execute(ctx, lang)
 	if err != nil {
-		ctx.Error(err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.Error(exception.RecordNotFoundError)
+		} else {
+			ctx.Error(exception.ServerError)
+		}
 		return
 	}
 	ctx.JSON(200, result)
