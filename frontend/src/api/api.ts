@@ -45,6 +45,25 @@ export interface ModelCreatePostParam {
 /**
  * 
  * @export
+ * @interface ModelCreateUserParam
+ */
+export interface ModelCreateUserParam {
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelCreateUserParam
+     */
+    'name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelCreateUserParam
+     */
+    'password'?: string;
+}
+/**
+ * 
+ * @export
  * @interface ModelHelloWorld
  */
 export interface ModelHelloWorld {
@@ -234,6 +253,42 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Create User
+         * @summary Signup User
+         * @param {ModelCreateUserParam} body リクエスト
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSignupPost: async (body: ModelCreateUserParam, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            assertParamExists('apiSignupPost', 'body', body)
+            const localVarPath = `/api/signup`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -269,6 +324,19 @@ export const AuthApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['AuthApi.apiSignoutPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * Create User
+         * @summary Signup User
+         * @param {ModelCreateUserParam} body リクエスト
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiSignupPost(body: ModelCreateUserParam, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ModelUser>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiSignupPost(body, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthApi.apiSignupPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -297,6 +365,16 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
          */
         apiSignoutPost(options?: any): AxiosPromise<object> {
             return localVarFp.apiSignoutPost(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Create User
+         * @summary Signup User
+         * @param {ModelCreateUserParam} body リクエスト
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSignupPost(body: ModelCreateUserParam, options?: any): AxiosPromise<ModelUser> {
+            return localVarFp.apiSignupPost(body, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -329,6 +407,18 @@ export class AuthApi extends BaseAPI {
      */
     public apiSignoutPost(options?: RawAxiosRequestConfig) {
         return AuthApiFp(this.configuration).apiSignoutPost(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Create User
+     * @summary Signup User
+     * @param {ModelCreateUserParam} body リクエスト
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public apiSignupPost(body: ModelCreateUserParam, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).apiSignupPost(body, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

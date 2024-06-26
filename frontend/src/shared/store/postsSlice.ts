@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { APIService } from '../services';
 import { ModelPost } from 'api';
+import { APIService } from '../services';
 
 interface PostsState {
   posts: ModelPost[] | null;
