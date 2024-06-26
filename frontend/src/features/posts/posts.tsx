@@ -1,8 +1,6 @@
-import { useEffect } from 'react';
-
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { APIService } from 'shared/services';
-import { model_Post } from 'api';
 import {
   Avatar,
   Box,
@@ -16,6 +14,9 @@ import {
   IconButton,
   useToast,
 } from '@chakra-ui/react';
+import { useQuery } from 'shared/hooks/usequery';
+import { ModelPost } from 'api';
+import { RootState } from 'shared/store';
 import { useNavigate } from 'react-router-dom'
 
 function PostsHeader() {
@@ -28,10 +29,13 @@ function PostsHeader() {
 
 export function Posts() {
   const navigate = useNavigate()
-  const { posts } = useAppSelector((state) => state.post);
+  const { posts, status, error } = useAppSelector(
+    (state: RootState) => state.post,
+  );
   const dispatch = useAppDispatch();
+  const query = useQuery();
   const toast = useToast();
-
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   useEffect(() => {
     const loginSuccess = localStorage.getItem('loginSuccess');
     if (loginSuccess == 'true') {
@@ -48,13 +52,26 @@ export function Posts() {
   }, [toast]);
 
   useEffect(() => {
-    dispatch(APIService.getPosts());
-  }, [dispatch]);
+    if (isInitialLoad) {
+      const limit = parseInt(query.get('limit') ?? '20', 10);
+      const offset = parseInt(query.get('offset') ?? '0', 10);
+
+      dispatch(APIService.getPosts({ limit, offset }));
+      setIsInitialLoad(false);
+    }
+  }, [dispatch, query, isInitialLoad]);
+
+  if (status === 'loading' && isInitialLoad) {
+    return <div>loading...</div>;
+  }
+  if (status === 'failed') {
+    return <div>failed to fetch posts: {error}</div>;
+  }
 
   return (
     <div className="posts-container">
       <PostsHeader />
-      {posts?.map((post: model_Post) => (
+      {posts?.map((post: ModelPost) => (
         <Card key={post.id} margin={2} onClick={() => {navigate(`${post.id}`)}} cursor={'pointer'} _hover={{ bg: "gray.100" }}>
           <CardHeader>
             <Flex>

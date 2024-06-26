@@ -1,19 +1,27 @@
-import { useEffect } from 'react';
+import { useEffect} from 'react';
 
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { APIService,DateService } from 'shared/services';
 import { Box, Divider, HStack, Heading, Text, Avatar, Button, ButtonGroup } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom'
+import { RootState } from 'shared/store';
 
 export function PostDetail() {
-  const {postId} = useParams()
-  const { postdetail } = useAppSelector((state) => state.postdetail);
+  const params = useParams()
+  // const { postdetail } = useAppSelector((state) => state.postdetail);
+  const { postdetail } = useAppSelector(
+    (state: RootState) => state.postdetail,
+  );
   const dispatch = useAppDispatch();
+  const postId = Number(params.postId)
+  console.log(postId)
 
   useEffect(() => {
-    dispatch(APIService.getPostDetail(Number(postId)));
+    // const postId = Number(params.postId)
+    
+    dispatch(APIService.getPostDetail( {id:postId} ));
   }, [dispatch]);
-
+ 
   return(
     <Box>
         <Heading as={'h1'} >{postdetail?.title}</Heading>
