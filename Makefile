@@ -12,3 +12,7 @@ test-cover:
 	@cd backend; rm cover.out.tmp
 	@cd backend; go tool cover -html=cover.out -o cover.html
 	@open ./backend/cover.html
+
+.PHONY: test-unit
+test-unit:
+	@cd backend; go test -tags="unit_test" ./...
