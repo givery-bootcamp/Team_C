@@ -103,7 +103,7 @@ func (h *UserHandler) GetByIDFromContext(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			body	body		model.CreateUserParam	true	"リクエスト"
-//	@Success		200		{object}	model.User				"OK"
+//	@Success		201		{object}	model.User				"Created"
 //	@Router			/api/signup [post]
 func (h *UserHandler) Signup(ctx *gin.Context) {
 	body := model.CreateUserParam{}
@@ -118,5 +118,5 @@ func (h *UserHandler) Signup(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	ctx.JSON(http.StatusCreated, res)
 }
