@@ -6,6 +6,13 @@ definitions:
       title:
         type: string
     type: object
+  model.CreateUserParam:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
   model.HelloWorld:
     properties:
       lang:
@@ -203,6 +210,28 @@ paths:
           schema:
             type: object
       summary: user signout
+      tags:
+      - auth
+  /api/signup:
+    post:
+      consumes:
+      - application/json
+      description: Create User
+      parameters:
+      - description: リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateUserParam'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: Signup User
       tags:
       - auth
   /api/users:

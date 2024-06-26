@@ -8,5 +8,6 @@ import (
 
 type UserRepository interface {
 	GetByID(ctx context.Context, id int) (*model.User, error)
-	GetBySigninParam(ctx context.Context, param model.UserSigninParam) (*model.User, error)
+	GetByName(ctx context.Context, name string) (*model.User, error)
+	Create(ctx context.Context, user model.User) (*model.User, error)
 }
