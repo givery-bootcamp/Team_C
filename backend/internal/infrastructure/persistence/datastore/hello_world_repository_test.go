@@ -42,21 +42,7 @@ func newTestHelloWorldRepositoryDependencies(t *testing.T) (testHelloWorldReposi
 }
 
 func TestHelloWorldRepository_Get(t *testing.T) {
-	t.Run("HelloWorldのレコードが見つからない場合nilを返す", func(t *testing.T) {
-		deps, err := newTestHelloWorldRepositoryDependencies(t)
-		require.NoError(t, err)
-
-		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `hello_worlds` WHERE lang = ? ORDER BY `hello_worlds`.`lang` LIMIT ?")).
-			WithArgs("ja", 1).
-			WillReturnError(gorm.ErrRecordNotFound)
-
-		helloWorld, err := deps.repo.Get(context.Background(), "ja")
-
-		assert.NoError(t, err)
-		assert.Nil(t, helloWorld)
-	})
-
-	t.Run("hello_worldテーブルのクエリに失敗した時エラーを返す", func(t *testing.T) {
+	t.Run("failed/hello_worldテーブルのクエリに失敗した時エラーを返す", func(t *testing.T) {
 		deps, err := newTestHelloWorldRepositoryDependencies(t)
 		require.NoError(t, err)
 
@@ -70,7 +56,21 @@ func TestHelloWorldRepository_Get(t *testing.T) {
 		assert.Nil(t, helloWorld)
 	})
 
-	t.Run("success", func(t *testing.T) {
+	t.Run("success/HelloWorldのレコードが見つからない場合nilを返す", func(t *testing.T) {
+		deps, err := newTestHelloWorldRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `hello_worlds` WHERE lang = ? ORDER BY `hello_worlds`.`lang` LIMIT ?")).
+			WithArgs("ja", 1).
+			WillReturnError(gorm.ErrRecordNotFound)
+
+		helloWorld, err := deps.repo.Get(context.Background(), "ja")
+
+		assert.NoError(t, err)
+		assert.Nil(t, helloWorld)
+	})
+
+	t.Run("success/HelloWorldのレコードが見かった場合それを返す", func(t *testing.T) {
 		deps, err := newTestHelloWorldRepositoryDependencies(t)
 		require.NoError(t, err)
 

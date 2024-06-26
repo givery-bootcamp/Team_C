@@ -44,7 +44,7 @@ func newTestUserRepositoryDependencies(t *testing.T) (testUserRepositoryDependen
 }
 
 func TestUserRepository_GetBySigninParam(t *testing.T) {
-	t.Run("Userのレコードが見つからない場合エラーを返す", func(t *testing.T) {
+	t.Run("failed/Userのレコードが見つからない場合エラーを返す", func(t *testing.T) {
 		deps, err := newTestUserRepositoryDependencies(t)
 		require.NoError(t, err)
 
@@ -60,7 +60,7 @@ func TestUserRepository_GetBySigninParam(t *testing.T) {
 		assert.Equal(t, "failed to get sign in params: サインインに失敗しました", err.Error())
 	})
 
-	t.Run("SQL実行時にエラーが発生した場合エラーを返す", func(t *testing.T) {
+	t.Run("failed/usersテーブルのクエリに失敗した時エラーを返す", func(t *testing.T) {
 		deps, err := newTestUserRepositoryDependencies(t)
 		require.NoError(t, err)
 
@@ -76,7 +76,7 @@ func TestUserRepository_GetBySigninParam(t *testing.T) {
 		assert.Equal(t, "failed to SQL execution: invalid db", err.Error())
 	})
 
-	t.Run("正常にUserのレコードが取得できた場合Userを返す", func(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
 		deps, err := newTestUserRepositoryDependencies(t)
 		if err != nil {
 			t.Fatal(err)
@@ -106,7 +106,20 @@ func TestUserRepository_GetBySigninParam(t *testing.T) {
 }
 
 func TestUserRepository_GetById(t *testing.T) {
-	t.Run("Userのレコードが見つからない場合nilを返す", func(t *testing.T) {
+	t.Run("failed/usersテーブルのクエリに失敗した時エラーを返す", func(t *testing.T) {
+		deps, err := newTestUserRepositoryDependencies(t)
+		require.NoError(t, err)
+
+		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
+			WithArgs(1, 1).
+			WillReturnError(gorm.ErrInvalidDB)
+
+		_, err = deps.repo.GetByID(context.Background(), 1)
+
+		assert.Equal(t, "failed to SQL execution: invalid db", err.Error())
+	})
+
+	t.Run("success/Userのレコードが見つからない場合nilを返す", func(t *testing.T) {
 		deps, err := newTestUserRepositoryDependencies(t)
 		require.NoError(t, err)
 
@@ -120,20 +133,7 @@ func TestUserRepository_GetById(t *testing.T) {
 		assert.Nil(t, user)
 	})
 
-	t.Run("SQL実行時にエラーが発生した場合エラーを返す", func(t *testing.T) {
-		deps, err := newTestUserRepositoryDependencies(t)
-		require.NoError(t, err)
-
-		deps.mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? ORDER BY `users`.`id` LIMIT ?")).
-			WithArgs(1, 1).
-			WillReturnError(gorm.ErrInvalidDB)
-
-		_, err = deps.repo.GetByID(context.Background(), 1)
-
-		assert.Equal(t, "failed to SQL execution: invalid db", err.Error())
-	})
-
-	t.Run("正常にUserのレコードが取得できた場合Userを返す", func(t *testing.T) {
+	t.Run("success/Userのレコードが見つかった場合それを返す", func(t *testing.T) {
 		deps, err := newTestUserRepositoryDependencies(t)
 		require.NoError(t, err)
 
