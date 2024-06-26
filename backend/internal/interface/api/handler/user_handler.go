@@ -118,5 +118,6 @@ func (h *UserHandler) Signup(ctx *gin.Context) {
 		return
 	}
 
+	middleware.SetJWTCookie(ctx, res.ID)
 	ctx.JSON(http.StatusCreated, res)
 }
