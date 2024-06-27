@@ -6,11 +6,13 @@ interface PostsState {
   posts: ModelPost[] | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
+  hasMore: boolean;
 }
 export const initialState: PostsState = {
   posts: null,
   status: 'idle',
   error: null,
+  hasMore: true,
 };
 
 export const postsSlice = createSlice({
@@ -24,10 +26,22 @@ export const postsSlice = createSlice({
       })
       .addCase(
         APIService.getPosts.fulfilled,
-        (state, action: PayloadAction<ModelPost[]>) => {
-          state.posts = action.payload;
+        (
+          state,
+          action: PayloadAction<{
+            posts: ModelPost[];
+            hasMore: boolean;
+            offset: number;
+          }>,
+        ) => {
           state.status = 'succeeded';
           state.error = null;
+          if (action.payload.offset === 0) {
+            state.posts = action.payload.posts;
+          } else {
+            state.posts?.push(...action.payload.posts);
+          }
+          state.hasMore = action.payload.hasMore;
         },
       )
       .addCase(APIService.getPosts.rejected, (state, action) => {

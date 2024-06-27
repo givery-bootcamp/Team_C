@@ -1,6 +1,4 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { Hello } from 'shared/models';
-import axios, { AxiosError } from 'axios';
 import {
   AuthApi,
   Configuration,
@@ -8,6 +6,8 @@ import {
   ModelUserSigninParam,
   PostApi,
 } from 'api';
+import axios, { AxiosError } from 'axios';
+import { Hello } from 'shared/models';
 import { RootState } from 'shared/store';
 import { ModelCreatePostParam } from '../../api/api';
 const API_ENDPOINT_PATH = import.meta.env.VITE_API_ENDPOINT_PATH ?? '';
@@ -26,7 +26,7 @@ export const getHello = createAsyncThunk<Hello>('getHello', async () => {
 });
 
 export const getPosts = createAsyncThunk<
-  ModelPost[],
+  { posts: ModelPost[]; hasMore: boolean; offset: number },
   { limit: number; offset: number },
   {
     rejectValue: string;
@@ -36,7 +36,11 @@ export const getPosts = createAsyncThunk<
   try {
     const api = new PostApi(configuration, API_ENDPOINT_PATH, axiosInstance);
     const getPostsResponse = await api.apiPostsGet(limit, offset);
-    return getPostsResponse.data;
+    return {
+      posts: getPostsResponse.data,
+      hasMore: getPostsResponse.data.length === limit,
+      offset: offset,
+    };
   } catch (error) {
     const err = error as AxiosError;
     return rejectWithValue(err.message ?? 'failed to fetch posts');
@@ -76,5 +80,23 @@ export const createPost = createAsyncThunk<
   } catch (error) {
     const err = error as AxiosError;
     return rejectWithValue(err.message ?? 'failed to fetch posts');
+  }
+});
+
+export const getPostDetail = createAsyncThunk<
+  ModelPost,
+  { id: number },
+  {
+    rejectValue: string;
+    state: RootState;
+  }
+>('getPostDetail', async ({ id }, { rejectWithValue }) => {
+  try {
+    const api = new PostApi(configuration, API_ENDPOINT_PATH, axiosInstance);
+    const getPostDetailResponse = await api.apiPostsIdGet(id);
+    return getPostDetailResponse.data;
+  } catch (error) {
+    const err = error as AxiosError;
+    return rejectWithValue(err.message ?? 'failed to fetch postdetail');
   }
 });
