@@ -4,6 +4,7 @@ import (
 	"myapp/internal/application/usecase"
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository/repository_mock"
+	"myapp/internal/exception"
 	"myapp/internal/interface/api/middleware"
 	"net/http"
 	"net/http/httptest"
@@ -48,7 +49,6 @@ func TestNewPostHandler(t *testing.T) {
 
 func TestPostHandler_GetAll(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
 
 	mockRepo := repository_mock.NewMockPostRepository(ctrl)
 	mockUsecase := usecase.NewPostUsecase(mockRepo)
@@ -121,25 +121,64 @@ func TestPostHandler_GetAll(t *testing.T) {
 }
 
 func TestPostHandler_GetByID(t *testing.T) {
-	type fields struct {
-		u usecase.PostUsecase
-	}
-	type args struct {
-		ctx *gin.Context
-	}
+	ctrl := gomock.NewController(t)
+
+	mockRepo := repository_mock.NewMockPostRepository(ctrl)
+	mockUsecase := usecase.NewPostUsecase(mockRepo)
+	handler := NewPostHandler(mockUsecase)
+
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
+		name           string
+		postID         string
+		mockReturnPost *model.Post
+		mockError      error
+		expectedStatus int
+		expectedBody   string
 	}{
-		// TODO: Add test cases.
+		{
+			name:           "success",
+			postID:         "1",
+			mockReturnPost: &model.Post{ID: 1, Title: "Test Post", Body: "", User: model.User{ID: 1, Name: "User1"}},
+			mockError:      nil,
+			expectedStatus: http.StatusOK,
+			expectedBody:   `{"id":1,"title":"Test Post","body":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z","user":{"id":1,"name":"User1"}}`,
+		},
+		{
+			name:           "post not found",
+			postID:         "1",
+			mockReturnPost: nil,
+			mockError:      exception.RecordNotFoundError,
+			expectedStatus: http.StatusNotFound,
+			expectedBody:   `{"code":0,"message":"レコードが見つかりませんでした"}`,
+		},
+		{
+			name:           "invalid id",
+			postID:         "invalid",
+			mockReturnPost: nil,
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := &PostHandler{
-				u: tt.fields.u,
+			if tt.mockReturnPost != nil || tt.mockError != nil {
+				mockRepo.EXPECT().GetByID(gomock.Any(), 1).Return(tt.mockReturnPost, tt.mockError)
 			}
-			h.GetByID(tt.args.ctx)
+
+			gin.SetMode(gin.TestMode)
+			r := gin.Default()
+			r.Use(middleware.HandleError())
+			r.GET("/api/posts/:id", handler.GetByID)
+
+			req, _ := http.NewRequest("GET", "/api/posts/"+tt.postID, nil)
+			w := httptest.NewRecorder()
+
+			r.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			assert.JSONEq(t, tt.expectedBody, w.Body.String())
 		})
 	}
 }
