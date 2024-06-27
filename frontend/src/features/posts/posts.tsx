@@ -150,8 +150,8 @@ export function Posts() {
   useEffect(() => {
     if (status === 'succeeded' && offset > 0) {
       window.scrollTo({
-        top: scrollPositionRef.current,
-        behavior: 'auto',
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
       });
     }
   }, [status, offset, posts]);
