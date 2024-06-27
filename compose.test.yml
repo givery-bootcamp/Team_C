@@ -3,13 +3,10 @@ services:
     container_name: test-backend
     build:
       context: ./docker
-      dockerfile: backend.Dockerfile
-    volumes:
-      - ./backend:/go/src/myapp
+      dockerfile: backend-test.Dockerfile
     depends_on:
       test-db:
         condition: service_healthy
-    command: "air"
     env_file:
       - ./backend/.env.test
   test-db:

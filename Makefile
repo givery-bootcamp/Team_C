@@ -13,6 +13,17 @@ test-cover:
 	@cd backend; go tool cover -html=cover.out -o cover.html
 	@open ./backend/cover.html
 
+.PHONY: test-cover-e2e
+test-cover-e2e:
+	@docker compose -f compose.test.yml up -d
+	@docker compose exec test-backend \
+		go test -v -p=1 ./test/e2e/e2e_test.go
+	#@docker docker compose kill -s SIGINT test-backend
+	@docker compose -f compose.test.yml down
+	#@cd backend; go tool covdata textfmt -i coverdir -o profile.txt
+	#@cd backend; go tool cover -html=profile.txt -o profile.html
+	#@open ./backend/cover.html
+
 .PHONY: test-unit
 test-unit:
 	@cd backend; go test -tags="unit_test" ./...
