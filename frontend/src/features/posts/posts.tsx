@@ -42,6 +42,7 @@ export function Posts() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [offset, setOffset] = useState(0);
+  const [isCreating, setIsCreating] = useState(false);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef(0);
@@ -84,29 +85,40 @@ export function Posts() {
   }, [toast]);
 
   const handleCreatePost = async () => {
+    setIsCreating(true);
     const postData: ModelCreatePostParam = { title, body };
-    const resultAction = await dispatch(
-      APIService.createPost({ param: postData }),
-    );
-    if (APIService.createPost.fulfilled.match(resultAction)) {
+    try {
+      const resultAction = await dispatch(
+        APIService.createPost({ param: postData }),
+      );
+      if (APIService.createPost.fulfilled.match(resultAction)) {
+        onClose();
+        setTitle('');
+        setBody('');
+        toast({
+          title: '投稿成功',
+          description: '新しい投稿が作成されました。',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        // 投稿リストを再読み込み
+        dispatch(APIService.getPosts({ limit: 20, offset: 0 }));
+      } else {
+        throw new Error('投稿の作成に失敗しました');
+      }
+    } catch (error) {
       onClose();
-      setTitle('');
-      setBody('');
       toast({
-        title: 'Post created.',
-        description: 'Your new post has been successfully created.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-    } else {
-      toast({
-        title: 'Error',
-        description: 'Failed to create post. Please try again.',
+        title: 'エラー',
+        description: '投稿できませんでした。もう一度お試しください。',
         status: 'error',
         duration: 3000,
         isClosable: true,
       });
+      dispatch(APIService.getPosts({ limit: 20, offset: 0 }));
+    } finally {
+      setIsCreating(false);
     }
   };
   const limit = parseInt(query.get('limit') ?? '20', 10);
@@ -235,7 +247,7 @@ export function Posts() {
               colorScheme="blue"
               mr={3}
               onClick={handleCreatePost}
-              isLoading={status === 'loading'}
+              isLoading={isCreating}
             >
               Create
             </Button>
