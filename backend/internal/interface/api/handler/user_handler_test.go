@@ -63,7 +63,7 @@ func TestUserHandler_Signin(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		body           model.UserSigninParam
+		body           interface{}
 		mockReturnUser *model.User
 		mockError      error
 		expectedStatus int
@@ -89,19 +89,84 @@ func TestUserHandler_Signin(t *testing.T) {
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
 		},
+		{
+			name:           "invalid json",
+			body:           "invalid json",
+			mockReturnUser: nil,
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo.EXPECT().GetByName(gomock.Any(), tt.body.Name).Return(tt.mockReturnUser, tt.mockError)
+			if tt.name != "invalid json" {
+				mockRepo.EXPECT().GetByName(gomock.Any(), tt.body.(model.UserSigninParam).Name).Return(tt.mockReturnUser, tt.mockError)
+			}
 
 			gin.SetMode(gin.TestMode)
 			r := gin.Default()
 			r.Use(middleware.HandleError())
 			r.POST("/signin", handler.Signin)
 
-			body, _ := json.Marshal(tt.body)
+			var body []byte
+			var err error
+			if tt.name == "invalid json" {
+				body = []byte(tt.body.(string))
+			} else {
+				body, err = json.Marshal(tt.body)
+				if err != nil {
+					t.Fatalf("failed to marshal body: %v", err)
+				}
+			}
+
 			req, _ := http.NewRequest("POST", "/signin", bytes.NewBuffer(body))
+			w := httptest.NewRecorder()
+
+			r.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			if tt.expectedStatus == http.StatusBadRequest {
+				assert.Contains(t, w.Body.String(), "リクエストが不正です")
+			} else {
+				assert.JSONEq(t, tt.expectedBody, w.Body.String())
+			}
+		})
+	}
+}
+
+func TestUserHandler_Signout(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repository_mock.NewMockUserRepository(ctrl)
+	mockUsecase := usecase.NewUserUsecase(mockRepo)
+	handler := NewUserHandler(mockUsecase)
+
+	tests := []struct {
+		name           string
+		mockError      error
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:           "successful signout",
+			mockError:      nil,
+			expectedStatus: http.StatusOK,
+			expectedBody:   `{}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gin.SetMode(gin.TestMode)
+			r := gin.Default()
+			r.Use(middleware.HandleError())
+
+			r.POST("/signout", handler.Signout)
+
+			req, _ := http.NewRequest("POST", "/signout", nil)
 			w := httptest.NewRecorder()
 
 			r.ServeHTTP(w, req)
@@ -150,21 +215,34 @@ func TestUserHandler_GetByIDFromContext(t *testing.T) {
 			mockReturnUser: nil,
 			mockError:      exception.ServerError,
 			expectedStatus: http.StatusInternalServerError,
-			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,			
+		},
+		{
+			name:           "no user ID in context",
+			userID:         0,
+			mockReturnUser: nil,
+			mockError:      nil,
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,			
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo.EXPECT().GetByID(gomock.Any(), tt.userID).Return(tt.mockReturnUser, tt.mockError)
+			if tt.name != "no user ID in context" {
+				mockRepo.EXPECT().GetByID(gomock.Any(), tt.userID).Return(tt.mockReturnUser, tt.mockError)
+			}
 
 			gin.SetMode(gin.TestMode)
 			r := gin.Default()
 			r.Use(middleware.HandleError())
-			r.Use(func(c *gin.Context) {
-				c.Set(config.GinSigninUserKey, tt.userID)
-				c.Next()
-			})
+
+			if tt.name != "no user ID in context" {
+				r.Use(func(c *gin.Context) {
+					c.Set(config.GinSigninUserKey, tt.userID)
+					c.Next()
+				})
+			}
 			r.GET("/user/:id", handler.GetByIDFromContext)
 
 			req, _ := http.NewRequest("GET", "/user/"+strconv.Itoa(tt.userID), nil)
@@ -180,15 +258,13 @@ func TestUserHandler_GetByIDFromContext(t *testing.T) {
 
 func TestUserHandler_Signup(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
 	mockRepo := repository_mock.NewMockUserRepository(ctrl)
 	mockUsecase := usecase.NewUserUsecase(mockRepo)
 	handler := NewUserHandler(mockUsecase)
 
 	tests := []struct {
 		name           string
-		body           model.UserSigninParam
+		body           interface{}
 		mockReturnUser *model.User
 		mockError      error
 		expectedStatus int
@@ -214,11 +290,20 @@ func TestUserHandler_Signup(t *testing.T) {
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
 		},
-	}
+		{
+			name:           "invalid json",
+			body:           "invalid json",
+			mockReturnUser: nil,
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
+		}}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(tt.mockReturnUser, tt.mockError)
+			if tt.name == "success" || tt.name == "internal server error" {
+				mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(tt.mockReturnUser, tt.mockError)
+			}
 
 			gin.SetMode(gin.TestMode)
 			r := gin.Default()
