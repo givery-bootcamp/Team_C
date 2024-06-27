@@ -58,7 +58,6 @@ export function Posts() {
       day: 'numeric',
     });
   };
-  const navigate = useNavigate();
 
   const handleScroll = useCallback(() => {
     scrollPositionRef.current = window.scrollY;
