@@ -24,7 +24,6 @@ func TestCheckToken(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("GET", "/", nil)
-		c.Request.Host = "localhost:9000"
 
 		middleware := CheckToken()
 		middleware(c)
@@ -38,7 +37,6 @@ func TestCheckToken(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("GET", "/", nil)
-		c.Request.Host = "localhost:9000"
 		c.Request.AddCookie(&http.Cookie{Name: config.JWTCookieKeyName, Value: "invalid_token"})
 
 		middleware := CheckToken()
@@ -53,7 +51,6 @@ func TestCheckToken(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("GET", "/", nil)
-		c.Request.Host = "localhost:9000"
 
 		// JWT生成
 		token, err := jwt.GenerateToken(1)
@@ -106,8 +103,6 @@ func TestSetJWTCookie(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Request, _ = http.NewRequest("GET", "/", nil)
-		c.Request.Host = "localhost:9000"
 		err := SetJWTCookie(c, 1)
 
 		assert.NoError(t, err)
@@ -121,7 +116,6 @@ func TestDeleteCookie(t *testing.T) {
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("GET", "/", nil)
 		c.Request.AddCookie(&http.Cookie{Name: "dummy", Value: "dummy"})
-		c.Request.Host = "localhost:9000"
 
 		err := DeleteCookie(c)
 
@@ -132,7 +126,6 @@ func TestDeleteCookie(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("GET", "/", nil)
-		c.Request.Host = "localhost:9000"
 		c.Request.AddCookie(&http.Cookie{Name: config.JWTCookieKeyName, Value: "test_token"})
 
 		err := DeleteCookie(c)
