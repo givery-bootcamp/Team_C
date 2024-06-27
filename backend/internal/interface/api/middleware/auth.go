@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -55,8 +56,9 @@ func SetJWTCookie(ctx *gin.Context, userID int) error {
 
 	// Hostからポートを削除
 	host := strings.Split(ctx.Request.Host, ":")[0]
+	fmt.Println("host", host)
 
-	ctx.SetCookie(config.JWTCookieKeyName, token, 0, "/", host, false, false)
+	ctx.SetCookie(config.JWTCookieKeyName, token, 0, "/", ctx.Request.Host, false, true)
 	return nil
 }
 
@@ -71,7 +73,8 @@ func DeleteCookie(ctx *gin.Context) error {
 
 	// Hostからポートを削除
 	host := strings.Split(ctx.Request.Host, ":")[0]
+	fmt.Println("host", host)
 
-	ctx.SetCookie(config.JWTCookieKeyName, c, -1, "/", host, false, false)
+	ctx.SetCookie(config.JWTCookieKeyName, c, -1, "/", ctx.Request.Host, false, true)
 	return nil
 }
