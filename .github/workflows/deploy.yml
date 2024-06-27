@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - chore/secure-cookie-when-not-local
+      - main
 
 env:
   AWS_REGION: ap-northeast-1
