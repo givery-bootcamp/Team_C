@@ -30,7 +30,7 @@ export function PostDetail() {
   const postId = Number(params.postId);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
+  const [isSecondDialogOpen, setIsSecondDialogOpen] = useState(false);
   // AlertDialogのcancelRef用のuseRef
   const cancelRef = useRef<HTMLButtonElement>(null);
 
@@ -117,11 +117,45 @@ export function PostDetail() {
               </Button>
               <Button
                 colorScheme="red"
+                onClick={() => {
+                  setIsDeleteDialogOpen(false);
+                  setIsSecondDialogOpen(true);
+                }}
+                ml={3}
+              >
+                削除しちゃうの？
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+      <AlertDialog
+        isOpen={isSecondDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsSecondDialogOpen(false)}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              え？本当に削除するんですか？
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              さっき「削除」を押しましたよね？本当に本当に削除しちゃっていいんですか？
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button
+                ref={cancelRef}
+                onClick={() => setIsSecondDialogOpen(false)}
+              >
+                やっぱりやめます
+              </Button>
+              <Button
+                colorScheme="red"
                 onClick={handleDelete}
                 ml={3}
                 isLoading={isDeleting}
               >
-                削除しちゃうの？
+                本当に削除します
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
