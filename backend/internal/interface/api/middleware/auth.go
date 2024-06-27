@@ -1,3 +1,4 @@
+//go:generate mockgen -source=auth.go -destination=middleware_mock/auth_mock.go -package middleware_mock
 package middleware
 
 import (
@@ -10,6 +11,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type AuthMiddleware interface {
+	CheckToken() gin.HandlerFunc
+	GetUserIDFromContext(ctx *gin.Context) (int, error)
+	SetJWTCookie(ctx *gin.Context, userID int) error
+	DeleteCookie(ctx *gin.Context) error
+}
 
 func CheckToken() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -37,7 +45,7 @@ func CheckToken() gin.HandlerFunc {
 	}
 }
 
-func GetUserIDFromContext(ctx *gin.Context) (int, error) {
+var GetUserIDFromContext = func(ctx *gin.Context) (int, error) {
 	u, isExists := ctx.Get(config.GinSigninUserKey)
 	if !isExists {
 		return 0, exception.ServerError
