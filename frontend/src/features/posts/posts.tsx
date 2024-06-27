@@ -16,6 +16,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Spacer,
+  Spinner,
   Text,
   Textarea,
   useColorModeValue,
@@ -23,15 +24,28 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import { ModelCreatePostParam, ModelPost } from 'api';
-import { useEffect, useState } from 'react';
+import { ModelCreatePostParam } from 'api';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { useQuery } from 'shared/hooks/usequery';
 import { APIService } from 'shared/services';
 import { RootState } from 'shared/store';
-import { useNavigate } from 'react-router-dom';
 
-const EnhancedPostsList: React.FC<{ posts: ModelPost[] }> = ({ posts }) => {
+export function Posts() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { posts, status, error, hasMore } = useAppSelector(
+    (state: RootState) => state.post,
+  );
+  const dispatch = useAppDispatch();
+  const query = useQuery();
+  const toast = useToast();
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [offset, setOffset] = useState(0);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const scrollPositionRef = useRef(0);
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
@@ -44,62 +58,15 @@ const EnhancedPostsList: React.FC<{ posts: ModelPost[] }> = ({ posts }) => {
       day: 'numeric',
     });
   };
-  const navigate = useNavigate()
 
-  return (
-    <VStack spacing={6} align="stretch" width="100%">
-      {posts?.map((post) => (
-        <Box
-          key={post.id}
-          p={5}
-          shadow="md"
-          borderWidth={1}
-          borderRadius="lg"
-          bg={bgColor}
-          borderColor={borderColor}
-          _hover={{ shadow: 'lg' }}
-          transition="all 0.3s"
-          onClick={() => {navigate(`${post.id}`)}}
-        >
-          <Flex align="center" mb={4}>
-            <Avatar size="sm" name={post.user?.name} mr={2} />
-            <Text fontWeight="bold">{post.user?.name}</Text>
-            <Spacer />
-            <Text fontSize="sm" color="gray.500">
-              {formatDate(post.created_at)}
-            </Text>
-          </Flex>
+  const handleScroll = useCallback(() => {
+    scrollPositionRef.current = window.scrollY;
+  }, []);
 
-          <Heading as="h3" size="md" mb={2}>
-            {post.title}
-          </Heading>
-
-          <Text noOfLines={3} mb={4}>
-            {post.body}
-          </Text>
-
-          <HStack spacing={4} fontSize="sm" color="gray.500">
-            <Text>作成日: {formatDate(post.created_at)}</Text>
-            <Text>更新日: {formatDate(post.updated_at)}</Text>
-          </HStack>
-        </Box>
-      ))}
-    </VStack>
-  );
-};
-
-export default EnhancedPostsList;
-export function Posts() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { posts, status, error } = useAppSelector(
-    (state: RootState) => state.post,
-  );
-  const dispatch = useAppDispatch();
-  const query = useQuery();
-  const toast = useToast();
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   useEffect(() => {
     const loginSuccess = localStorage.getItem('loginSuccess');
@@ -117,55 +84,136 @@ export function Posts() {
   }, [toast]);
 
   const handleCreatePost = async () => {
+    setIsCreating(true);
     const postData: ModelCreatePostParam = { title, body };
-    const resultAction = await dispatch(
-      APIService.createPost({ param: postData }),
-    );
-    if (APIService.createPost.fulfilled.match(resultAction)) {
+    try {
+      const resultAction = await dispatch(
+        APIService.createPost({ param: postData }),
+      );
+      if (APIService.createPost.fulfilled.match(resultAction)) {
+        onClose();
+        setTitle('');
+        setBody('');
+        toast({
+          title: '投稿成功',
+          description: '新しい投稿が作成されました。',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        // 投稿リストを再読み込み
+        dispatch(APIService.getPosts({ limit: 20, offset: 0 }));
+      } else {
+        throw new Error('投稿の作成に失敗しました');
+      }
+    } catch (error) {
       onClose();
-      setTitle('');
-      setBody('');
       toast({
-        title: 'Post created.',
-        description: 'Your new post has been successfully created.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-    } else {
-      toast({
-        title: 'Error',
-        description: 'Failed to create post. Please try again.',
+        title: 'エラー',
+        description: '投稿できませんでした。もう一度お試しください。',
         status: 'error',
         duration: 3000,
         isClosable: true,
       });
+      dispatch(APIService.getPosts({ limit: 20, offset: 0 }));
+    } finally {
+      setIsCreating(false);
     }
   };
+  const limit = parseInt(query.get('limit') ?? '20', 10);
 
   useEffect(() => {
-    if (isInitialLoad) {
-      const limit = parseInt(query.get('limit') ?? '20', 10);
-      const offset = parseInt(query.get('offset') ?? '0', 10);
+    dispatch(APIService.getPosts({ limit, offset: 0 }));
+  }, [dispatch, limit]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && status !== 'loading') {
+          setOffset((prevOffset) => prevOffset + limit);
+        }
+      },
+      { threshold: 0.3 },
+    );
+
+    if (loadMoreRef.current) observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+  }, [hasMore, limit, status]);
+
+  useEffect(() => {
+    if (offset > 0) {
       dispatch(APIService.getPosts({ limit, offset }));
-      setIsInitialLoad(false);
     }
-  }, [dispatch, query, isInitialLoad]);
+  }, [dispatch, limit, offset]);
 
-  if (status === 'loading' && isInitialLoad) {
-    return <div>loading...</div>;
-  }
+  useEffect(() => {
+    if (status === 'succeeded' && offset > 0) {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [status, offset, posts]);
+
   if (status === 'failed') {
     return <div>failed to fetch posts: {error}</div>;
   }
+  const Loading = () => {
+    if (status === 'loading') {
+      return <Spinner />;
+    }
+  };
 
   return (
     <Box>
       <Button colorScheme="blue" onClick={onOpen} mb={4}>
         新規投稿を作成
       </Button>
-      {status === 'succeeded' && <EnhancedPostsList posts={posts ?? []} />}
+      {status === 'succeeded' && (
+        <Box>
+          <VStack spacing={6} align="stretch" width="100%">
+            {posts?.map((post) => (
+              <Box
+                key={post.id}
+                p={5}
+                shadow="md"
+                borderWidth={1}
+                borderRadius="lg"
+                bg={bgColor}
+                borderColor={borderColor}
+                _hover={{ shadow: 'lg' }}
+                transition="all 0.3s"
+              >
+                <Flex align="center" mb={4}>
+                  <Avatar size="sm" name={post.user?.name} mr={2} />
+                  <Text fontWeight="bold">{post.user?.name}</Text>
+                  <Spacer />
+                  <Text fontSize="sm" color="gray.500">
+                    {formatDate(post.created_at)}
+                  </Text>
+                </Flex>
+
+                <Heading as="h3" size="md" mb={2}>
+                  {post.title}
+                </Heading>
+
+                <Text noOfLines={3} mb={4}>
+                  {post.body}
+                </Text>
+
+                <HStack spacing={4} fontSize="sm" color="gray.500">
+                  <Text>作成日: {formatDate(post.created_at)}</Text>
+                  <Text>更新日: {formatDate(post.updated_at)}</Text>
+                </HStack>
+              </Box>
+            ))}
+          </VStack>
+          <Box ref={loadMoreRef} h="20px" mt={4}>
+            {Loading()}
+          </Box>
+        </Box>
+      )}
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -198,7 +246,7 @@ export function Posts() {
               colorScheme="blue"
               mr={3}
               onClick={handleCreatePost}
-              isLoading={status === 'loading'}
+              isLoading={isCreating}
             >
               Create
             </Button>

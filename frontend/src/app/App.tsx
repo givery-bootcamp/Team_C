@@ -1,10 +1,10 @@
 import { AppRoute } from './AppRoute';
 
 import {
+  Box,
   ChakraProvider,
   Container,
   useColorModeValue,
-  Box,
 } from '@chakra-ui/react';
 import { Header } from 'components/header';
 
@@ -26,7 +26,6 @@ function App() {
           flex="1"
           display="flex"
           flexDirection="column"
-          overflow="auto"
           px={12}
         >
           <AppRoute />
