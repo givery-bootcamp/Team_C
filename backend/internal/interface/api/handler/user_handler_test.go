@@ -63,7 +63,7 @@ func TestUserHandler_Signin(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		body           model.UserSigninParam
+		body           interface{}
 		mockReturnUser *model.User
 		mockError      error
 		expectedStatus int
@@ -89,25 +89,49 @@ func TestUserHandler_Signin(t *testing.T) {
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
 		},
+		{
+			name:           "invalid json",
+			body:           "invalid json",
+			mockReturnUser: nil,
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo.EXPECT().GetByName(gomock.Any(), tt.body.Name).Return(tt.mockReturnUser, tt.mockError)
+			if tt.name != "invalid json" {
+				mockRepo.EXPECT().GetByName(gomock.Any(), tt.body.(model.UserSigninParam).Name).Return(tt.mockReturnUser, tt.mockError)
+			}
 
 			gin.SetMode(gin.TestMode)
 			r := gin.Default()
 			r.Use(middleware.HandleError())
 			r.POST("/signin", handler.Signin)
 
-			body, _ := json.Marshal(tt.body)
+			var body []byte
+			var err error
+			if tt.name == "invalid json" {
+				body = []byte(tt.body.(string))
+			} else {
+				body, err = json.Marshal(tt.body)
+				if err != nil {
+					t.Fatalf("failed to marshal body: %v", err)
+				}
+			}
+
 			req, _ := http.NewRequest("POST", "/signin", bytes.NewBuffer(body))
 			w := httptest.NewRecorder()
 
 			r.ServeHTTP(w, req)
 
 			assert.Equal(t, tt.expectedStatus, w.Code)
-			assert.JSONEq(t, tt.expectedBody, w.Body.String())
+			if tt.expectedStatus == http.StatusBadRequest {
+				assert.Contains(t, w.Body.String(), "リクエストが不正です")
+			} else {
+				assert.JSONEq(t, tt.expectedBody, w.Body.String())
+			}
 		})
 	}
 }
