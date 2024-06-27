@@ -298,7 +298,10 @@ func TestUserUsecase_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.name == "password too long" {
-				_, err := hash.GenerateHashPassword(tt.args.param.Password)
+				u := &UserUsecase{
+					r: tt.fields.r,
+				}
+				_, err := u.Create(tt.args.ctx, tt.args.param)
 				assert.Equal(t, tt.mockErr, err)
 			} else {
 				mockRepo.EXPECT().Create(tt.args.ctx, gomock.Any()).Return(tt.want, tt.mockErr)
