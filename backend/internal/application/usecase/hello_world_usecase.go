@@ -15,7 +15,6 @@ func NewHelloWorldUsecase(r repository.HelloWorldRepository) HelloWorldUsecase {
 		r: r,
 	}
 }
-
 func (u *HelloWorldUsecase) Execute(ctx context.Context, lang string) (*model.HelloWorld, error) {
 	return u.r.Get(ctx, lang)
 }
