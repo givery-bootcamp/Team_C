@@ -28,7 +28,7 @@ func (r *PostRepository) GetAll(ctx context.Context, limit, offset int) ([]*mode
 	posts := []*entity.Post{}
 
 	conn := r.db.GetDB(ctx)
-	if err := conn.Preload("User").Limit(limit).Offset(offset).Find(&posts).Error; err != nil {
+	if err := conn.Preload("User").Limit(limit).Offset(offset).Find(&posts).Order("created_at DESC").Error; err != nil {
 		return nil, xerrors.Errorf("failed to SQL execution: %w", err)
 	}
 	return entity.ToPostModelListFromEntity(posts), nil
