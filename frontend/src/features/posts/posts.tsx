@@ -29,6 +29,8 @@ import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { useQuery } from 'shared/hooks/usequery';
 import { APIService } from 'shared/services';
 import { RootState } from 'shared/store';
+import { useNavigate } from 'react-router-dom';
+
 const EnhancedPostsList: React.FC<{ posts: ModelPost[] }> = ({ posts }) => {
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -42,6 +44,7 @@ const EnhancedPostsList: React.FC<{ posts: ModelPost[] }> = ({ posts }) => {
       day: 'numeric',
     });
   };
+  const navigate = useNavigate()
 
   return (
     <VStack spacing={6} align="stretch" width="100%">
@@ -56,6 +59,7 @@ const EnhancedPostsList: React.FC<{ posts: ModelPost[] }> = ({ posts }) => {
           borderColor={borderColor}
           _hover={{ shadow: 'lg' }}
           transition="all 0.3s"
+          onClick={() => {navigate(`${post.id}`)}}
         >
           <Flex align="center" mb={4}>
             <Avatar size="sm" name={post.user?.name} mr={2} />
