@@ -31,6 +31,7 @@ export function PostDetail() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSecondDialogOpen, setIsSecondDialogOpen] = useState(false);
+  const [isThirdDialogOpen, setIsThirdDialogOpen] = useState(false);
   // AlertDialogのcancelRef用のuseRef
   const cancelRef = useRef<HTMLButtonElement>(null);
 
@@ -151,11 +152,44 @@ export function PostDetail() {
               </Button>
               <Button
                 colorScheme="red"
-                onClick={handleDelete}
+                onClick={() => {
+                  setIsSecondDialogOpen(false);
+                  setIsThirdDialogOpen(true);
+                }}
                 ml={3}
                 isLoading={isDeleting}
               >
                 本当に削除します
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+      <AlertDialog
+        isOpen={isThirdDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsThirdDialogOpen(false)}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              なんで削除するんですか？
+            </AlertDialogHeader>
+            <AlertDialogBody>削除したら泣いちゃうよ？</AlertDialogBody>
+            <AlertDialogFooter>
+              <Button
+                ref={cancelRef}
+                onClick={() => setIsThirdDialogOpen(false)}
+              >
+                慰める
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={handleDelete}
+                ml={3}
+                isLoading={isDeleting}
+              >
+                じゃあね
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
