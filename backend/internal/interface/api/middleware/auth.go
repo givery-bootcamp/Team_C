@@ -52,7 +52,8 @@ func SetJWTCookie(ctx *gin.Context, userID int) error {
 		return exception.ServerError
 	}
 
-	ctx.SetCookie(config.JWTCookieKeyName, token, 0, "/", "localhost", false, true)
+	isSecure := config.Env != "local"
+	ctx.SetCookie(config.JWTCookieKeyName, token, 0, "/", "localhost", isSecure, true)
 
 	return nil
 }
