@@ -8,7 +8,7 @@ import (
 var (
 	HostName         = "127.0.0.1"
 	Port             = 9000
-	CorsAllowOrigin  = []string{"http://localhost:3000", "http://localhost:8001", "http://localhost:80"}
+	CorsAllowOrigin  = []string{"http://localhost:3000", "http://localhost:8001"}
 	DBHostName       = "db"
 	DBUser           = "root"
 	DBPassword       = "password"
