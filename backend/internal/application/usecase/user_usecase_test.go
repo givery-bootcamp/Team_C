@@ -12,6 +12,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestNewUserUsecase(t *testing.T) {
@@ -44,6 +45,8 @@ func TestNewUserUsecase(t *testing.T) {
 
 func TestUserUsecase_Signin(t *testing.T) {
 	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	mockRepo := repository_mock.NewMockUserRepository(ctrl)
 	hashedPassword, _ := hash.GenerateHashPassword("password")
 
@@ -139,6 +142,8 @@ func TestUserUsecase_Signin(t *testing.T) {
 
 func TestUserUsecase_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	mockRepo := repository_mock.NewMockUserRepository(ctrl)
 
 	type fields struct {
@@ -203,6 +208,8 @@ func TestUserUsecase_GetByID(t *testing.T) {
 
 func TestUserUsecase_Create(t *testing.T) {
 	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	mockRepo := repository_mock.NewMockUserRepository(ctrl)
 	hashedPassword, _ := hash.GenerateHashPassword("password")
 
@@ -257,17 +264,39 @@ func TestUserUsecase_Create(t *testing.T) {
 			wantErr: true,
 			mockErr: errors.New("create user failed"),
 		},
+		{
+			name: "password too long",
+			fields: fields{
+				r: mockRepo,
+			},
+			args: args{
+				ctx: context.Background(),
+				param: model.CreateUserParam{
+					Name:     "testuser",
+					Password: "a very very long password that exceeds the bcrypt limit of seventy-two characters which is quite long",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+			mockErr: bcrypt.ErrPasswordTooLong,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo.EXPECT().Create(tt.args.ctx, gomock.Any()).Return(tt.want, tt.mockErr)
+			if tt.name == "password too long" {
+				_, err := hash.GenerateHashPassword(tt.args.param.Password)
+				assert.Equal(t, tt.mockErr, err)
+			} else {
+				mockRepo.EXPECT().Create(tt.args.ctx, gomock.Any()).Return(tt.want, tt.mockErr)
 
-			u := &UserUsecase{
-				r: tt.fields.r,
+				u := &UserUsecase{
+					r: tt.fields.r,
+				}
+				got, err := u.Create(tt.args.ctx, tt.args.param)
+				assert.Equal(t, tt.wantErr, err != nil)
+				assert.Equal(t, tt.want, got)
 			}
-			got, err := u.Create(tt.args.ctx, tt.args.param)
-			assert.Equal(t, tt.wantErr, err != nil)
-			assert.Equal(t, tt.want, got)
 		})
 	}
 }
