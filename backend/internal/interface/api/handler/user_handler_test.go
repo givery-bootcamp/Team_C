@@ -112,6 +112,47 @@ func TestUserHandler_Signin(t *testing.T) {
 	}
 }
 
+func TestUserHandler_Signout(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repository_mock.NewMockUserRepository(ctrl)
+	mockUsecase := usecase.NewUserUsecase(mockRepo)
+	handler := NewUserHandler(mockUsecase)
+
+	tests := []struct {
+		name           string
+		mockError      error
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:           "successful signout",
+			mockError:      nil,
+			expectedStatus: http.StatusOK,
+			expectedBody:   `{}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gin.SetMode(gin.TestMode)
+			r := gin.Default()
+			r.Use(middleware.HandleError())
+
+			r.POST("/signout", handler.Signout)
+
+			req, _ := http.NewRequest("POST", "/signout", nil)
+			w := httptest.NewRecorder()
+
+			r.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			assert.JSONEq(t, tt.expectedBody, w.Body.String())
+		})
+	}
+}
+
 func TestUserHandler_GetByIDFromContext(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
