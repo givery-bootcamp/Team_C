@@ -11,7 +11,7 @@ codeToTestRatio:
     - '**/*_test.go'
 testExecutionTime:
   if: true
-  acceptable: current <= 30s
+  acceptable: current <= 10s
 diff:
   if: is_pull_request
   datastores:
