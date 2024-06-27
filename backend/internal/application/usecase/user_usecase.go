@@ -45,7 +45,6 @@ func (u *UserUsecase) GetByID(ctx context.Context, id int) (*model.User, error) 
 
 	return user, nil
 }
-
 func (u *UserUsecase) Create(ctx context.Context, param model.CreateUserParam) (*model.User, error) {
 	password, err := hash.GenerateHashPassword(param.Password)
 	if err != nil {
