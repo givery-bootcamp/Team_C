@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 )
@@ -26,6 +27,7 @@ func init() {
 func LoadConfig() {
 	if v := os.Getenv("ENV"); v != "" {
 		Env = v
+		fmt.Println("ENV", Env)
 	}
 	if v := os.Getenv("HOSTNAME"); v != "" {
 		HostName = v
