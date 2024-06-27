@@ -191,21 +191,34 @@ func TestUserHandler_GetByIDFromContext(t *testing.T) {
 			mockReturnUser: nil,
 			mockError:      exception.ServerError,
 			expectedStatus: http.StatusInternalServerError,
-			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,			
+		},
+		{
+			name:           "no user ID in context",
+			userID:         0,
+			mockReturnUser: nil,
+			mockError:      nil,
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,			
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo.EXPECT().GetByID(gomock.Any(), tt.userID).Return(tt.mockReturnUser, tt.mockError)
+			if tt.name != "no user ID in context" {
+				mockRepo.EXPECT().GetByID(gomock.Any(), tt.userID).Return(tt.mockReturnUser, tt.mockError)
+			}
 
 			gin.SetMode(gin.TestMode)
 			r := gin.Default()
 			r.Use(middleware.HandleError())
-			r.Use(func(c *gin.Context) {
-				c.Set(config.GinSigninUserKey, tt.userID)
-				c.Next()
-			})
+
+			if tt.name != "no user ID in context" {
+				r.Use(func(c *gin.Context) {
+					c.Set(config.GinSigninUserKey, tt.userID)
+					c.Next()
+				})
+			}
 			r.GET("/user/:id", handler.GetByIDFromContext)
 
 			req, _ := http.NewRequest("GET", "/user/"+strconv.Itoa(tt.userID), nil)
