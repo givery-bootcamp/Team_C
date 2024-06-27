@@ -56,7 +56,7 @@ func SetJWTCookie(ctx *gin.Context, userID int) error {
 	// Hostからポートを削除
 	host := strings.Split(ctx.Request.Host, ":")[0]
 
-	ctx.SetCookie(config.JWTCookieKeyName, token, 0, "/", host, false, true)
+	ctx.SetCookie(config.JWTCookieKeyName, token, 0, "/", host, false, false)
 	return nil
 }
 
@@ -72,6 +72,6 @@ func DeleteCookie(ctx *gin.Context) error {
 	// Hostからポートを削除
 	host := strings.Split(ctx.Request.Host, ":")[0]
 
-	ctx.SetCookie(config.JWTCookieKeyName, c, -1, "/", host, false, true)
+	ctx.SetCookie(config.JWTCookieKeyName, c, -1, "/", host, false, false)
 	return nil
 }
