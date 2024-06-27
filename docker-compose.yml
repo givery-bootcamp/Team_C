@@ -63,3 +63,16 @@ services:
     environment:
       SWAGGER_JSON: /openapi.yaml
       URLS: "[{name: \"/openapi.yaml\", url: \"/openapi.yaml\"}]"
+  web:
+    image: caddy:2.8.4-alpine
+    restart: always
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./frontend:/usr/share/caddy:ro
