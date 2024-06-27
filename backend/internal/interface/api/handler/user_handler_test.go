@@ -234,15 +234,13 @@ func TestUserHandler_GetByIDFromContext(t *testing.T) {
 
 func TestUserHandler_Signup(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
 	mockRepo := repository_mock.NewMockUserRepository(ctrl)
 	mockUsecase := usecase.NewUserUsecase(mockRepo)
 	handler := NewUserHandler(mockUsecase)
 
 	tests := []struct {
 		name           string
-		body           model.UserSigninParam
+		body           interface{}
 		mockReturnUser *model.User
 		mockError      error
 		expectedStatus int
@@ -268,11 +266,20 @@ func TestUserHandler_Signup(t *testing.T) {
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
 		},
-	}
+		{
+			name:           "invalid json",
+			body:           "invalid json", // 無効なJSON
+			mockReturnUser: nil,
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
+		}}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(tt.mockReturnUser, tt.mockError)
+			if tt.name == "success" || tt.name == "internal server error" {
+				mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(tt.mockReturnUser, tt.mockError)
+			}
 
 			gin.SetMode(gin.TestMode)
 			r := gin.Default()
