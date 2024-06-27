@@ -14,7 +14,7 @@ func Test_runn(t *testing.T) {
 	t.Run("E2E Test", func(t *testing.T) {
 		opts := []runn.Option{
 			runn.T(t),
-			runn.Runner("req", "http://127.0.0.1:9000"),
+			runn.Runner("req", "http://test-backend:9000"),
 		}
 
 		o, err := runn.Load("./scenario/*.yml", opts...)

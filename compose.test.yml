@@ -2,8 +2,10 @@ services:
   test-backend:
     container_name: test-backend
     build:
-      context: ./docker
+      context: .
       dockerfile: backend-test.Dockerfile
+    volumes:
+      - ./backend/coverdir:/app/coverdir
     depends_on:
       test-db:
         condition: service_healthy
