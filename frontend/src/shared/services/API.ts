@@ -100,3 +100,16 @@ export const getPostDetail = createAsyncThunk<
     return rejectWithValue(err.message ?? 'failed to fetch postdetail');
   }
 });
+
+export const deletePost = createAsyncThunk(
+  'deletePost',
+  async ({ id }: { id: number }, { rejectWithValue }) => {
+    try {
+      const api = new PostApi(configuration, API_ENDPOINT_PATH, axiosInstance);
+      const deletePostResponse = await api.apiPostsIdDelete(id);
+      return deletePostResponse.data;
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
+  },
+);
