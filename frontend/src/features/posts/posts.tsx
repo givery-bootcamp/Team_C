@@ -25,7 +25,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { ModelCreatePostParam } from 'api';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { useQuery } from 'shared/hooks/usequery';
 import { APIService } from 'shared/services';
@@ -44,6 +44,7 @@ export function Posts() {
   const [offset, setOffset] = useState(0);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const scrollPositionRef = useRef(0);
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
@@ -57,6 +58,15 @@ export function Posts() {
     });
   };
   const navigate = useNavigate();
+
+  const handleScroll = useCallback(() => {
+    scrollPositionRef.current = window.scrollY;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   useEffect(() => {
     const loginSuccess = localStorage.getItem('loginSuccess');
@@ -112,7 +122,7 @@ export function Posts() {
           setOffset((prevOffset) => prevOffset + limit);
         }
       },
-      { threshold: 1.0 },
+      { threshold: 0.3 },
     );
 
     if (loadMoreRef.current) observer.observe(loadMoreRef.current);
@@ -125,6 +135,15 @@ export function Posts() {
       dispatch(APIService.getPosts({ limit, offset }));
     }
   }, [dispatch, limit, offset]);
+
+  useEffect(() => {
+    if (status === 'succeeded' && offset > 0) {
+      window.scrollTo({
+        top: scrollPositionRef.current,
+        behavior: 'auto',
+      });
+    }
+  }, [status, offset, posts]);
 
   if (status === 'failed') {
     return <div>failed to fetch posts: {error}</div>;
