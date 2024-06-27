@@ -268,7 +268,7 @@ func TestUserHandler_Signup(t *testing.T) {
 		},
 		{
 			name:           "invalid json",
-			body:           "invalid json", // 無効なJSON
+			body:           "invalid json",
 			mockReturnUser: nil,
 			mockError:      nil,
 			expectedStatus: http.StatusBadRequest,
