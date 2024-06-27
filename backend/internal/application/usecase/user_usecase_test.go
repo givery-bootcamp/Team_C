@@ -191,6 +191,19 @@ func TestUserUsecase_GetByID(t *testing.T) {
 			wantErr: true,
 			mockErr: errors.New("user not found"),
 		},
+		{
+			name: "repository returns nil",
+			fields: fields{
+				r: mockRepo,
+			},
+			args: args{
+				ctx: context.Background(),
+				id:  1,
+			},
+			want:    nil,
+			wantErr: true,
+			mockErr: nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
