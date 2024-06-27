@@ -7,6 +7,7 @@ import (
 
 var (
 	HostName         = "127.0.0.1"
+	DomainURL        = "localhost"
 	Port             = 9000
 	CorsAllowOrigin  = []string{"http://localhost:3000", "http://localhost:8001"}
 	DBHostName       = "db"
@@ -25,6 +26,9 @@ func init() {
 func LoadConfig() {
 	if v := os.Getenv("HOSTNAME"); v != "" {
 		HostName = v
+	}
+	if v := os.Getenv("DOMAIN_URL"); v != "" {
+		DomainURL = v
 	}
 	if v, err := strconv.ParseInt(os.Getenv("PORT"), 10, 64); err == nil {
 		Port = int(v)
