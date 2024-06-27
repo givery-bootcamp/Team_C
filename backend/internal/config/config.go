@@ -1,13 +1,11 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 )
 
 var (
-	Env              = "local"
 	HostName         = "127.0.0.1"
 	Port             = 9000
 	CorsAllowOrigin  = []string{"http://localhost:3000", "http://localhost:8001"}
@@ -25,10 +23,6 @@ func init() {
 }
 
 func LoadConfig() {
-	if v := os.Getenv("ENV"); v != "" {
-		Env = v
-		fmt.Println("ENV", Env)
-	}
 	if v := os.Getenv("HOSTNAME"); v != "" {
 		HostName = v
 	}
