@@ -8,7 +8,7 @@ test:
 .PHONY: test-cover
 test-cover:
 	@cd backend; go test -v -p=1 -cover -tags="unit_test" ./... -coverprofile=cover.out.tmp
-	@cd backend; grep -v "myapp/docs/docs.go" cover.out.tmp > cover.out
+	@cd backend; grep -Ev "myapp/docs/docs.go|myapp/main.go|myapp/internal/interface/api/router" cover.out.tmp > cover.out
 	@cd backend; rm cover.out.tmp
 	@cd backend; go tool cover -html=cover.out -o cover.html
 	@open ./backend/cover.html
@@ -26,9 +26,3 @@ test-cover-e2e:
 .PHONY: test-unit
 test-unit:
 	@cd backend; go test -tags="unit_test" ./...
-
-.PHONY: gen-swag
-gen-swag:
-	@cd backend; swag fmt; swag init
-	@find ./backend/docs/ -type f \( -name "*.json" \) -exec sed -i '' 's/"swagger": "2.0"/"openapi": "3.0.2"/g' {} +
-	@find ./backend/docs/ -type f \( -name "*.yaml" \) -exec sed -i '' 's/swagger: "2.0"/openapi: "3.0.2"/g' {} +
