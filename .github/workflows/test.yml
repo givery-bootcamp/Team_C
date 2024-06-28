@@ -47,3 +47,22 @@ jobs:
         uses: yamoyamoto/octocov-action@v0
         with:
           config: .octocov.unit.yml
+  unit-and-e2e:
+    name: Unit Test & E2E Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: backend/go.sum
+      - name: Test
+        working-directory: ./backend
+        run: |
+          cp ./backend/.env.test ./backend/.env
+          make test-cover-e2e
+          mv ./backend/coverdir/merged/profile.txt ./coverage.out
+      - name: Exec octocov action
+        uses: yamoyamoto/octocov-action@v0
+        with:
+          config: .octocov.merged.yml
