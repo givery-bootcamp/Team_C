@@ -9,7 +9,7 @@ import {
 import axios, { AxiosError } from 'axios';
 import { Hello } from 'shared/models';
 import { RootState } from 'shared/store';
-import { ModelCreatePostParam } from '../../api/api';
+import { ModelCreatePostParam, ModelUser, UserApi } from '../../api/api';
 const API_ENDPOINT_PATH = import.meta.env.VITE_API_ENDPOINT_PATH ?? '';
 
 const configuration = new Configuration({
@@ -136,3 +136,21 @@ export const editPost = createAsyncThunk<
     }
   },
 );
+
+export const getUser = createAsyncThunk<
+  ModelUser,
+  void,
+  {
+    rejectValue: string;
+    state: RootState;
+  }
+>('getUser', async (_,{rejectWithValue} ) => {
+  try {
+    const api = new UserApi(configuration, API_ENDPOINT_PATH, axiosInstance);
+    const getUserResponse = await api.apiUsersGet();
+    return getUserResponse.data;
+  } catch (error) {
+    const err = error as AxiosError;
+    return rejectWithValue(err.message ?? 'failed to fetch posts');
+  }
+})
