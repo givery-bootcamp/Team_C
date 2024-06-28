@@ -107,6 +107,15 @@ func TestPostHandler_GetAll(t *testing.T) {
 			expectedStatus: http.StatusOK,
 			expectedBody:   `[{"id":1,"title":"Test Post","body":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z","user":{"id":1,"name":"User1"}}]`,
 		},
+		{
+			name:            "repository error",
+			limit:           "10",
+			offset:          "0",
+			mockReturnPosts: nil,
+			mockError:       exception.ServerError,
+			expectedStatus:  http.StatusInternalServerError,
+			expectedBody:    `{"code":0,"message":"エラーが発生しました"}`,
+		},
 	}
 
 	for _, tt := range tests {
