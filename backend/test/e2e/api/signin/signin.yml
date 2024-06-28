@@ -12,7 +12,5 @@ steps:
             application/json: "{{ vars.request }}"
     test: |
       current.res.status == 200
-    dump:
-      current.res.cookies
     bind:
       cookie: current.res.cookies["Authorize"].Raw

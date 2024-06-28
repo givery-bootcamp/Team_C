@@ -9,3 +9,7 @@ backend/myapp
 
 cover.html
 cover.out
+
+backend/coverdir/*
+!backend/coverdir/e2e/.gitkeep
+!backend/coverdir/unit/.gitkeep

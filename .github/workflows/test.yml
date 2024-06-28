@@ -22,7 +22,12 @@ jobs:
         shell: bash
         run: |
           cp ./backend/.env.test ./backend/.env
-          make test
+          make test-cover-e2e
+          mv ./backend/coverdir/profile.txt ./coverage.out
+      - name: Exec octocov action
+        uses: yamoyamoto/octocov-action@v0
+        with:
+          config: .octocov.e2e.yml
   unit-test:
     name: Unit Test Backend
     runs-on: ubuntu-latest
@@ -39,4 +44,6 @@ jobs:
           grep  -Ev "myapp/docs/docs.go|myapp/main.go|myapp/internal/interface/api/router" coverage.out.tmp > ../coverage.out
           rm coverage.out.tmp
       - name: Exec octocov action
-        uses: k1LoW/octocov-action@v0
+        uses: yamoyamoto/octocov-action@v0
+        with:
+          config: .octocov.unit.yml
