@@ -42,4 +42,5 @@ jobs:
           grep -v "myapp/docs/docs.go" coverage.out.tmp > ../coverage.out
           rm coverage.out.tmp
       - name: Exec octocov action
-        uses: yamoyamoto/octocov-action@v0
+        # バージョンつけたい
+        uses: yamoyamoto/octocov-action@v0.0.3
