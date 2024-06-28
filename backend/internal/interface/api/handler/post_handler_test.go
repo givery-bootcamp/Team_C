@@ -253,12 +253,24 @@ func TestPostHandler_Create(t *testing.T) {
 			userID:         1,
 			userIDError:    nil,
 		},
+		{
+			name:           "user ID error",
+			body:           model.CreatePostParam{Title: "Test Post", Body: "Test Body"},
+			mockReturnPost: nil,
+			mockError:      nil,
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
+			userID:         0,
+			userIDError:    exception.ServerError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.name == "success" || tt.name == "internal server error" {
-				mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(tt.mockReturnPost, tt.mockError)
+			if tt.userIDError == nil {
+				if tt.name == "success" || tt.name == "internal server error" {
+					mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(tt.mockReturnPost, tt.mockError)
+				}
 			}
 
 			gin.SetMode(gin.TestMode)
@@ -269,7 +281,7 @@ func TestPostHandler_Create(t *testing.T) {
 				if tt.userIDError == nil {
 					c.Set(config.GinSigninUserKey, tt.userID)
 				} else {
-					c.Set(config.GinSigninUserKey, tt.userID)
+					c.Error(tt.userIDError)
 				}
 				c.Next()
 			})
@@ -378,14 +390,26 @@ func TestPostHandler_Update(t *testing.T) {
 			userID:         1,
 			userIDError:    nil,
 		},
+		{
+			name:           "user ID error",
+			postID:         "1",
+			mockGetPost:    nil,
+			mockGetErr:     nil,
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
+			userID:         0,
+			userIDError:    exception.ServerError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.name == "success" || tt.name == "internal server error" || tt.name == "record not found" {
-				mockRepo.EXPECT().GetByID(gomock.Any(), gomock.Eq(1)).Return(tt.mockGetPost, tt.mockGetErr)
-				if tt.mockGetErr == nil {
-					mockRepo.EXPECT().Update(gomock.Any(), gomock.Any()).Return(tt.mockGetPost, tt.mockUpdateErr)
+			if tt.userIDError == nil {
+				if tt.name == "success" || tt.name == "internal server error" || tt.name == "record not found" {
+					mockRepo.EXPECT().GetByID(gomock.Any(), gomock.Eq(1)).Return(tt.mockGetPost, tt.mockGetErr)
+					if tt.mockGetErr == nil {
+						mockRepo.EXPECT().Update(gomock.Any(), gomock.Any()).Return(tt.mockGetPost, tt.mockUpdateErr)
+					}
 				}
 			}
 
@@ -394,7 +418,11 @@ func TestPostHandler_Update(t *testing.T) {
 			r.Use(middleware.HandleError())
 
 			r.Use(func(c *gin.Context) {
-				c.Set(config.GinSigninUserKey, tt.userID)
+				if tt.userIDError == nil {
+					c.Set(config.GinSigninUserKey, tt.userID)
+				} else {
+					c.Error(tt.userIDError)
+				}
 				c.Next()
 			})
 
@@ -503,26 +531,41 @@ func TestPostHandler_Delete(t *testing.T) {
 			userID:         1,
 			userIDError:    nil,
 		},
+		{
+			name:           "user ID error",
+			postID:         "1",
+			mockGetPost:    nil,
+			mockGetErr:     nil,
+			mockDeleteErr:  nil,
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
+			userID:         0,
+			userIDError:    exception.ServerError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.postID != "invalid" {
-				mockRepo.EXPECT().GetByID(gomock.Any(), gomock.Eq(1)).Return(tt.mockGetPost, tt.mockGetErr)
+			if tt.userIDError == nil {
+				if tt.postID != "invalid" {
+					mockRepo.EXPECT().GetByID(gomock.Any(), gomock.Eq(1)).Return(tt.mockGetPost, tt.mockGetErr)
+				}
+				if tt.mockGetErr == nil && tt.postID != "invalid" {
+					mockRepo.EXPECT().Delete(gomock.Any(), gomock.Eq(1)).Return(tt.mockDeleteErr)
+				}
 			}
-			if tt.mockGetErr == nil && tt.postID != "invalid" {
-				mockRepo.EXPECT().Delete(gomock.Any(), gomock.Eq(1)).Return(tt.mockDeleteErr)
-			}
-
 			gin.SetMode(gin.TestMode)
 			r := gin.Default()
 			r.Use(middleware.HandleError())
 
 			r.Use(func(c *gin.Context) {
-				c.Set(config.GinSigninUserKey, tt.userID)
+				if tt.userIDError == nil {
+					c.Set(config.GinSigninUserKey, tt.userID)
+				} else {
+					c.Error(tt.userIDError)
+				}
 				c.Next()
 			})
-
 			r.DELETE("/api/posts/:id", handler.Delete)
 
 			req, _ := http.NewRequest("DELETE", "/api/posts/"+tt.postID, nil)
