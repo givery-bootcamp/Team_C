@@ -25,7 +25,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { ModelCreatePostParam } from 'api';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { useQuery } from 'shared/hooks/usequery';
@@ -174,6 +174,17 @@ export function Posts() {
       return <Box>Loading...</Box>;
     }
   };
+
+  const handleKeyPress = (
+    event: KeyboardEvent<HTMLDivElement>,
+    postId: number | undefined,
+  ) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handlePostClick(postId);
+    }
+  };
+
   return (
     <Box>
       <Button colorScheme="blue" onClick={onOpen} mb={4}>
@@ -196,6 +207,8 @@ export function Posts() {
                 onClick={() => {
                   handlePostClick(post.id);
                 }}
+                tabIndex={0}
+                onKeyDown={(e) => handleKeyPress(e, post.id)}
               >
                 <Flex align="center" mb={4}>
                   <Avatar size="sm" name={post.user?.name} mr={2} />
