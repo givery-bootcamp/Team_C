@@ -45,9 +45,6 @@ export const postDetailSlice = createSlice({
       .addCase(APIService.editPost.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message ?? 'unknown error';
-      })
-      .addCase(APIService.editPost.pending, (state) => {
-        state.status = 'loading';
       });
   },
 });
