@@ -57,7 +57,7 @@ jobs:
           go-version: '1.22'
           cache-dependency-path: backend/go.sum
       - name: Test
-        working-directory: ./backend
+        working-directory:
         run: |
           cp ./backend/.env.test ./backend/.env
           make test-cover-e2e
