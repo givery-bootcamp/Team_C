@@ -188,7 +188,6 @@ func TestPostHandler_GetByID(t *testing.T) {
 
 func TestPostHandler_Create(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
 
 	mockRepo := repository_mock.NewMockPostRepository(ctrl)
 	mockUsecase := usecase.NewPostUsecase(mockRepo)
@@ -291,50 +290,99 @@ func TestPostHandler_Create(t *testing.T) {
 	}
 }
 
-func TestPostHandler_Update(t *testing.T) {
-	type fields struct {
-		u usecase.PostUsecase
-	}
-	type args struct {
-		ctx *gin.Context
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			h := &PostHandler{
-				u: tt.fields.u,
-			}
-			h.Update(tt.args.ctx)
-		})
-	}
-}
-
 func TestPostHandler_Delete(t *testing.T) {
-	type fields struct {
-		u usecase.PostUsecase
-	}
-	type args struct {
-		ctx *gin.Context
-	}
+	ctrl := gomock.NewController(t)
+
+	mockRepo := repository_mock.NewMockPostRepository(ctrl)
+	mockUsecase := usecase.NewPostUsecase(mockRepo)
+	handler := NewPostHandler(mockUsecase)
+
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
+		name           string
+		postID         string
+		mockGetPost    *model.Post
+		mockGetErr     error
+		mockDeleteErr  error
+		expectedStatus int
+		expectedBody   string
+		userID         int
+		userIDError    error
 	}{
-		// TODO: Add test cases.
+		{
+			name:           "success",
+			postID:         "1",
+			mockGetPost:    &model.Post{ID: 1, User: model.User{ID: 1}},
+			mockGetErr:     nil,
+			mockDeleteErr:  nil,
+			expectedStatus: http.StatusNoContent,
+			expectedBody:   "",
+			userID:         1,
+			userIDError:    nil,
+		},
+		{
+			name:           "internal server error",
+			postID:         "1",
+			mockGetPost:    &model.Post{ID: 1, User: model.User{ID: 1}},
+			mockGetErr:     nil,
+			mockDeleteErr:  exception.ServerError,
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
+			userID:         1,
+			userIDError:    nil,
+		},
+		{
+			name:           "record not found",
+			postID:         "1",
+			mockGetPost:    nil,
+			mockGetErr:     exception.RecordNotFoundError,
+			mockDeleteErr:  nil,
+			expectedStatus: http.StatusNotFound,
+			expectedBody:   `{"code":0,"message":"レコードが見つかりませんでした"}`,
+			userID:         1,
+			userIDError:    nil,
+		},
+		{
+			name:           "invalid id",
+			postID:         "invalid",
+			mockGetPost:    nil,
+			mockGetErr:     nil,
+			mockDeleteErr:  nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
+			userID:         1,
+			userIDError:    nil,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := &PostHandler{
-				u: tt.fields.u,
+			if tt.postID != "invalid" {
+				mockRepo.EXPECT().GetByID(gomock.Any(), gomock.Eq(1)).Return(tt.mockGetPost, tt.mockGetErr)
 			}
-			h.Delete(tt.args.ctx)
+			if tt.mockGetErr == nil && tt.postID != "invalid" {
+				mockRepo.EXPECT().Delete(gomock.Any(), gomock.Eq(1)).Return(tt.mockDeleteErr)
+			}
+
+			gin.SetMode(gin.TestMode)
+			r := gin.Default()
+			r.Use(middleware.HandleError())
+
+			r.Use(func(c *gin.Context) {
+				c.Set(config.GinSigninUserKey, tt.userID)
+				c.Next()
+			})
+
+			r.DELETE("/api/posts/:id", handler.Delete)
+
+			req, _ := http.NewRequest("DELETE", "/api/posts/"+tt.postID, nil)
+			w := httptest.NewRecorder()
+
+			r.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			if tt.expectedStatus != http.StatusNoContent {
+				assert.JSONEq(t, tt.expectedBody, w.Body.String())
+			}
 		})
 	}
 }
