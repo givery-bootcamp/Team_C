@@ -103,7 +103,7 @@ export const getPostDetail = createAsyncThunk<
 
 export const deletePost = createAsyncThunk(
   'deletePost',
-  async ({ id }: { id: number }, { rejectWithValue }) => {
+  async (id: number, { rejectWithValue }) => {
     try {
       const api = new PostApi(configuration, API_ENDPOINT_PATH, axiosInstance);
       const deletePostResponse = await api.apiPostsIdDelete(id);
