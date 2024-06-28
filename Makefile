@@ -18,7 +18,7 @@ test-cover-e2e:
 	@docker compose -f compose.test.yml up -d
 	@docker compose exec test-backend \
 		go test -v -p=1 ./test/e2e/e2e_test.go
-	@docker compose stop test-backend
+	@docker stop test-backend
 	@docker compose -f compose.test.yml down
 	@cd backend; go tool covdata textfmt -i coverdir -o ./coverdir/profile.txt
 	@cd backend; go tool cover -html=./coverdir/profile.txt -o ./coverdir/profile.html
