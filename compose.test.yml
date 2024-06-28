@@ -6,6 +6,8 @@ services:
       dockerfile: backend-test.Dockerfile
     volumes:
       - ./backend/coverdir:/app/coverdir
+      - ./backend/coverdir/unit:/app/coverdir/unit
+      - ./backend/coverdir/merged:/app/coverdir/merged
     depends_on:
       test-db:
         condition: service_healthy
