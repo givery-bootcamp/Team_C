@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAppDispatch } from 'shared/hooks';
 
+import { motion } from 'framer-motion';
 import { APIService } from 'shared/services';
 
 interface PlayfulDeleteProps {
@@ -115,47 +116,50 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
     setCurrentRiddle(null);
   };
 
+  useEffect(() => {
+    if (stage === alerts.length) {
+      const levelRiddles = riddles[riddleLevel];
+      const random =
+        levelRiddles[Math.floor(Math.random() * levelRiddles.length)];
+      setCurrentRiddle(random);
+    }
+  }, [stage, riddleLevel, riddles, alerts]);
+
+  const deleteButtonRef = useRef<HTMLButtonElement>(null);
+  const [buttonPosition, setButtonPosition] = useState({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+  });
+  const [buttonScale, setButtonScale] = useState(1);
+  const [buttonRotation, setButtonRotation] = useState(0);
+  const circleRadius = 150;
   const handleDelete = async () => {
     if (currentRiddle?.answer.includes(riddleAnswer)) {
       try {
         await dispatch(APIService.deletePost(postId));
-
         toast({
           title: '投稿が削除されました',
-
           description: 'あなたは賢明な選択をした',
-
           status: 'success',
-
           duration: 3000,
-
           isClosable: true,
         });
-
         navigate('/posts');
       } catch (error) {
         toast({
           title: 'エラー',
-
           description: '運命はあなたの投稿を守ったようだね。',
-
           status: 'error',
-
           duration: 3000,
-
           isClosable: true,
         });
       }
     } else {
       toast({
         title: '不正解',
-
         description: 'なぞなぞに正解できませんでした。投稿は安全です',
-
         status: 'warning',
-
         duration: 3000,
-
         isClosable: true,
       });
     }
@@ -166,13 +170,29 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
   };
 
   useEffect(() => {
-    if (stage === alerts.length) {
-      const levelRiddles = riddles[riddleLevel];
-      const random =
-        levelRiddles[Math.floor(Math.random() * levelRiddles.length)];
-      setCurrentRiddle(random);
-    }
-  }, [stage, riddleLevel, riddles, alerts]);
+    const handleResize = () => {
+      const rect = deleteButtonRef.current?.getBoundingClientRect();
+      if (rect) {
+        setButtonPosition({
+          x: window.innerWidth / 2 - rect.width / 2,
+          y: window.innerHeight / 2 - rect.height / 2,
+        });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const handleButtonClick = () => {
+    handleDelete();
+    setButtonScale(1.5);
+    setButtonRotation(360);
+  };
 
   return (
     <AlertDialog
@@ -226,15 +246,40 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
             >
               キャンセル
             </Button>
-
             {stage < alerts.length ? (
               <Button colorScheme="red" onClick={handleNextStage} ml={3}>
                 はい、削除します
               </Button>
             ) : (
-              <Button colorScheme="red" onClick={handleDelete} ml={3}>
-                なぞなぞに答えて削除
-              </Button>
+              <motion.div
+                animate={{
+                  x:
+                    buttonPosition.x +
+                    Math.cos((Date.now() / 1000) * Math.PI * 2) * circleRadius,
+                  y:
+                    buttonPosition.y +
+                    Math.sin((Date.now() / 1000) * Math.PI * 2) * circleRadius,
+                  scale: buttonScale,
+                  rotate: buttonRotation,
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: 'linear',
+                }}
+              >
+                <Button
+                  ref={deleteButtonRef}
+                  colorScheme="red"
+                  onClick={handleButtonClick}
+                  fontSize="2xl"
+                  fontWeight="bold"
+                  padding="1rem 2rem"
+                  boxShadow="0px 0px 20px 5px rgba(255,0,0,0.5)"
+                >
+                  なぞなぞに答えて削除
+                </Button>
+              </motion.div>
             )}
           </AlertDialogFooter>
         </AlertDialogContent>
