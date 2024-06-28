@@ -6,7 +6,7 @@ RUN go build -cover .
 
 RUN chmod +x myapp
 
-ENV GOCOVERDIR="coverdir"
+ENV GOCOVERDIR="coverdir/e2e"
 
 RUN chmod +x myapp.sh
 
