@@ -400,6 +400,15 @@ func TestPostHandler_Update(t *testing.T) {
 			userID:         0,
 			userIDError:    exception.ServerError,
 		},
+		{
+			name:           "invalid postID",
+			postID:         "invalid",
+			body:           model.UpdatePostParam{Title: "Updated Post", Body: "Updated Body"},
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
+			userID:         1,
+			userIDError:    nil,
+		},
 	}
 
 	for _, tt := range tests {
