@@ -60,7 +60,7 @@ jobs:
         working-directory:
         run: |
           cp ./backend/.env.test ./backend/.env
-          make test-cover-e2e
+          make test-cover
           mv ./backend/coverdir/merged/profile.txt ./coverage.out
       - name: Exec octocov action
         uses: yamoyamoto/octocov-action@v0
