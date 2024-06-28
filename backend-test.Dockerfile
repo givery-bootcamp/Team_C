@@ -8,4 +8,6 @@ RUN chmod +x myapp
 
 ENV GOCOVERDIR="coverdir"
 
-ENTRYPOINT ["./myapp"]
+RUN chmod +x myapp.sh
+
+ENTRYPOINT ["./myapp.sh"]
