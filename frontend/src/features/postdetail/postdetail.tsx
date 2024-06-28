@@ -9,6 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { APIService, DateService } from 'shared/services';
@@ -30,11 +31,11 @@ export function PostDetail() {
   return (
     <Box>
       <Heading as={'h1'}>{postdetail?.title}</Heading>
-      <HStack>
+      <HStack py={2}>
         <Avatar size="sm" name={postdetail?.user?.name} />
         <Text as={'span'}>{postdetail?.user?.name}</Text>
       </HStack>
-      <Text paddingTop={5}>{postdetail?.body}</Text>
+      <ReactMarkdown>{postdetail?.body}</ReactMarkdown>
       <Divider />
       <HStack spacing={10} fontSize={'small'} color={'gray'}>
         <Text as={'span'}>
