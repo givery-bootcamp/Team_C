@@ -21,4 +21,4 @@ report:
 comment:
   if: is_pull_request
   hideFooterLink: true
-  title: '【Unit Test】Coverage Report'
+  title: '【E2E Test】Coverage Report'
