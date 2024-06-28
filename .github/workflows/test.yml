@@ -5,6 +5,9 @@ on:
     paths:
       - backend/**
 
+env:
+  GITHUB_REPOSITORY: "hogehogehoge"
+
 jobs:
   e2e-test:
     name: E2E Test
@@ -39,4 +42,4 @@ jobs:
           grep -v "myapp/docs/docs.go" coverage.out.tmp > ../coverage.out
           rm coverage.out.tmp
       - name: Exec octocov action
-        uses: k1LoW/octocov-action@v0
+        uses: yamoyamoto/octocov-action@v0
