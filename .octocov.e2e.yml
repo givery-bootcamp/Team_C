@@ -15,7 +15,7 @@ diff:
   datastores:
     - artifact://${GITHUB_REPOSITORY}/e2e
 report:
-  if: true
+  if: is_default_branch
   datastores:
     - artifact://${GITHUB_REPOSITORY}/e2e
 comment:
