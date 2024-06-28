@@ -44,12 +44,16 @@ export function Posts() {
   const [body, setBody] = useState('');
   const [offset, setOffset] = useState(0);
   const [isCreating, setIsCreating] = useState(false);
-  const navigate = useNavigate();
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef(0);
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const navigate = useNavigate()
+  
+  useEffect(() => {
+    dispatch(APIService.getUser());
+  }, [dispatch]);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
