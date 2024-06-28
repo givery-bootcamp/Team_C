@@ -5,9 +5,6 @@ on:
     paths:
       - backend/**
 
-env:
-  GITHUB_REPOSITORY: "hogehogehoge"
-
 jobs:
   e2e-test:
     name: E2E Test
