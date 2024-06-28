@@ -23,7 +23,7 @@ jobs:
         run: |
           cp ./backend/.env.test ./backend/.env
           make test-cover-e2e
-          mv ./backend/coverdir/profile.txt ./coverage.out
+          mv ./backend/coverdir/e2e/profile.txt ./coverage.out
       - name: Exec octocov action
         uses: yamoyamoto/octocov-action@v0
         with:
