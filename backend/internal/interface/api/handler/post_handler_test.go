@@ -11,6 +11,7 @@ import (
 	"myapp/internal/interface/api/middleware"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -283,6 +284,157 @@ func TestPostHandler_Create(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, w.Code)
 			if tt.expectedStatus == http.StatusBadRequest {
 				assert.Contains(t, w.Body.String(), "リクエストが不正です")
+			} else {
+				assert.JSONEq(t, tt.expectedBody, w.Body.String())
+			}
+		})
+	}
+}
+
+func TestPostHandler_Update(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := repository_mock.NewMockPostRepository(ctrl)
+	mockUsecase := usecase.NewPostUsecase(mockRepo)
+	handler := NewPostHandler(mockUsecase)
+
+	tests := []struct {
+		name           string
+		postID         string
+		body           interface{}
+		mockGetPost    *model.Post
+		mockGetErr     error
+		mockUpdateErr  error
+		expectedStatus int
+		expectedBody   string
+		userID         int
+		userIDError    error
+	}{
+		{
+			name:   "success",
+			postID: "1",
+			body:   model.UpdatePostParam{Title: "Updated Post", Body: "Updated Body"},
+			mockGetPost: &model.Post{
+				ID:    1,
+				Title: "Old Title",
+				Body:  "Old Body",
+				User: model.User{
+					ID:   1,
+					Name: "User1",
+				},
+			},
+			mockGetErr:     nil,
+			mockUpdateErr:  nil,
+			expectedStatus: http.StatusOK,
+			expectedBody:   `{"id":1,"title":"Updated Post","body":"Updated Body","created_at":"0001-01-01T00:00:00Z","updated_at":".*","user":{"id":1,"name":"User1"}}`,
+			userID:         1,
+			userIDError:    nil,
+		},
+		{
+			name:           "internal server error",
+			postID:         "1",
+			body:           model.UpdatePostParam{Title: "Updated Post", Body: "Updated Body"},
+			mockGetPost:    &model.Post{ID: 1, Title: "Old Title", Body: "Old Body", User: model.User{ID: 1, Name: "User1"}},
+			mockGetErr:     nil,
+			mockUpdateErr:  exception.ServerError,
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"code":0,"message":"エラーが発生しました"}`,
+			userID:         1,
+			userIDError:    nil,
+		},
+		{
+			name:           "record not found",
+			postID:         "1",
+			body:           model.UpdatePostParam{Title: "Updated Post", Body: "Updated Body"},
+			mockGetPost:    nil,
+			mockGetErr:     exception.RecordNotFoundError,
+			mockUpdateErr:  nil,
+			expectedStatus: http.StatusNotFound,
+			expectedBody:   `{"code":0,"message":"レコードが見つかりませんでした"}`,
+			userID:         1,
+			userIDError:    nil,
+		},
+		{
+			name:           "invalid json",
+			postID:         "1",
+			body:           "invalid json",
+			mockGetPost:    nil,
+			mockGetErr:     nil,
+			mockUpdateErr:  nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
+			userID:         1,
+			userIDError:    nil,
+		},
+		{
+			name:           "invalid id",
+			postID:         "invalid",
+			body:           model.UpdatePostParam{Title: "Updated Post", Body: "Updated Body"},
+			mockGetPost:    nil,
+			mockGetErr:     nil,
+			mockUpdateErr:  nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
+			userID:         1,
+			userIDError:    nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.name == "success" || tt.name == "internal server error" || tt.name == "record not found" {
+				mockRepo.EXPECT().GetByID(gomock.Any(), gomock.Eq(1)).Return(tt.mockGetPost, tt.mockGetErr)
+				if tt.mockGetErr == nil {
+					mockRepo.EXPECT().Update(gomock.Any(), gomock.Any()).Return(tt.mockGetPost, tt.mockUpdateErr)
+				}
+			}
+
+			gin.SetMode(gin.TestMode)
+			r := gin.Default()
+			r.Use(middleware.HandleError())
+
+			r.Use(func(c *gin.Context) {
+				c.Set(config.GinSigninUserKey, tt.userID)
+				c.Next()
+			})
+
+			r.PUT("/api/posts/:id", handler.Update)
+
+			var body []byte
+			var err error
+			if tt.name == "invalid json" {
+				body = []byte(tt.body.(string))
+			} else {
+				body, err = json.Marshal(tt.body)
+				if err != nil {
+					t.Fatalf("failed to marshal body: %v", err)
+				}
+			}
+
+			req, _ := http.NewRequest("PUT", "/api/posts/"+tt.postID, bytes.NewBuffer(body))
+			w := httptest.NewRecorder()
+
+			r.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			if tt.name == "success" {
+				var responseBody map[string]interface{}
+				if err := json.Unmarshal(w.Body.Bytes(), &responseBody); err != nil {
+					t.Fatalf("failed to unmarshal response body: %v", err)
+				}
+
+				updatedAt, ok := responseBody["updated_at"].(string)
+				assert.True(t, ok, "updated_at should be a string")
+				assert.Regexp(t, regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}.*$`), updatedAt)
+
+				delete(responseBody, "updated_at")
+				expectedBody := `{"id":1,"title":"Updated Post","body":"Updated Body","created_at":"0001-01-01T00:00:00Z","user":{"id":1,"name":"User1"}}`
+				var expectedBodyMap map[string]interface{}
+				if err := json.Unmarshal([]byte(expectedBody), &expectedBodyMap); err != nil {
+					t.Fatalf("failed to unmarshal expected body: %v", err)
+				}
+				assert.Equal(t, expectedBodyMap, responseBody)
 			} else {
 				assert.JSONEq(t, tt.expectedBody, w.Body.String())
 			}
