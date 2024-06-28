@@ -2,6 +2,7 @@ package datastore_test
 
 import (
 	"context"
+	"errors"
 	"myapp/internal/domain/model"
 	"myapp/internal/domain/repository"
 	"myapp/internal/infrastructure/persistence/datastore"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -144,5 +146,88 @@ func TestUserRepository_GetById(t *testing.T) {
 			CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 			UpdatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 		}, user)
+	})
+}
+
+func TestUserRepository_Create(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		deps, err := newTestUserRepositoryDependencies(t)
+		require.NoError(t, err)
+		defer deps.ctrl.Finish()
+
+		user := model.User{
+			Name:     "new_user",
+			Password: "password",
+		}
+
+		deps.mock.ExpectBegin()
+
+		deps.mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?)")).
+			WithArgs(user.Name, user.Password, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+
+		deps.mock.ExpectCommit()
+
+		result, err := deps.repo.Create(context.Background(), user)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		assert.Equal(t, user.Name, result.Name)
+		assert.Equal(t, user.Password, result.Password)
+		assert.NotZero(t, result.CreatedAt)
+		assert.NotZero(t, result.UpdatedAt)
+	})
+
+	t.Run("failed/duplicate entry", func(t *testing.T) {
+		deps, err := newTestUserRepositoryDependencies(t)
+		require.NoError(t, err)
+		defer deps.ctrl.Finish()
+
+		user := model.User{
+			Name:     "duplicate_user",
+			Password: "password",
+		}
+
+		mySQLError := &mysql.MySQLError{
+			Number:  1062,
+			Message: "Duplicate entry",
+		}
+
+		deps.mock.ExpectBegin()
+
+		deps.mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?)")).
+			WithArgs(user.Name, user.Password, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+			WillReturnError(mySQLError)
+
+		deps.mock.ExpectRollback()
+
+		_, err = deps.repo.Create(context.Background(), user)
+
+		assert.EqualError(t, err, "failed to create user: すでに使われているユーザー名です")
+	})
+
+	t.Run("failed/sql execution error", func(t *testing.T) {
+		deps, err := newTestUserRepositoryDependencies(t)
+		require.NoError(t, err)
+		defer deps.ctrl.Finish()
+
+		user := model.User{
+			Name:     "new_user",
+			Password: "password",
+		}
+
+		sqlError := errors.New("some SQL error")
+
+		deps.mock.ExpectBegin()
+
+		deps.mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users` (`name`,`password`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?)")).
+			WithArgs(user.Name, user.Password, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+			WillReturnError(sqlError)
+
+		deps.mock.ExpectRollback()
+
+		_, err = deps.repo.Create(context.Background(), user)
+
+		assert.EqualError(t, err, "failed to SQL execution: some SQL error")
 	})
 }
