@@ -24,7 +24,7 @@ export function Header() {
         alignItems="center"
       >
         <Heading as="h1" size="lg">
-          <Link to="/">team3 掲示板</Link>
+          <Link to="/posts">team3 掲示板</Link>
         </Heading>
         {!isLoginPage && (
           user? (
