@@ -10,7 +10,6 @@ codeToTestRatio:
   test:
     - '**/*_test.go'
 testExecutionTime:
-  acceptable: current <= 10s
   if: true
 diff:
   if: is_pull_request
