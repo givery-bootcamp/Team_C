@@ -126,23 +126,13 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
   }, [stage, riddleLevel, riddles, alerts]);
 
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
-  const [deleteButtonPosition, setDeleteButtonPosition] = useState({
-    x: 0,
-    y: 0,
+  const [buttonPosition, setButtonPosition] = useState({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
   });
-
-  useEffect(() => {
-    if (stage === alerts.length) {
-      const buttonRect = deleteButtonRef.current?.getBoundingClientRect();
-      if (buttonRect) {
-        setDeleteButtonPosition({
-          x: window.innerWidth / 2 - buttonRect.width / 2,
-          y: window.innerHeight / 2 - buttonRect.height / 2,
-        });
-      }
-    }
-  }, [stage, alerts]);
-
+  const [buttonScale, setButtonScale] = useState(1);
+  const [buttonRotation, setButtonRotation] = useState(0);
+  const circleRadius = 150;
   const handleDelete = async () => {
     if (currentRiddle?.answer.includes(riddleAnswer)) {
       try {
@@ -177,6 +167,31 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
     onClose();
     setStage(0);
     setRiddleAnswer('');
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      const rect = deleteButtonRef.current?.getBoundingClientRect();
+      if (rect) {
+        setButtonPosition({
+          x: window.innerWidth / 2 - rect.width / 2,
+          y: window.innerHeight / 2 - rect.height / 2,
+        });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const handleButtonClick = () => {
+    handleDelete();
+    setButtonScale(1.5);
+    setButtonRotation(360);
   };
 
   return (
@@ -238,16 +253,25 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
             ) : (
               <motion.div
                 animate={{
-                  x: deleteButtonPosition.x,
-                  y: deleteButtonPosition.y,
+                  x:
+                    buttonPosition.x +
+                    Math.cos((Date.now() / 1000) * Math.PI * 2) * circleRadius,
+                  y:
+                    buttonPosition.y +
+                    Math.sin((Date.now() / 1000) * Math.PI * 2) * circleRadius,
+                  scale: buttonScale,
+                  rotate: buttonRotation,
                 }}
-                transition={{ duration: 1 }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: 'linear',
+                }}
               >
                 <Button
                   ref={deleteButtonRef}
                   colorScheme="red"
-                  onClick={handleDelete}
-                  ml={3}
+                  onClick={handleButtonClick}
                   fontSize="2xl"
                   fontWeight="bold"
                   padding="1rem 2rem"
