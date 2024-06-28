@@ -9,45 +9,7 @@ on:
       - main
 
 jobs:
-  e2e-test:
-    name: E2E Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-          cache-dependency-path: backend/go.sum
-      - name: Test
-        shell: bash
-        run: |
-          cp ./backend/.env.test ./backend/.env
-          make test-cover-e2e
-          mv ./backend/coverdir/e2e/profile.txt ./coverage.out
-      - name: Exec octocov action
-        uses: yamoyamoto/octocov-action@v0
-        with:
-          config: .octocov.e2e.yml
-  unit-test:
-    name: Unit Test Backend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-          cache-dependency-path: backend/go.sum
-      - name: Test
-        working-directory: ./backend
-        run: |
-          go test -tags="unit_test" ./... --cover -v -coverprofile=coverage.out.tmp
-          grep  -Ev "myapp/docs/docs.go|myapp/main.go|myapp/internal/interface/api/router" coverage.out.tmp > ../coverage.out
-          rm coverage.out.tmp
-      - name: Exec octocov action
-        uses: yamoyamoto/octocov-action@v0
-        with:
-          config: .octocov.unit.yml
-  unit-and-e2e:
+  unit-and-e2e-test:
     name: Unit Test & E2E Test
     runs-on: ubuntu-latest
     steps:
@@ -62,7 +24,21 @@ jobs:
           cp ./backend/.env.test ./backend/.env
           make test-cover
           mv ./backend/coverdir/merged/profile.txt ./coverage.out
-      - name: Exec octocov action
+      - name: Exec octocov action Merged
         uses: yamoyamoto/octocov-action@v0
         with:
           config: .octocov.merged.yml
+      - name: Move E2E Test Coverage
+        run: |
+          mv ./backend/coverdir/e2e/profile.txt ./coverage.out
+      - name: Exec octocov action E2E Test
+        uses: yamoyamoto/octocov-action@v0
+        with:
+          config: .octocov.e2e.yml
+      - name: Move Unit Test Coverage
+        run: |
+          mv ./backend/coverdir/unit/profile.txt ./coverage.out
+      - name: Exec octocov action Unit Test
+        uses: yamoyamoto/octocov-action@v0
+        with:
+          config: .octocov.unit.yml
