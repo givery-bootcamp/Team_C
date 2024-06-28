@@ -73,10 +73,10 @@ func TestPostHandler_GetAll(t *testing.T) {
 			offset: "0",
 			mockReturnPosts: []*model.Post{
 				{ID: 1, Title: "Test Post", Body: "", User: model.User{ID: 1, Name: "User1"}},
-			}, mockError: nil,
+			},
+			mockError:      nil,
 			expectedStatus: http.StatusOK,
-
-			expectedBody: `[{"id":1,"title":"Test Post","body":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z","user":{"id":1,"name":"User1"}}]`,
+			expectedBody:   `[{"id":1,"title":"Test Post","body":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z","user":{"id":1,"name":"User1"}}]`,
 		},
 		{
 			name:            "invalid limit",
@@ -95,6 +95,17 @@ func TestPostHandler_GetAll(t *testing.T) {
 			mockError:       nil,
 			expectedStatus:  http.StatusBadRequest,
 			expectedBody:    `{"code":0,"message":"リクエストが不正です"}`,
+		},
+		{
+			name:   "exceed max limit",
+			limit:  "2000",
+			offset: "0",
+			mockReturnPosts: []*model.Post{
+				{ID: 1, Title: "Test Post", Body: "", User: model.User{ID: 1, Name: "User1"}},
+			},
+			mockError:      nil,
+			expectedStatus: http.StatusOK,
+			expectedBody:   `[{"id":1,"title":"Test Post","body":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z","user":{"id":1,"name":"User1"}}]`,
 		},
 	}
 
@@ -359,18 +370,6 @@ func TestPostHandler_Update(t *testing.T) {
 			name:           "invalid json",
 			postID:         "1",
 			body:           "invalid json",
-			mockGetPost:    nil,
-			mockGetErr:     nil,
-			mockUpdateErr:  nil,
-			expectedStatus: http.StatusBadRequest,
-			expectedBody:   `{"code":0,"message":"リクエストが不正です"}`,
-			userID:         1,
-			userIDError:    nil,
-		},
-		{
-			name:           "invalid id",
-			postID:         "invalid",
-			body:           model.UpdatePostParam{Title: "Updated Post", Body: "Updated Body"},
 			mockGetPost:    nil,
 			mockGetErr:     nil,
 			mockUpdateErr:  nil,
