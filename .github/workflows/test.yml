@@ -46,4 +46,4 @@ jobs:
       - name: Exec octocov action
         uses: yamoyamoto/octocov-action@v0
         with:
-          config: .octocov.yml
+          config: .octocov.unit.yml
