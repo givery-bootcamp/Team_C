@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   AlertDialog,
@@ -39,57 +39,68 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const toast = useToast();
+  const [currentRiddle, setCurrentRiddle] = useState<Riddle | null>(null);
   interface Riddle {
     question: string;
-    answer: string;
+    answer: string[];
   }
 
-  const getCurrentRiddle = (): Riddle => {
-    const levelRiddles = riddles[riddleLevel];
-    return levelRiddles[Math.floor(Math.random() * levelRiddles.length)];
+  const alerts = useMemo(
+    () => [
+      '削除していいの？本当に削除していいの？',
+      'さっき「削除」を押しましたよね？本当に本当に削除しちゃっていいんですか？',
+      '削除したら泣いちゃうよ？？？',
+      '本当に削除しちゃうの。。。？',
+      'まだ間に合うよ？本当に削除する？',
+      'ガチのまじの最後のチャンスだけど本当に削除します？',
+    ],
+    [],
+  );
+
+  const riddles: { [key: string]: Riddle[] } = useMemo(
+    () => ({
+      easy: [
+        {
+          question: 'アリが10匹で何かをいっていますが、その言葉は何ですか？',
+          answer: ['ありがとう'],
+        },
+        {
+          question: '3缶（かん）にのったくだものは何ですか？',
+          answer: ['みかん'],
+        },
+      ],
+      medium: [
+        {
+          question: '唐辛子（とうがらし）が怒られているよなにをしたのかな？',
+          answer: ['からかった', '辛かった'],
+        },
+        {
+          question: '地面にある男の穴ってなぁに？',
+          answer: ['マンホール'],
+        },
+      ],
+      hard: [
+        {
+          question: 'テレビやラジオにとりついているゆうれいってな～んだ？',
+          answer: ['音量', '怨霊', 'おんりょう'],
+        },
+        {
+          question: '誉められたのって何年生？',
+          answer: ['小学３年生', '小３', '賞賛'],
+        },
+      ],
+    }),
+    [],
+  );
+
+  const handleRiddleLevelChange = (newLevel: string) => {
+    setRiddleLevel(newLevel);
+    const newLevelRiddles = riddles[newLevel];
+    const random =
+      newLevelRiddles[Math.floor(Math.random() * newLevelRiddles.length)];
+    setCurrentRiddle(random);
+    setRiddleAnswer('');
   };
-
-  const alerts = [
-    '削除していいの？本当に削除していいの？',
-    'さっき「削除」を押しましたよね？本当に本当に削除しちゃっていいんですか？',
-    '削除したら泣いちゃうよ？？？',
-    '本当に削除しちゃうの。。。？',
-    'まだ間に合うよ？本当に削除する？',
-    'ガチのまじの最後のチャンスだけど本当に削除します？',
-  ];
-
-  const riddles: { [key: string]: Riddle[] } = {
-    easy: [
-      {
-        question: '私は頭も尻尾もありませんが、体はあります。私は何でしょう？',
-        answer: '川',
-      },
-      { question: '丸いのに角がある。何でしょう？', answer: 'お饅頭' },
-    ],
-    medium: [
-      {
-        question:
-          '私は常に先頭を歩きますが、決して後ろを向きません。私は何でしょう？',
-        answer: '鼻',
-      },
-      {
-        question: '重ければ重いほど、軽くなります。何でしょう？',
-        answer: '風船',
-      },
-    ],
-    hard: [
-      {
-        question:
-          '私は昼も夜も動き続けますが、決して疲れません。私は何でしょう？',
-        answer: '時計',
-      },
-      {
-        question: '食べれば食べるほど大きくなります。何でしょう？',
-        answer: '穴',
-      },
-    ],
-  };
-
   const handleNextStage = () => {
     if (stage < alerts.length - 1) {
       setStage(stage + 1);
@@ -98,9 +109,14 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
     }
   };
 
+  const resetState = () => {
+    setStage(0);
+    setRiddleAnswer('');
+    setCurrentRiddle(null);
+  };
+
   const handleDelete = async () => {
-    const currentRiddle = getCurrentRiddle();
-    if (riddleAnswer.toLowerCase() === currentRiddle.answer) {
+    if (currentRiddle?.answer.includes(riddleAnswer)) {
       try {
         await dispatch(APIService.deletePost({ id: postId }));
 
@@ -149,6 +165,15 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
     setRiddleAnswer('');
   };
 
+  useEffect(() => {
+    if (stage === alerts.length) {
+      const levelRiddles = riddles[riddleLevel];
+      const random =
+        levelRiddles[Math.floor(Math.random() * levelRiddles.length)];
+      setCurrentRiddle(random);
+    }
+  }, [stage, riddleLevel, riddles, alerts]);
+
   return (
     <AlertDialog
       isOpen={isOpen}
@@ -167,25 +192,38 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
             ) : (
               <VStack spacing={4}>
                 <Text>なぞなぞの難易度を選んでください：</Text>
-                <RadioGroup onChange={setRiddleLevel} value={riddleLevel}>
+                <RadioGroup
+                  onChange={handleRiddleLevelChange}
+                  value={riddleLevel}
+                >
                   <HStack spacing={4}>
                     <Radio value="easy">簡単</Radio>
                     <Radio value="medium">普通</Radio>
                     <Radio value="hard">難しい</Radio>
                   </HStack>
                 </RadioGroup>
-                <Text>{getCurrentRiddle().question}</Text>
-                <Input
-                  placeholder="答えを入力してください"
-                  value={riddleAnswer}
-                  onChange={(e) => setRiddleAnswer(e.target.value)}
-                />
+                {currentRiddle && (
+                  <>
+                    <Text>{currentRiddle.question}</Text>
+                    <Input
+                      placeholder="答えを入力してください"
+                      value={riddleAnswer}
+                      onChange={(e) => setRiddleAnswer(e.target.value)}
+                    />
+                  </>
+                )}
               </VStack>
             )}
           </AlertDialogBody>
 
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
+            <Button
+              ref={cancelRef}
+              onClick={() => {
+                onClose;
+                resetState;
+              }}
+            >
               キャンセル
             </Button>
 
