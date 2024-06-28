@@ -26,6 +26,7 @@ import {
 } from '@chakra-ui/react';
 import { ModelCreatePostParam } from 'api';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { useQuery } from 'shared/hooks/usequery';
 import { APIService } from 'shared/services';
@@ -43,6 +44,7 @@ export function Posts() {
   const [body, setBody] = useState('');
   const [offset, setOffset] = useState(0);
   const [isCreating, setIsCreating] = useState(false);
+  const navigate = useNavigate();
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef(0);
@@ -165,6 +167,13 @@ export function Posts() {
     }
   };
 
+  const handlePostClick = (postId: number | undefined) => {
+    navigate(`/posts/${postId}`);
+
+    if (status === 'loading') {
+      return <Box>Loading...</Box>;
+    }
+  };
   return (
     <Box>
       <Button colorScheme="blue" onClick={onOpen} mb={4}>
@@ -184,6 +193,9 @@ export function Posts() {
                 borderColor={borderColor}
                 _hover={{ shadow: 'lg' }}
                 transition="all 0.3s"
+                onClick={() => {
+                  handlePostClick(post.id);
+                }}
               >
                 <Flex align="center" mb={4}>
                   <Avatar size="sm" name={post.user?.name} mr={2} />
