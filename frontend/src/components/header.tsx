@@ -27,7 +27,7 @@ export function Header() {
           <Link to="/posts">team3 掲示板</Link>
         </Heading>
         {!isLoginPage && (
-          user? (
+          user ? (
             <Button colorScheme='green'>サインアウト</Button>
            ) : (
             <Button colorScheme="blue" onClick={navigateSignIn}>
