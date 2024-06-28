@@ -60,13 +60,11 @@ func (r *UserRepository) Create(ctx context.Context, user model.User) (*model.Us
 	u := entity.NewUserFromModel(&user)
 
 	if err := conn.Create(&u).Error; err != nil {
-		mysqlErr := err.(*mysql.MySQLError)
-		switch mysqlErr.Number {
-		case 1062:
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
 			return nil, xerrors.Errorf("failed to create user: %w", exception.UserAlreadyExistsError)
 		}
 		return nil, xerrors.Errorf("failed to SQL execution: %w", err)
 	}
-
 	return u.ToModel(), nil
 }
