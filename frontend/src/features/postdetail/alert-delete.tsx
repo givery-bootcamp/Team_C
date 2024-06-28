@@ -118,7 +118,7 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
   const handleDelete = async () => {
     if (currentRiddle?.answer.includes(riddleAnswer)) {
       try {
-        await dispatch(APIService.deletePost({ id: postId }));
+        await dispatch(APIService.deletePost(postId));
 
         toast({
           title: '投稿が削除されました',

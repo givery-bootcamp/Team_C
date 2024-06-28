@@ -113,3 +113,26 @@ export const deletePost = createAsyncThunk(
     }
   },
 );
+
+export const editPost = createAsyncThunk<
+  ModelPost,
+  { id: number; param: ModelCreatePostParam },
+  {
+    rejectValue: string;
+    state: RootState;
+  }
+>(
+  'editPost',
+  async (
+    { id, param }: { id: number; param: ModelCreatePostParam },
+    { rejectWithValue },
+  ) => {
+    try {
+      const api = new PostApi(configuration, API_ENDPOINT_PATH, axiosInstance);
+      const editPostResponse = await api.apiPostsIdPut(id, param);
+      return editPostResponse.data;
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
+  },
+);

@@ -9,7 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { APIService, DateService } from 'shared/services';
 import { RootState } from 'shared/store';
@@ -21,6 +21,7 @@ export function PostDetail() {
   const dispatch = useAppDispatch();
   const postId = Number(params.postId);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(APIService.getPostDetail({ id: postId }));
@@ -44,7 +45,7 @@ export function PostDetail() {
         </Text>
       </HStack>
       <ButtonGroup colorScheme="blue" paddingTop={5}>
-        <Button>編集</Button>
+        <Button onClick={() => navigate(`/posts/${postId}/edit`)}>編集</Button>
         <Button onClick={() => setIsDeleteDialogOpen(true)} colorScheme="red">
           削除
         </Button>
