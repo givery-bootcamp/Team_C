@@ -13,11 +13,11 @@ testExecutionTime:
 diff:
   if: is_pull_request
   datastores:
-    - artifact://${GITHUB_REPOSITORY}
+    - artifact://${GITHUB_REPOSITORY}/unit
 report:
   if: is_default_branch
   datastores:
-    - artifact://${GITHUB_REPOSITORY}
+    - artifact://${GITHUB_REPOSITORY}/unit
 comment:
   if: is_pull_request
   hideFooterLink: true
