@@ -220,8 +220,8 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
             <Button
               ref={cancelRef}
               onClick={() => {
-                onClose;
-                resetState;
+                onClose();
+                resetState();
               }}
             >
               キャンセル
