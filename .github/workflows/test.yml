@@ -25,7 +25,7 @@ jobs:
           make test-cover-e2e
           mv ./backend/coverdir/profile.txt ./coverage.out
       - name: Exec octocov action
-        uses: k1LoW/octocov-action@v0
+        uses: yamoyamoto/octocov-action@v0
         with:
           config: .octocov.e2e.yml
   unit-test:
