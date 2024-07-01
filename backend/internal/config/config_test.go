@@ -30,6 +30,7 @@ func TestConfigInitialization(t *testing.T) {
 				"DBPassword": "password",
 				"DBPort":     3306,
 				"DBName":     "training",
+				"DomainURL":  "localhost",
 			},
 		},
 		{
@@ -43,6 +44,7 @@ func TestConfigInitialization(t *testing.T) {
 				"DB_PASSWORD":       "secret",
 				"DB_PORT":           "3307",
 				"DB_NAME":           "test-db",
+				"DOMAIN_URL":        "customdomain",
 			},
 			expected: map[string]interface{}{
 				"HostName":   "0.0.0.0",
@@ -52,6 +54,7 @@ func TestConfigInitialization(t *testing.T) {
 				"DBPassword": "secret",
 				"DBPort":     3307,
 				"DBName":     "test-db",
+				"DomainURL":  "customdomain",
 			},
 		},
 	}
@@ -69,6 +72,7 @@ func TestConfigInitialization(t *testing.T) {
 			assert.Equal(t, tt.expected["DBPassword"], config.DBPassword)
 			assert.Equal(t, tt.expected["DBPort"], config.DBPort)
 			assert.Equal(t, tt.expected["DBName"], config.DBName)
+			assert.Equal(t, tt.expected["DomainURL"], config.DomainURL)
 
 			if v, ok := tt.envVars["CORS_ALLOW_ORIGIN"]; ok {
 				assert.Contains(t, config.CorsAllowOrigin, v)
