@@ -8,28 +8,26 @@ func TestMySQLMigrator_MustNewSQLMigrate(t *testing.T) {
 	tests := []struct {
 		name    string
 		input   string
-		wantErr error
+		wantErr bool
 	}{
 		{
-			name:    "Successful migration",
+			name:    "Error no scheme",
 			input:   "dummy",
-			wantErr: nil,
+			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.wantErr != nil {
-				_ = MustNewMySQLMigrator(tt.input)
-			} else {
+			if tt.wantErr {
 				defer func() {
 					err := recover()
 					if err != "no scheme" {
 						t.Errorf("got %v\nwant %v", err, "no scheme")
 					}
 				}()
-				_ = MustNewMySQLMigrator(tt.input)
 			}
+			_ = MustNewMySQLMigrator(tt.input)
 		})
 	}
 }
