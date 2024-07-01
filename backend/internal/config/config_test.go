@@ -44,7 +44,7 @@ func TestConfigInitialization(t *testing.T) {
 				"DB_PASSWORD":       "secret",
 				"DB_PORT":           "3307",
 				"DB_NAME":           "test-db",
-				"DomainURL":         "customdomain",
+				"DOMAIN_URL":        "customdomain",
 			},
 			expected: map[string]interface{}{
 				"HostName":   "0.0.0.0",
