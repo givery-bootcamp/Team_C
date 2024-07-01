@@ -30,7 +30,6 @@ func NewDbMock() (*gorm.DB, sqlmock.Sqlmock, error) {
 
 	return mockDB, mock, err
 }
-
 func AssertErrMsg(t *testing.T, expected error, err error) {
 	if expected == nil {
 		assert.NoError(t, err)
