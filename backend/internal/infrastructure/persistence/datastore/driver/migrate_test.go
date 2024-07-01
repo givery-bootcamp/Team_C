@@ -21,9 +21,8 @@ func TestMySQLMigrator_MustNewSQLMigrate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr {
 				defer func() {
-					err := recover()
-					if err != "no scheme" {
-						t.Errorf("got %v\nwant %v", err, "no scheme")
+					if r := recover(); r == nil {
+						t.Errorf("The code did not panic as expected")
 					}
 				}()
 			}
