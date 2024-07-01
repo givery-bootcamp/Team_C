@@ -204,12 +204,12 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
   const handleDelete = async () => {
     if (currentRiddle?.answer.includes(riddleAnswer)) {
       const random = Math.random() * 100;
-      if (random >= deleteChance) {
+      if (random < deleteChance) {
         try {
           await dispatch(APIService.deletePost(postId));
           toast({
             title: '投稿が削除されました',
-            description: 'あなたは賢明な選択をした',
+            description: '投稿削除しなければよかったのに',
             status: 'success',
             duration: 3000,
             isClosable: true,
@@ -224,20 +224,28 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
             isClosable: true,
           });
         }
+        setStage(0);
       } else {
         toast({
           title: '不正解',
-          description: 'なぞなぞに正解できませんでした。投稿は安全です',
+          description: 'ヒントみなければよかったのに',
           status: 'warning',
           duration: 3000,
           isClosable: true,
         });
       }
-
-      onClose();
-      setStage(0);
-      setRiddleAnswer('');
+    } else {
+      toast({
+        title: '不正解',
+        description: 'ヒントみればよかったのに',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
+
+    onClose();
+    setRiddleAnswer('');
   };
 
   useEffect(() => {
