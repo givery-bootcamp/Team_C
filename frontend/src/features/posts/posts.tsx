@@ -26,6 +26,7 @@ import {
 } from '@chakra-ui/react';
 import { ModelCreatePostParam } from 'api';
 import { KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'shared/hooks';
 import { useQuery } from 'shared/hooks/usequery';
@@ -49,7 +50,7 @@ export function Posts() {
   const scrollPositionRef = useRef(0);
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(APIService.getUser());
@@ -228,7 +229,7 @@ export function Posts() {
                 </Heading>
 
                 <Text noOfLines={3} mb={4}>
-                  {post.body}
+                  <ReactMarkdown>{post?.body}</ReactMarkdown>
                 </Text>
 
                 <HStack spacing={4} fontSize="sm" color="gray.500">
