@@ -71,6 +71,14 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
         newDeleteChance = 100;
     }
     setDeleteChance(newDeleteChance);
+
+    toast({
+      title: 'ヒントを表示しました',
+      description: `削除成功確率が${newDeleteChance}%に下がりました。`,
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
   };
 
   const alerts = useMemo(
@@ -195,38 +203,41 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
 
   const handleDelete = async () => {
     if (currentRiddle?.answer.includes(riddleAnswer)) {
-      try {
-        await dispatch(APIService.deletePost(postId));
+      const random = Math.random() * 100;
+      if (random >= deleteChance) {
+        try {
+          await dispatch(APIService.deletePost(postId));
+          toast({
+            title: '投稿が削除されました',
+            description: 'あなたは賢明な選択をした',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+          navigate('/posts');
+        } catch (error) {
+          toast({
+            title: 'エラー',
+            description: '運命はあなたの投稿を守ったようだね。',
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      } else {
         toast({
-          title: '投稿が削除されました',
-          description: 'あなたは賢明な選択をした',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-        navigate('/posts');
-      } catch (error) {
-        toast({
-          title: 'エラー',
-          description: '運命はあなたの投稿を守ったようだね。',
-          status: 'error',
+          title: '不正解',
+          description: 'なぞなぞに正解できませんでした。投稿は安全です',
+          status: 'warning',
           duration: 3000,
           isClosable: true,
         });
       }
-    } else {
-      toast({
-        title: '不正解',
-        description: 'なぞなぞに正解できませんでした。投稿は安全です',
-        status: 'warning',
-        duration: 3000,
-        isClosable: true,
-      });
-    }
 
-    onClose();
-    setStage(0);
-    setRiddleAnswer('');
+      onClose();
+      setStage(0);
+      setRiddleAnswer('');
+    }
   };
 
   useEffect(() => {
