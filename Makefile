@@ -12,6 +12,7 @@ test-cover:
 	@docker compose exec test-backend \
 		go test -v -p=1 ./test/e2e/e2e_test.go
 	@docker stop test-backend
+	@cd backend; go tool covdata textfmt -i coverdir/unit -o ./coverdir/e2e/profile.txt
 	@cd backend; go tool covdata textfmt -i coverdir/e2e -o ./coverdir/e2e/profile.txt
 	@cd backend; go tool cover -html=./coverdir/e2e/profile.txt -o ./coverdir/e2e/profile.html
 	@cd backend; go tool covdata merge -i=coverdir/e2e,coverdir/unit -o ./coverdir/merged
