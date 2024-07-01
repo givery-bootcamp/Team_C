@@ -34,7 +34,7 @@ test-cover-e2e:
 		go test -v -p=1 ./test/e2e/e2e_test.go
 	@docker stop test-backend
 	@docker compose -f compose.test.yml down
-	@cd backend; go tool covdata textfmt -i coverdir -o ./coverdir/e2e/profile.txt
+	@cd backend; go tool covdata textfmt -i coverdir/e2e -o ./coverdir/e2e/profile.txt
 	@cd backend; go tool cover -html=./coverdir/e2e/profile.txt -o ./coverdir/e2e/profile.html
 
 .PHONY: test-unit
