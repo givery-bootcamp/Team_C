@@ -26,7 +26,6 @@ test-cover-unit:
 	@cd backend; grep -Ev "myapp/docs/docs.go|myapp/main.go|myapp/internal/interface/api/router" cover.out.tmp > cover.out
 	@cd backend; rm cover.out.tmp
 	@cd backend; go tool cover -html=cover.out -o cover.html
-	@open ./backend/cover.html
 
 .PHONY: test-cover-e2e
 test-cover-e2e:
