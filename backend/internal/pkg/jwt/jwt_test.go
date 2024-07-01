@@ -66,6 +66,15 @@ func TestGetUserIDFromToken(t *testing.T) {
 		assert.Equal(t, 0, userID)
 	})
 
+	t.Run("Claimがない場合エラーを返す", func(t *testing.T) {
+		token := jwt_lib.NewWithClaims(jwt_lib.SigningMethodHS256, jwt_lib.MapClaims{})
+		tokenString, _ := token.SignedString([]byte("test_secret_key"))
+
+		userID, err := jwt.GetUserIDFromToken(tokenString)
+		assert.Equal(t, "token invalid", err.Error())
+		assert.Equal(t, 0, userID)
+	})
+
 	t.Run("success", func(t *testing.T) {
 		token := jwt_lib.NewWithClaims(jwt_lib.SigningMethodHS256, jwt_lib.MapClaims{
 			"user_id": float64(123),
