@@ -68,7 +68,7 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
         newDeleteChance = 50;
         break;
       default:
-        newDeleteChance = 50;
+        newDeleteChance = 100;
     }
     setDeleteChance(newDeleteChance);
   };
