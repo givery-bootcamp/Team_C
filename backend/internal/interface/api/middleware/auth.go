@@ -19,12 +19,7 @@ func CheckToken() gin.HandlerFunc {
 
 		userID, err := jwt.GetUserIDFromToken(token)
 		if err != nil {
-			err, ok := err.(*exception.Exception)
-			if ok {
-				ctx.Error(err)
-			} else {
-				ctx.Error(exception.AuthError)
-			}
+			ctx.Error(exception.AuthError)
 			ctx.Abort()
 			return
 		}
