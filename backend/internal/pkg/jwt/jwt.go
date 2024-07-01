@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"errors"
 	"myapp/internal/exception"
 	"os"
 	"time"
@@ -38,11 +39,11 @@ func GetUserIDFromToken(tokenString string) (int, error) {
 	if err != nil {
 		return 0, xerrors.Errorf("failed to parse token: %w", err)
 	}
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid && len(claims) != 0 {
 		userID := claims["user_id"].(float64)
 
 		return int(userID), nil
 	} else {
-		return 0, err
+		return 0, errors.New("token invalid")
 	}
 }
