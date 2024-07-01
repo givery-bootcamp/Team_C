@@ -41,10 +41,37 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
   const navigate = useNavigate();
   const toast = useToast();
   const [currentRiddle, setCurrentRiddle] = useState<Riddle | null>(null);
+  const [openHints, setOpenHints] = useState([false, false, false]);
+  const [deleteChance, setDeleteChance] = useState(100);
+
   interface Riddle {
     question: string;
     answer: string[];
+    hints: string[];
   }
+
+  const handlehintClick = (index: number) => {
+    const newOpenHints = [...openHints];
+    newOpenHints[index] = !newOpenHints[index];
+    setOpenHints(newOpenHints);
+
+    const openCount = newOpenHints.filter((hint) => hint).length;
+    let newDeleteChance;
+    switch (openCount) {
+      case 1:
+        newDeleteChance = 90;
+        break;
+      case 2:
+        newDeleteChance = 70;
+        break;
+      case 3:
+        newDeleteChance = 50;
+        break;
+      default:
+        newDeleteChance = 50;
+    }
+    setDeleteChance(newDeleteChance);
+  };
 
   const alerts = useMemo(
     () => [
@@ -64,30 +91,60 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
         {
           question: 'アリが10匹で何かをいっていますが、その言葉は何ですか？',
           answer: ['ありがとう'],
+          hints: [
+            'アリは協力して何かをしているようです',
+            '10匹のアリが何かを言っているようです',
+            '言葉の中に「ありがとう」が含まれているかもしれません',
+          ],
         },
         {
           question: '3缶（かん）にのったくだものは何ですか？',
           answer: ['みかん'],
+          hints: [
+            'アリは協力して何かをしているようです',
+            '10匹のアリが何かを言っているようです',
+            '言葉の中に「ありがとう」が含まれているかもしれません',
+          ],
         },
       ],
       medium: [
         {
           question: '唐辛子（とうがらし）が怒られているよなにをしたのかな？',
           answer: ['からかった', '辛かった'],
+          hints: [
+            'アリは協力して何かをしているようです',
+            '10匹のアリが何かを言っているようです',
+            '言葉の中に「ありがとう」が含まれているかもしれません',
+          ],
         },
         {
           question: '地面にある男の穴ってなぁに？',
           answer: ['マンホール'],
+          hints: [
+            'アリは協力して何かをしているようです',
+            '10匹のアリが何かを言っているようです',
+            '言葉の中に「ありがとう」が含まれているかもしれません',
+          ],
         },
       ],
       hard: [
         {
           question: 'テレビやラジオにとりついているゆうれいってな～んだ？',
           answer: ['音量', '怨霊', 'おんりょう'],
+          hints: [
+            'アリは協力して何かをしているようです',
+            '10匹のアリが何かを言っているようです',
+            '言葉の中に「ありがとう」が含まれているかもしれません',
+          ],
         },
         {
           question: '誉められたのって何年生？',
           answer: ['小学３年生', '小３', '賞賛'],
+          hints: [
+            'アリは協力して何かをしているようです',
+            '10匹のアリが何かを言っているようです',
+            '言葉の中に「ありがとう」が含まれているかもしれません',
+          ],
         },
       ],
     }),
@@ -114,6 +171,8 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
     setStage(0);
     setRiddleAnswer('');
     setCurrentRiddle(null);
+    setOpenHints([false, false, false]);
+    setDeleteChance(100);
   };
 
   useEffect(() => {
@@ -133,6 +192,7 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
   const [buttonScale, setButtonScale] = useState(1);
   const [buttonRotation, setButtonRotation] = useState(0);
   const circleRadius = 150;
+
   const handleDelete = async () => {
     if (currentRiddle?.answer.includes(riddleAnswer)) {
       try {
@@ -230,6 +290,18 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
                       value={riddleAnswer}
                       onChange={(e) => setRiddleAnswer(e.target.value)}
                     />
+                    {currentRiddle.hints.map((hint, i) => (
+                      <HStack key={i}>
+                        <Button
+                          variant={openHints[i] ? 'solid' : 'ghost'}
+                          onClick={() => handlehintClick(i)}
+                        >
+                          ヒント {i + 1}
+                        </Button>
+                        {openHints[i] && <Text>{hint}</Text>}
+                      </HStack>
+                    ))}
+                    <Text>削除確率: {deleteChance}%</Text>
                   </>
                 )}
               </VStack>
