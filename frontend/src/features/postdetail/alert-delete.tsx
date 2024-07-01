@@ -41,10 +41,45 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
   const navigate = useNavigate();
   const toast = useToast();
   const [currentRiddle, setCurrentRiddle] = useState<Riddle | null>(null);
+  const [openHints, setOpenHints] = useState([false, false, false]);
+  const [deleteChance, setDeleteChance] = useState(100);
+
   interface Riddle {
     question: string;
     answer: string[];
+    hints: string[];
   }
+
+  const handlehintClick = (index: number) => {
+    const newOpenHints = [...openHints];
+    newOpenHints[index] = !newOpenHints[index];
+    setOpenHints(newOpenHints);
+
+    const openCount = newOpenHints.filter((hint) => hint).length;
+    let newDeleteChance;
+    switch (openCount) {
+      case 1:
+        newDeleteChance = 90;
+        break;
+      case 2:
+        newDeleteChance = 70;
+        break;
+      case 3:
+        newDeleteChance = 50;
+        break;
+      default:
+        newDeleteChance = 100;
+    }
+    setDeleteChance(newDeleteChance);
+
+    toast({
+      title: 'ヒントを表示しました',
+      description: `削除成功確率が${newDeleteChance}%に下がりました。`,
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
 
   const alerts = useMemo(
     () => [
@@ -64,30 +99,60 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
         {
           question: 'アリが10匹で何かをいっていますが、その言葉は何ですか？',
           answer: ['ありがとう'],
+          hints: [
+            'アリは協力して何かをしているようです',
+            '10匹のアリが何かを言っているようです',
+            '言葉の中に「ありがとう」が含まれているかもしれません',
+          ],
         },
         {
           question: '3缶（かん）にのったくだものは何ですか？',
           answer: ['みかん'],
+          hints: [
+            'このくだものはオレンジ色です',
+            '「3缶」と聞いた時、発音に注目してみましょう',
+            '冬の季節によく食べられるフルーツです',
+          ],
         },
       ],
       medium: [
         {
           question: '唐辛子（とうがらし）が怒られているよなにをしたのかな？',
           answer: ['からかった', '辛かった'],
+          hints: [
+            '唐辛子の特徴を考えてみましょう',
+            '「から」には2つの意味があります',
+            '言葉遊びとして、「とうがらし」の性質に注目してください',
+          ],
         },
         {
           question: '地面にある男の穴ってなぁに？',
           answer: ['マンホール'],
+          hints: [
+            '地面にある円形の蓋を思い浮かべてください',
+            '道路工事や地下作業でよく見かけます',
+            '男の穴」の部分を英語で考えると答えが見えてきます',
+          ],
         },
       ],
       hard: [
         {
           question: 'テレビやラジオにとりついているゆうれいってな～んだ？',
           answer: ['音量', '怨霊', 'おんりょう'],
+          hints: [
+            'テレビやラジオの機能を考えてみましょう',
+            '「おんりょう」としての発音を注意深く聞いてみると…？',
+            '文脈から異なる意味を持つ同音異義語に注目してください',
+          ],
         },
         {
           question: '誉められたのって何年生？',
           answer: ['小学３年生', '小３', '賞賛'],
+          hints: [
+            '「小」は学校の学年を示す文字です',
+            '「３」は数字の3を指します',
+            '褒める（ほめる）の漢字と関連があります',
+          ],
         },
       ],
     }),
@@ -114,6 +179,8 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
     setStage(0);
     setRiddleAnswer('');
     setCurrentRiddle(null);
+    setOpenHints([false, false, false]);
+    setDeleteChance(100);
   };
 
   useEffect(() => {
@@ -133,40 +200,44 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
   const [buttonScale, setButtonScale] = useState(1);
   const [buttonRotation, setButtonRotation] = useState(0);
   const circleRadius = 150;
+
   const handleDelete = async () => {
     if (currentRiddle?.answer.includes(riddleAnswer)) {
-      try {
-        await dispatch(APIService.deletePost(postId));
+      const random = Math.random() * 100;
+      if (random >= deleteChance) {
+        try {
+          await dispatch(APIService.deletePost(postId));
+          toast({
+            title: '投稿が削除されました',
+            description: 'あなたは賢明な選択をした',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+          navigate('/posts');
+        } catch (error) {
+          toast({
+            title: 'エラー',
+            description: '運命はあなたの投稿を守ったようだね。',
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      } else {
         toast({
-          title: '投稿が削除されました',
-          description: 'あなたは賢明な選択をした',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-        navigate('/posts');
-      } catch (error) {
-        toast({
-          title: 'エラー',
-          description: '運命はあなたの投稿を守ったようだね。',
-          status: 'error',
+          title: '不正解',
+          description: 'なぞなぞに正解できませんでした。投稿は安全です',
+          status: 'warning',
           duration: 3000,
           isClosable: true,
         });
       }
-    } else {
-      toast({
-        title: '不正解',
-        description: 'なぞなぞに正解できませんでした。投稿は安全です',
-        status: 'warning',
-        duration: 3000,
-        isClosable: true,
-      });
-    }
 
-    onClose();
-    setStage(0);
-    setRiddleAnswer('');
+      onClose();
+      setStage(0);
+      setRiddleAnswer('');
+    }
   };
 
   useEffect(() => {
@@ -230,6 +301,18 @@ const PlayfulDelete = ({ isOpen, onClose, postId }: PlayfulDeleteProps) => {
                       value={riddleAnswer}
                       onChange={(e) => setRiddleAnswer(e.target.value)}
                     />
+                    {currentRiddle.hints.map((hint, i) => (
+                      <HStack key={i}>
+                        <Button
+                          variant={openHints[i] ? 'solid' : 'ghost'}
+                          onClick={() => handlehintClick(i)}
+                        >
+                          ヒント {i + 1}
+                        </Button>
+                        {openHints[i] && <Text>{hint}</Text>}
+                      </HStack>
+                    ))}
+                    <Text>削除確率: {deleteChance}%</Text>
                   </>
                 )}
               </VStack>
