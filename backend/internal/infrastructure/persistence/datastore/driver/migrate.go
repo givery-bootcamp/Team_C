@@ -1,3 +1,4 @@
+//go:generate mockgen -source=migrate.go -destination=migrate_mock/migrate_mock.go -package migrate_mock
 package driver
 
 import (
@@ -8,7 +9,11 @@ import (
 )
 
 type MySQLMigrator struct {
-	client *migrate.Migrate
+	client MigrateClient
+}
+
+type MigrateClient interface {
+	Up() error
 }
 
 func MustNewMySQLMigrator(migrateFilePath string) *MySQLMigrator {
@@ -23,10 +28,10 @@ func MustNewMySQLMigrator(migrateFilePath string) *MySQLMigrator {
 
 func (m *MySQLMigrator) Migrate() error {
 	err := m.client.Up()
-	if err == nil {
-		return nil
-	}
-	if err != migrate.ErrNoChange {
+	if err != nil {
+		if err == migrate.ErrNoChange {
+			return nil
+		}
 		return xerrors.Errorf("failed to migrate: %w", err)
 	}
 	return nil
