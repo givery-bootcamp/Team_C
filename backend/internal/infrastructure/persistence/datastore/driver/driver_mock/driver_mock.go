@@ -53,17 +53,3 @@ func (mr *MockDBMockRecorder) GetDB(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDB", reflect.TypeOf((*MockDB)(nil).GetDB), ctx)
 }
-
-// Transaction mocks base method.
-func (m *MockDB) Transaction(ctx context.Context, f func(context.Context) error) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Transaction", ctx, f)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Transaction indicates an expected call of Transaction.
-func (mr *MockDBMockRecorder) Transaction(ctx, f any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transaction", reflect.TypeOf((*MockDB)(nil).Transaction), ctx, f)
-}
