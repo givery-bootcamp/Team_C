@@ -19,7 +19,6 @@ jobs:
           go-version: '1.22'
           cache-dependency-path: backend/go.sum
       - name: Test
-        working-directory:
         run: |
           cp ./backend/.env.test ./backend/.env
           make test-cover-unit
@@ -38,7 +37,7 @@ jobs:
           go-version: '1.22'
           cache-dependency-path: backend/go.sum
       - name: Test
-        working-directory:
+        shell: bash
         run: |
           cp ./backend/.env.test ./backend/.env
           make test-cover-e2e
@@ -57,7 +56,6 @@ jobs:
           go-version: '1.22'
           cache-dependency-path: backend/go.sum
       - name: Test
-        working-directory:
         run: |
           cp ./backend/.env.test ./backend/.env
           make test-cover
