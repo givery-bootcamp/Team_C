@@ -9,6 +9,24 @@ on:
       - main
 
 jobs:
+  unit-test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: backend/go.sum
+      - name: Test
+        run: |
+          cp ./backend/.env.test ./backend/.env
+          make test-cover-unit
+          mv ./backend/cover.out ./coverage.out
+      - name: Exec octocov action
+        uses: yamoyamoto/octocov-action@v0
+        with:
+          config: .octocov.unit.yml
   e2e-test:
     name: E2E Test
     runs-on: ubuntu-latest
@@ -28,8 +46,8 @@ jobs:
         uses: yamoyamoto/octocov-action@v0
         with:
           config: .octocov.e2e.yml
-  unit-test:
-    name: Unit Test Backend
+  unit-and-e2e-test:
+    name: Unit Test & E2E Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,12 +56,12 @@ jobs:
           go-version: '1.22'
           cache-dependency-path: backend/go.sum
       - name: Test
-        working-directory: ./backend
         run: |
-          go test -tags="unit_test" ./... --cover -v -coverprofile=coverage.out.tmp
-          grep  -Ev "myapp/docs/docs.go|myapp/main.go|myapp/internal/interface/api/router" coverage.out.tmp > ../coverage.out
-          rm coverage.out.tmp
-      - name: Exec octocov action
+          cp ./backend/.env.test ./backend/.env
+          make test-cover
+          mv ./backend/coverdir/merged/profile.txt ./coverage.out
+      - name: Exec octocov action Merged
         uses: yamoyamoto/octocov-action@v0
         with:
-          config: .octocov.unit.yml
+          config: .octocov.merged.yml
+
