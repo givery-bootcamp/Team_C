@@ -111,15 +111,13 @@ func TestSetJWTCookie(t *testing.T) {
 }
 
 func TestDeleteCookie(t *testing.T) {
-	t.Run("success/Cookieが存在しない場合何もせずnilを返す", func(t *testing.T) {
+	t.Run("success/Cookieが存在しない場合何もしない", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("GET", "/", nil)
 		c.Request.AddCookie(&http.Cookie{Name: "dummy", Value: "dummy"})
 
-		err := DeleteCookie(c)
-
-		assert.NoError(t, err)
+		DeleteCookie(c)
 	})
 
 	t.Run("success", func(t *testing.T) {
@@ -128,8 +126,7 @@ func TestDeleteCookie(t *testing.T) {
 		c.Request, _ = http.NewRequest("GET", "/", nil)
 		c.Request.AddCookie(&http.Cookie{Name: config.JWTCookieKeyName, Value: "test_token"})
 
-		err := DeleteCookie(c)
-		assert.NoError(t, err)
+		DeleteCookie(c)
 		assert.NotEmpty(t, w.Result().Cookies())
 	})
 }

@@ -48,7 +48,6 @@ func SetJWTCookie(ctx *gin.Context, userID int) error {
 	return nil
 }
 
-func DeleteCookie(ctx *gin.Context) error {
+func DeleteCookie(ctx *gin.Context) {
 	ctx.SetCookie(config.JWTCookieKeyName, "", -1, "/", config.DomainURL, false, true)
-	return nil
 }

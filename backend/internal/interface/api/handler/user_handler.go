@@ -59,12 +59,7 @@ func (h *UserHandler) Signin(ctx *gin.Context) {
 //	@Success		200	{object}	interface{} "OK"
 //	@Router			/api/signout [post]
 func (h *UserHandler) Signout(ctx *gin.Context) {
-	err := middleware.DeleteCookie(ctx)
-	if err != nil {
-		ctx.Error(err)
-		return
-	}
-
+	middleware.DeleteCookie(ctx)
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
