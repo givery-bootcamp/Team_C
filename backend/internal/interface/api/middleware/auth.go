@@ -1,9 +1,6 @@
 package middleware
 
 import (
-	"errors"
-	"net/http"
-
 	"myapp/internal/config"
 	"myapp/internal/exception"
 	"myapp/internal/pkg/jwt"
@@ -57,14 +54,6 @@ func SetJWTCookie(ctx *gin.Context, userID int) error {
 }
 
 func DeleteCookie(ctx *gin.Context) error {
-	c, err := ctx.Cookie(config.JWTCookieKeyName)
-	if err != nil {
-		if errors.Is(err, http.ErrNoCookie) {
-			return nil
-		}
-		return err
-	}
-
-	ctx.SetCookie(config.JWTCookieKeyName, c, -1, "/", config.DomainURL, false, true)
+	ctx.SetCookie(config.JWTCookieKeyName, "", -1, "/", config.DomainURL, false, true)
 	return nil
 }
